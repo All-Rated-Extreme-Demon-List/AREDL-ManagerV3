@@ -1,0 +1,30 @@
+{
+  "name": "aredl-bot",
+  "version": "1.7.0",
+  "description": "Discord bot for managing the All Rated Extreme Demons List",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Minebox260",
+  "license": "ISC",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.44",
+    "@octokit/rest": "^20.0.2",
+    "chartjs-node-canvas": "^4.1.6",
+    "discord.js": "^14.13.0",
+    "exceljs": "^4.4.0",
+    "is-url-http": "^2.3.8",
+    "log-timestamp": "^0.3.0",
+    "log4js": "^6.9.1",
+    "node-cron": "^3.0.3",
+    "sequelize": "^6.35.0",
+    "simple-git": "^3.27.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.1.1",
+    "eslint": "^8.57.0",
+    "globals": "^15.1.0"
+  }
+}
