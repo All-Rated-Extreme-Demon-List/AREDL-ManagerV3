@@ -1,5 +1,6 @@
 const { getLogger } = require('log4js');
 const errorLogger = getLogger('error');
+const { baseURL } = require('./config.json')
 
 class ApiError extends Error {
     constructor(message, status, data) {
@@ -10,8 +11,6 @@ class ApiError extends Error {
 }
 
 const api = {
-    baseUrl: 'https://api.aredl.net/v2/api',
-
     send: async function(path, method, query, body, token) {
         let cleanedQuery;
         if (query) {
@@ -20,7 +19,7 @@ const api = {
                 .map(([k, v]) => [k, String(v)]);
         }
         const url =
-            this.baseUrl +
+            baseURL +
             path +
             (cleanedQuery ? '?' + new URLSearchParams(cleanedQuery) : '');
 

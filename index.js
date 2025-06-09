@@ -4,7 +4,6 @@ const log4js = require('log4js');
 const Sequelize = require('sequelize');
 
 const { Client, GatewayIntentBits } = require('discord.js');
-const { Octokit } = require('@octokit/rest');
 const { createDbSchema, createCacheDbSchema } =  require('./others/dbSchema.js');
 const { clientInit, sequelizeInit, checkGithubPermissions, initAPIWebsocket } = require('./startUtils.js');
 
@@ -33,16 +32,13 @@ const sequelize = new Sequelize({
 	storage: './data/database.sqlite',
 });
 
-// Establish Github connection
-const octokit = new Octokit({ auth: githubToken });
-
 // Git repo setup
 const git = simpleGit();
 
 // Create tables models
 const db = createDbSchema(sequelize);
 
-module.exports = { db, octokit, client, sequelize, git };
+module.exports = { db, client, sequelize, git };
 
 async function start() {
 	logger.info('-'.repeat(40));

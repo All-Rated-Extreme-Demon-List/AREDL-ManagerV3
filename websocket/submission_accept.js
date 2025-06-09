@@ -1,7 +1,7 @@
 
 
 const logger = require('log4js').getLogger();
-const { guildId, staffGuildId, archiveRecordsID, recordsID, enableSeparateStaffServer } = require('../config.json');
+const { guildId, staffGuildId, platArchiveRecordsID, classicArchiveRecordsID, platRecordsID, classicRecordsID, enableSeparateStaffServer } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
 
@@ -87,9 +87,9 @@ module.exports = {
 		const guild = await client.guilds.fetch(guildId);
 		const staffGuild = (enableSeparateStaffServer ? await client.guilds.fetch(staffGuildId) : guild);
 
-		staffGuild.channels.cache.get(archiveRecordsID).send({ embeds: [archiveEmbed] });
-		guild.channels.cache.get(recordsID).send({ content : `<@${submitterResponse.data.discord_id}>`, embeds: [publicEmbed] });
-		guild.channels.cache.get(recordsID).send({ content : `${data.video_url}` });
+		staffGuild.channels.cache.get('completion_time' in data ? platArchiveRecordsID : classicArchiveRecordsID).send({ embeds: [archiveEmbed] });
+		guild.channels.cache.get('completion_time' in data ? platRecordsID : classicRecordsID).send({ content : `<@${submitterResponse.data.discord_id}>`, embeds: [publicEmbed] });
+		guild.channels.cache.get('completion_time' in data ? platRecordsID : classicRecordsID).send({ content : `${data.video_url}` });
 
 	}
 }

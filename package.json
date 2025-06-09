@@ -4,6 +4,8 @@
   "description": "Discord bot for managing the All Rated Extreme Demons List",
   "main": "index.js",
   "scripts": {
+    "deploy": "node ./deploy-commands.js",
+    "start": "node ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Minebox260",
