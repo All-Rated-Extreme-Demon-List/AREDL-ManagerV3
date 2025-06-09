@@ -18,5 +18,8 @@
     "guildMemberAddID" : "",
 
     "completedShiftsID": "",
-    "missedShiftsID": ""
+    "missedShiftsID": "",
+    "enableShiftReminders": true,
+    "sendShiftRemindersSchedule": "0 * * * *",
+    "shiftReminderExpireThreshold": 3
 }
