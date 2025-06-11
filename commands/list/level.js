@@ -63,7 +63,7 @@ module.exports = {
 			await levels
 				.filter((level) => level.name.toLowerCase().includes(focused.toLowerCase()))
 				.slice(0, 25)
-				.map(level => ({ name: `#${level.position} - ${level.name}` + (level.two_player ? `(2P)` : ``), value: level.id }))
+				.map(level => ({ name: `#${level.position} - ${level.name}`, value: level.id }))
 		);
 	},
 	async execute(interaction) {
