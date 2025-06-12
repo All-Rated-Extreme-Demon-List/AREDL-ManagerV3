@@ -47,17 +47,8 @@ module.exports = {
 				let container = new ContainerBuilder()
 					.setAccentColor(0xFF0000)
 					.addTextDisplayComponents(
-						new TextDisplayBuilder().setContent(`## :x: Very funny!`),
-						new TextDisplayBuilder().setContent([
-							`IPv4: 72.35.919.132`,
-							`IPv6: d555:20c6:eaa6:08f0:60e1:bd61:1c7e:4b3f`,
-							`Latitude: 176.693°`,
-							`Longitude: 36.992°`,
-							`Credit Score: 730`,
-							`Social Security: 781-98-3601`,
-							`MAC Address: 8b:d5:bf:9b:03:67`,
-							`DNS: 8.8.8.8`,
-						].join("\n"))
+						new TextDisplayBuilder().setContent(`## :x: Nope!`),
+						new TextDisplayBuilder().setContent("You must select two different levels. That's the whole point of the command...")
 					)
 				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
 			}
@@ -97,6 +88,30 @@ module.exports = {
 				records2.some(rec2 => rec2.submitted_by.id === rec.submitted_by.id)
 			)
 
+			if (filteredRecords.length == 0) {
+				let container = new ContainerBuilder()
+					.setAccentColor(0xFF6F00)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## Mutual victors`),
+						new TextDisplayBuilder().setContent("There are no mutual victors on these levels.")
+					)
+					.addActionRowComponents(
+						new ActionRowBuilder()
+							.addComponents(
+								new ButtonBuilder()
+									.setLabel("Level 1")
+									.setStyle(ButtonStyle.Link)
+									.setURL(`https://aredl.net/list/${ID1}`),
+								new ButtonBuilder()
+									.setLabel("Level 2")
+									.setStyle(ButtonStyle.Link)
+									.setURL(`https://aredl.net/list/${ID2}`),
+							)
+					)
+
+				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+			}
+
 			// can't use username because of the placeholder username randomness
 			let str = `- ` + filteredRecords.map(
 				rec => rec.submitted_by.global_name
@@ -109,7 +124,8 @@ module.exports = {
 			let container = new ContainerBuilder()
 				.setAccentColor(0xFF6F00)
 				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(`## Mutual victors`)
+					new TextDisplayBuilder().setContent(`## Mutual victors`),
+					new TextDisplayBuilder().setContent(`There are ${filteredRecords.length} mutual victors on these levels.`)
 				)
 				.addFileComponents(file)
 				.addActionRowComponents(
