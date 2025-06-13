@@ -1,11 +1,10 @@
-const { token, githubToken, apiToken } = require('./config.json');
+const { token, apiToken } = require('./config.json');
 const simpleGit = require('simple-git');
 const log4js = require('log4js');
 const Sequelize = require('sequelize');
-
 const { Client, GatewayIntentBits } = require('discord.js');
-const { createDbSchema, createCacheDbSchema } =  require('./others/dbSchema.js');
-const { clientInit, sequelizeInit, checkGithubPermissions, initAPIWebsocket } = require('./startUtils.js');
+const { createDbSchema } =  require('./others/dbSchema.js');
+const { clientInit, sequelizeInit, initAPIWebsocket } = require('./startUtils.js');
 
 // Logger
 log4js.configure('./log4js.json');

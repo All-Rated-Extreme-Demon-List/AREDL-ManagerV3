@@ -17,6 +17,7 @@
     "discord.js": "^14.19.0",
     "exceljs": "^4.4.0",
     "is-url-http": "^2.3.8",
+    "iso-3166-1": "^2.1.1",
     "log-timestamp": "^0.3.0",
     "log4js": "^6.9.1",
     "node-cron": "^3.0.3",
