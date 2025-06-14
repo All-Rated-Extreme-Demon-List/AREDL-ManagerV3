@@ -181,7 +181,5 @@ module.exports = {
 			logger.warn(`Websocket closed (${code}): ${reason}. Reconnecting in 5s…`);
 			setTimeout(() => module.exports.initAPIWebsocket(client, apiToken), 5000);
 		});
-
-	} 
-	
+	}
 }
