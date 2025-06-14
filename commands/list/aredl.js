@@ -13,7 +13,6 @@ const {
 const logger = require("log4js").getLogger();
 const { api } = require("../../api.js");
 const iso = require("iso-3166-1");
-const { guildId } = require("../../config.json");
 
 const usersPerPage = 11;
 
@@ -90,11 +89,6 @@ module.exports = {
 							{ name: "Number of extremes", value: "ExtremeCount" }
 						)
 				)
-		)
-		.addSubcommand((subcommand) =>
-			subcommand
-				.setName("profile")
-				.setDescription("View a user's AREDL profile")
 		),
 	async autocomplete(interaction) {
 		const focused = interaction.options.getFocused(true);
