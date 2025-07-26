@@ -76,7 +76,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "docker-compose.yml,config.template.json"
+          source: "docker-stack.yml,config.template.json"
           target: ${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy container
