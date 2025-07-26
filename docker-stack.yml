@@ -7,7 +7,9 @@ services:
       - source: bot_config
         target: /app/config.json
     volumes:
-      - ./data:/app/data
+      - type: bind
+        source: ${DEPLOY_PATH}/data
+        target: /app/data
     environment:
       - NODE_ENV=production
     restart: unless-stopped
