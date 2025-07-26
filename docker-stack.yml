@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  bot:
+    image: ${IMAGE_REPO:-aredl-manager-v3:local}
+    container_name: aredl-manager-v3
+    configs:
+      - source: bot_config
+        target: /app/config.json
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    secrets:
+      - bot_token
+      - api_token
+
+configs:
+  bot_config:
+    file: ./config.template.json
+    template_driver: golang
+
+secrets:
+  bot_token:
+    external: true
+  api_token:
+    external: true

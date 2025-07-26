@@ -11,7 +11,7 @@ module.exports = {
         const { client } = require('../index.js');
         logger.log("Scheduled - Sending shift reminders")
         let shiftsResponse = await api.send(
-            "/aredl/shifts", 
+            "/shifts", 
             "GET", 
             { per_page: 999, status: "Running" },
             undefined,
@@ -22,19 +22,8 @@ module.exports = {
             logger.error(`Scheduled - Error getting shifts: status ${shiftsResponse.status}\n${shiftsResponse.data.message}`)
         }
 
-        let platShiftsResponse = await api.send(
-            "/arepl/shifts", 
-            "GET", 
-            { per_page: 999, status: "Running" },
-            undefined,
-            apiToken
-        )
 
-        if (platShiftsResponse.error) {
-            logger.error(`Scheduled - Error getting platformer shifts: status ${platShiftsResponse.status}\n${platShiftsResponse.data.message}`)
-        }
-
-        const shifts = [...shiftsResponse.data.data, ...platShiftsResponse.data.data];
+        const shifts = shiftsResponse.data;
         let now = new Date()
 
         for (const shift of shifts) {

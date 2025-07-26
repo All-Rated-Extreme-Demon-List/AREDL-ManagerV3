@@ -1,5 +1,4 @@
 const { token, apiToken } = require('./config.json');
-const simpleGit = require('simple-git');
 const log4js = require('log4js');
 const Sequelize = require('sequelize');
 const { Client, GatewayIntentBits } = require('discord.js');
@@ -31,13 +30,10 @@ const sequelize = new Sequelize({
 	storage: './data/database.sqlite',
 });
 
-// Git repo setup
-const git = simpleGit();
-
 // Create tables models
 const db = createDbSchema(sequelize);
 
-module.exports = { db, client, sequelize, git };
+module.exports = { db, client, sequelize };
 
 async function start() {
 	logger.info('-'.repeat(40));

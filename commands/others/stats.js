@@ -30,7 +30,7 @@ module.exports = {
 			const datasJoined = [];
 			const datasLeft = [];
 
-			for (let i = 0; i < 30; i++) {
+			for (let i = 0; i < Math.min(30, statsData.length); i++) {
 				labels.push(statsData[i].date);
 				datasJoined.push(statsData[i].nbMembersJoined);
 				datasLeft.push(-statsData[i].nbMembersLeft);

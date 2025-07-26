@@ -7,42 +7,101 @@ on:
       - "main"
 
 jobs:
-  sync_to_backend:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Remove config.json
-        uses: JesseTG/rm@v1.0.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          path: config.json
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy files
-        uses: burnett01/rsync-deployments@6.0.0
+      - name: Set owner name to lowercase
+        run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
+        env:
+          OWNER: '${{ github.repository_owner }}'
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
         with:
-          switches: -avz
-          path: ./
-          remote_path: ${{ secrets.DEPLOY_PATH }}/${{ github.ref_name }}
-          remote_host: ${{ secrets.DEPLOY_HOST }}
-          remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_KEY }}
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3:latest
+            ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3:${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3:buildcache,mode=max
 
-      - name: Restart service
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Build config template
+        run: |
+          cat > config.template.json <<'EOF'
+          {
+            "token": "{{secret \"bot_token\"}}",
+            "apiToken": "{{secret \"api_token\"}}",
+            "websocketURL": "${{ secrets.WEBSOCKET_URL }}",
+            "baseURL": "${{ secrets.BASE_URL }}",
+            "enableSeparateStaffServer": ${{ secrets.ENABLE_SEPARATE_STAFF_SERVER }},
+            "enableWelcomeMessage": ${{ secrets.ENABLE_WELCOME_MESSAGE }},
+            "clientId": "${{ secrets.CLIENT_ID }}",
+            "guildId": "${{ secrets.GUILD_ID }}",
+            "staffGuildId": "${{ secrets.STAFF_GUILD_ID }}",
+            "classicArchiveRecordsID": "${{ secrets.CLASSIC_ARCHIVE_RECORDS_ID }}",
+            "platArchiveRecordsID": "${{ secrets.PLAT_ARCHIVE_RECORDS_ID }}",
+            "classicRecordsID": "${{ secrets.CLASSIC_RECORDS_ID }}",
+            "platRecordsID": "${{ secrets.PLAT_RECORDS_ID }}",
+            "guildMemberAddID": "${{ secrets.GUILD_MEMBER_ADD_ID }}",
+            "completedShiftsID": "${{ secrets.COMPLETED_SHIFTS_ID }}",
+            "missedShiftsID": "${{ secrets.MISSED_SHIFTS_ID }}",
+            "enableShiftReminders": ${{ secrets.ENABLE_SHIFT_REMINDERS }},
+            "sendShiftRemindersSchedule": "${{ secrets.SEND_SHIFT_REMINDERS_SCHEDULE }}",
+            "shiftReminderExpireThreshold": ${{ secrets.SHIFT_REMINDER_EXPIRE_THRESHOLD }}
+          }
+          EOF
+
+      - name: Copy compose file
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: sudo systemctl restart aredl-manager-main
+          source: "docker-compose.yml,config.template.json"
+          target: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Deploy commands
+      - name: Deploy container
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          IMAGE_REPO: ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          envs: GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,IMAGE_REPO,BOT_TOKEN,API_TOKEN
           script: |
-            cd bot/${{ github.ref_name }}
-            node ./deploy-commands.js
+            cd $DEPLOY_PATH
+            docker stack rm aredl_manager_v3_stack 2>/dev/null || true
+            while docker stack ls --format '{{.Name}}' | grep -q aredl_manager_v3_stack; do
+              echo "Waiting for aredl_manager_v3_stack to stop…"
+              sleep 2
+            done
+            docker secret rm bot_token api_token 2>/dev/null || true
+            echo -n "$BOT_TOKEN" | docker secret create bot_token -
+            echo -n "$API_TOKEN" | docker secret create api_token -
+            docker config rm aredl_manager_v3_config 2>/dev/null || true
+            docker config create --template-driver golang aredl_manager_v3_config config.template.json
+            docker login ghcr.io -u $GHCR_USERNAME -p $GHCR_TOKEN
+            IMAGE_REPO=$IMAGE_REPO docker stack deploy --with-registry-auth -c docker-stack.yml aredl_manager_v3_stack
+            docker image prune -f

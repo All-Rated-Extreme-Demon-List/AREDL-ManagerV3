@@ -1,7 +1,7 @@
 {
     "token": "",
     "apiToken": "",
-    "websocketURL": "ws://127.0.0.1:5000/api/notifications/websocket",
+    "websocketURL": "wss://127.0.0.1:5000/api/notifications/websocket",
     "baseURL": "http://127.0.0.1:5000/api/",
 
     "enableSeparateStaffServer": false,
@@ -9,6 +9,7 @@
 
     "clientId": "",
     "guildId": "",
+    "staffGuildId": "",
 
     "classicArchiveRecordsID" : "",
     "platArchiveRecordsID" : "",

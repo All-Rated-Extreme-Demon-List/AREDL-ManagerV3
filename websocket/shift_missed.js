@@ -46,35 +46,6 @@ module.exports = {
 			embeds.push(shiftEmbed);
 			
 		}
-		// AREPL;
-		for (const shift of data.arepl) {
-			let reviewer = foundReviewers.find((rev) => rev.id == shift.user_id);
-			if (!reviewer) {
-				const reviewerResponse = await api.send(`/users/${shift.user_id}`, 'GET')
-				if (reviewerResponse.error) {
-					logger.error(`Error fetching reviewer data: ${reviewerResponse.data.message}`);
-					return;
-				}
-				reviewer = reviewerResponse.data;
-				foundReviewers.push(reviewer);
-			}
-			// unix epochs
-			let startDate = Math.floor(new Date(shift.start_at) / 1000);
-			const shiftEmbed = new EmbedBuilder()
-				.setColor(0xcc0000)
-				.setTitle(`:x: (AREPL) Shift missed...`)
-				.setDescription(`${reviewer.discord_id ? `<@${reviewer.discord_id}>` : reviewer.global_name}`)
-				.addFields(
-					[
-						{ name: 'Count', value: `${shift.completed_count}/${shift.target_count}`, inline: true },
-						{ name: 'Start', value: `<t:${startDate}>`, inline: true, },
-					]
-				)
-				.setTimestamp();
-
-			embeds.push(shiftEmbed);
-			
-		}
 		
 		if (embeds.length > 0) {
             for (let i = 0; i < embeds.length; i += 10) {

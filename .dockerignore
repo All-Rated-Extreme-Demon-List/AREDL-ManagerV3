@@ -1,0 +1,7 @@
+node_modules
+logs
+data
+config.json
+.git
+.gitignore
+.github

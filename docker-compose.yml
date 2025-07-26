@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  bot:
+    build: .
+    container_name: aredl-manager-v3
+    volumes:
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
