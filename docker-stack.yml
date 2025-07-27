@@ -2,7 +2,8 @@ version: '3.8'
 services:
   bot:
     image: ${IMAGE_REPO:-aredl-manager-v3:local}
-    container_name: aredl-manager-v3
+    entrypoint: ["/app/entrypoint.sh"]
+    command:    ["node","index.js"]
     configs:
       - source: bot_config
         target: /app/config.json
@@ -12,7 +13,6 @@ services:
         target: /app/data
     environment:
       - NODE_ENV=production
-    restart: unless-stopped
     secrets:
       - bot_token
       - api_token
