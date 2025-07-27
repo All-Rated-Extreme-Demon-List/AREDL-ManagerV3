@@ -96,9 +96,9 @@ jobs:
           script: |
             cd $DEPLOY_PATH
             docker stack rm aredl_manager_v3_stack 2>/dev/null || true
-            while docker stack ls --format '{{.Name}}' | grep -q aredl_manager_v3_stack; do
-              echo "Waiting for aredl_manager_v3_stack to stop…"
-              sleep 2
+            echo "Waiting for bot service to stop…"
+            until ! docker service inspect aredl_manager_v3_stack_bot >/dev/null 2>&1; do
+              sleep 1
             done
             docker secret rm aredl_manager_v3_bot_token aredl_manager_v3_api_token 2>/dev/null || true
             echo -n "$BOT_TOKEN" | docker secret create aredl_manager_v3_bot_token -
