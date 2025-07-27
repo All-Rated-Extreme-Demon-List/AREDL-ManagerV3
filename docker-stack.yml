@@ -2,8 +2,6 @@ version: '3.8'
 services:
   bot:
     image: ${IMAGE_REPO:-aredl-manager-v3:local}
-    entrypoint: ["/app/entrypoint.sh"]
-    command:    ["node","index.js"]
     configs:
       - source: bot_config
         target: /app/config.json
@@ -16,9 +14,6 @@ services:
     secrets:
       - aredl_manager_v3_bot_token
       - aredl_manager_v3_api_token
-    networks:
-      - aredl_manager_v3_net
-
 configs:
   bot_config:
     file: ./config.template.json
@@ -29,7 +24,3 @@ secrets:
     external: true
   aredl_manager_v3_api_token:
     external: true
-
-networks:
-  aredl_manager_v3_net:
-    driver: overlay
