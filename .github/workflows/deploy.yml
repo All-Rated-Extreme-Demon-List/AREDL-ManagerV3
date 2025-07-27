@@ -100,9 +100,9 @@ jobs:
               echo "Waiting for aredl_manager_v3_stack to stop…"
               sleep 2
             done
-            docker secret rm bot_token api_token 2>/dev/null || true
-            echo -n "$BOT_TOKEN" | docker secret create bot_token -
-            echo -n "$API_TOKEN" | docker secret create api_token -
+            docker secret rm aredl_manager_v3_bot_token aredl_manager_v3_api_token 2>/dev/null || true
+            echo -n "$BOT_TOKEN" | docker secret create aredl_manager_v3_bot_token -
+            echo -n "$API_TOKEN" | docker secret create aredl_manager_v3_api_token -
             docker config rm aredl_manager_v3_config 2>/dev/null || true
             docker config create --template-driver golang aredl_manager_v3_config config.template.json
             docker login ghcr.io -u $GHCR_USERNAME -p $GHCR_TOKEN

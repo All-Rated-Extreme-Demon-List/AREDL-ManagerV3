@@ -14,8 +14,10 @@ services:
     environment:
       - NODE_ENV=production
     secrets:
-      - bot_token
-      - api_token
+      - aredl_manager_v3_bot_token
+      - aredl_manager_v3_api_token
+    networks:
+      - aredl_manager_v3_net
 
 configs:
   bot_config:
@@ -23,7 +25,11 @@ configs:
     template_driver: golang
 
 secrets:
-  bot_token:
+  aredl_manager_v3_bot_token:
     external: true
-  api_token:
+  aredl_manager_v3_api_token:
     external: true
+
+networks:
+  aredl_manager_v3_net:
+    driver: overlay
