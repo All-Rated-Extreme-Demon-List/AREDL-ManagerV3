@@ -48,8 +48,8 @@ jobs:
         run: |
           cat > config.template.json <<'EOF'
           {
-            "token": "{{ secret `bot_token` }}",
-            "apiToken": "{{ secret `api_token` }}",
+            "token": "{{ secret `aredl_manager_v3_bot_token` }}",
+            "apiToken": "{{ secret `aredl_manager_v3_api_token` }}",
             "websocketURL": "${{ secrets.WEBSOCKET_URL }}",
             "baseURL": "${{ secrets.BASE_URL }}",
             "enableSeparateStaffServer": ${{ secrets.ENABLE_SEPARATE_STAFF_SERVER }},
