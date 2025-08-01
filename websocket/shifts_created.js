@@ -1,6 +1,3 @@
-
-
-
 const logger = require('log4js').getLogger();
 const { guildId, staffGuildId, shiftsStartedID, enableSeparateStaffServer } = require('../config.json');
 const { api } = require('../api');
