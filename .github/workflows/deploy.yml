@@ -63,6 +63,7 @@ jobs:
             "platRecordsID": "${{ secrets.PLAT_RECORDS_ID }}",
             "guildMemberAddID": "${{ secrets.GUILD_MEMBER_ADD_ID }}",
             "completedShiftsID": "${{ secrets.COMPLETED_SHIFTS_ID }}",
+            "shiftsStartedID": "${{ secrets.SHIFTS_STARTED_ID }}",
             "missedShiftsID": "${{ secrets.MISSED_SHIFTS_ID }}",
             "enableShiftReminders": ${{ secrets.ENABLE_SHIFT_REMINDERS }},
             "sendShiftRemindersSchedule": "${{ secrets.SEND_SHIFT_REMINDERS_SCHEDULE }}",
