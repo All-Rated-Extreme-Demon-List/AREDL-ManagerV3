@@ -46,7 +46,7 @@ module.exports = {
 						inline: true 
 					},
 					...(data.completion_time
-						? [{ name: 'Completion time', value: data.completion_time }]
+						? [{ name: 'Completion time', value: String(data.completion_time) }]
 						: []),
 					{ name: 'Completion link', value: data.video_url },
 					{ name: 'Raw link',        value: data.raw_url || "None" },
@@ -76,7 +76,7 @@ module.exports = {
 				{ name: 'Record holder', value: `${submitterResponse.data.global_name}`, inline: true },
 				{ name: 'Device', value: `${data.mobile ? "Mobile" : "PC"}`, inline: true },
 				...(data?.completion_time
-						? [{ name: 'Completion time', value: data.completion_time }]
+						? [{ name: 'Completion time', value: String(data.completion_time) }]
 						: []),
 				...(data?.reviewer_notes && data.reviewer_notes !== ''
 						? [{ name: 'Notes', value: data.reviewer_notes }]
