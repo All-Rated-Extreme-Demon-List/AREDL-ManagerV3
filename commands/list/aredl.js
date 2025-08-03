@@ -173,7 +173,7 @@ module.exports = {
 			);
 
 			const text2 = new TextDisplayBuilder().setContent(
-				`-# ${level.description}`
+				level.description !== "" ? `${`-# ${level.description}`}` : "_No description._"
 			);
 
 			let section = new SectionBuilder().addTextDisplayComponents(text2);
@@ -232,7 +232,7 @@ module.exports = {
 				[
 					`### **ID:** [${level.level_id}](https://gdbrowser.com/${level.level_id})`,
 					`**Points:** ${level.points / 10}`,
-					`**EDEL Enjoyment:** ${level.edel_enjoyment.toFixed(2)}${level.is_edel_pending ? ` :warning:` : ``
+					`**EDEL Enjoyment:** ${level.edel_enjoyment ? level.edel_enjoyment.toFixed(2) : "None"}${level.is_edel_pending ? ` :warning:` : ``
 					}`,
 					`**NLW Tier:** ${level.nlw_tier ?? "None"}`,
 					`**GDDL Tier:** ${level.gddl_tier ?? "None"}`,
@@ -259,7 +259,7 @@ module.exports = {
 				container.addSeparatorComponents((separator) =>
 					separator.setSpacing(SeparatorSpacingSize.Small)
 				);
-				let tags = new TextDisplayBuilder().setContent(
+				let tags = new TextDisplayBuilder().setContent("Tags: " + 
 					level.tags
 						.map(
 							(tag) =>
@@ -350,12 +350,11 @@ module.exports = {
 					.setLabel("Go")
 					.setURL(`https://aredl.net/profiles/${entry.user.id}`);
 				
-				container
-					.addSectionComponents(
-						section
-							.addTextDisplayComponents(text)
-							.setButtonAccessory(btn)
-					)
+				container.addSectionComponents(
+					section
+						.addTextDisplayComponents(text)
+						.setButtonAccessory(btn)
+				)
 			}
 
 			container
