@@ -228,16 +228,24 @@ module.exports = {
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
 
-			let info = new TextDisplayBuilder().setContent(
-				[
-					`### **ID:** [${level.level_id}](https://gdbrowser.com/${level.level_id})`,
-					`**Points:** ${level.points / 10}`,
-					`**EDEL Enjoyment:** ${level.edel_enjoyment ? level.edel_enjoyment.toFixed(2) : "None"}${level.is_edel_pending ? ` :warning:` : ``
-					}`,
-					`**NLW Tier:** ${level.nlw_tier ?? "None"}`,
-					`**GDDL Tier:** ${level.gddl_tier ?? "None"}`,
-				].join("\n### ")
-			);
+			let infoLines = [];
+			
+			infoLines.push(`### **ID:** [${level.level_id}](https://gdbrowser.com/${level.level_id})`);
+			infoLines.push(`**Points:** ${level.points / 10}`);
+			
+			if (level.edel_enjoyment) {
+				infoLines.push(`**EDEL Enjoyment:** ${level.edel_enjoyment.toFixed(2)}${level.is_edel_pending ? ` :warning:` : ''}`);
+			}
+			
+			if (level.nlw_tier) {
+				infoLines.push(`**NLW Tier:** ${level.nlw_tier}`);
+			}
+			
+			if (level.gddl_tier) {
+				infoLines.push(`**GDDL Tier:** ${level.gddl_tier}`);
+			}
+
+			let info = new TextDisplayBuilder().setContent(infoLines.join("\n### "));
 
 			let button = new ButtonBuilder()
 				.setLabel("Open song")
