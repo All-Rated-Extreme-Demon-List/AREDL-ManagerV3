@@ -246,22 +246,7 @@ module.exports = {
 			}
 
 			let info = new TextDisplayBuilder().setContent(infoLines.join("\n### "));
-
-			let button = new ButtonBuilder()
-				.setLabel("Open song")
-				.setStyle(ButtonStyle.Link)
-				.setURL(
-					level.song
-						? `https://newgrounds.com/audio/listen/${level.song}`
-						: `https://songfilehub.com/home?name=${encodeURIComponent(
-							level.name
-						)}`
-				);
-			let infoSection = new SectionBuilder()
-				.addTextDisplayComponents(info)
-				.setButtonAccessory(button);
-
-			container.addSectionComponents(infoSection);
+			container.addTextDisplayComponents(info);
 
 			if (level.tags.length > 0) {
 				container.addSeparatorComponents((separator) =>
