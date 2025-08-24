@@ -4,6 +4,7 @@ const logger = require('log4js').getLogger();
 const { guildId, staffGuildId, platArchiveRecordsID, platRecordsID, classicArchiveRecordsID, classicRecordsID,  enableSeparateStaffServer } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
+const { getCompletionTime } = require('../others/completionTime');
 
 module.exports = {
 	notification_type: "SUBMISSION_DENIED",
@@ -43,7 +44,7 @@ module.exports = {
 						inline: true 
 					},
 					...(isPlat
-						? [{ name: 'Completion time', value: String(data.completion_time) }]
+						? [{ name: 'Completion time', value: getCompletionTime(data.completion_time) }]
 						: []),
 					{ name: 'Completion link', value: data.video_url },
 					{ name: 'Raw link',        value: data.raw_url || "None" },
@@ -77,7 +78,7 @@ module.exports = {
 				{ name: 'Record holder', value: `${submitterResponse.data.global_name}`, inline: true },
 				{ name: 'Device', value: `${data.mobile ? "Mobile" : "PC"}`, inline: true },
 				...(isPlat 
-						? [{ name: 'Completion time', value: String(data.completion_time) }]
+						? [{ name: 'Completion time', value: getCompletionTime(data.completion_time) }]
 						: []),
 				...(data?.reviewer_notes && data.reviewer_notes !== ''
 						? [{ name: 'Notes', value: data.reviewer_notes }]
