@@ -29,6 +29,11 @@ module.exports = {
 			content: Sequelize.STRING,
 			sent: Sequelize.BOOLEAN,
 		});
+		
+		db.settings = sequelize.define("settings", {
+			user: Sequelize.STRING,
+			shiftPings: { type: Sequelize.BOOLEAN, defaultValue: true },
+		})
 
 		return db;
 	},

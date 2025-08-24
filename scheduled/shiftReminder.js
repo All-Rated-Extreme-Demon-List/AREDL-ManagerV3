@@ -1,7 +1,7 @@
 const { enableShiftReminders, shiftReminderExpireThreshold, sendShiftRemindersSchedule, apiToken } = require('../config.json');
 const logger = require('log4js').getLogger();
 const { api } = require("../api.js");
-const { EmbedBuilder, Embed } = require('discord.js'); 
+const { EmbedBuilder } = require('discord.js'); 
 
 module.exports = {
 	name: 'sendShiftReminders',
@@ -35,6 +35,14 @@ module.exports = {
                 if (userResponse.error) {
                     logger.error(`Error fetching user data: ${userResponse.data.message}`);
                     return;
+                }
+                const settings = await db.settings.findOne({
+                    where: {
+                        user: userResponse.data.discord_id
+                    }
+                })
+                if (settings && settings.shiftPings === false) {
+                    continue
                 }
                 // unix epochs
 			    let endSeconds = Math.floor(endDate / 1000)
