@@ -27,10 +27,7 @@ module.exports = {
 					}
 				});
 				if (!settings || settings.shiftPings === true) {
-					pingStr = [
-						`<@${reviewerResponse.data.discord_id}>`,
-						"-# You can disable being pinged for these reminders with \`/settings\`"
-					].join("\n").trim();
+					pingStr = `<@${reviewerResponse.data.discord_id}>`;
 				};
 			}
 			// Get unix timestamps for the Discord embed
