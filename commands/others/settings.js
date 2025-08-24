@@ -5,7 +5,7 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('settings')
 		.setDefaultMemberPermissions(0)
-		.setDescription('Bot ping measurements')
+		.setDescription('Command to configure some settings')
         .addStringOption(option => 
             option
                 .setName('shift-pings')
