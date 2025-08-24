@@ -60,6 +60,10 @@ module.exports = {
 						? data.reviewer_notes 
 						: "None" 
 					},
+					{
+						name: "Link",
+						value: `[Open in Staff Portal](https://staff.aredl.net/dashboard/submissions/${data.id}?list=${isPlat ? "platformer" : "classic"})`
+					}
 				]
 			)
 			.setTimestamp();
