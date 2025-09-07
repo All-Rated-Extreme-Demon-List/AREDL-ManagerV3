@@ -33,6 +33,12 @@ module.exports = {
 		db.settings = sequelize.define("settings", {
 			user: Sequelize.STRING,
 			shiftPings: { type: Sequelize.BOOLEAN, defaultValue: true },
+		}),
+		db.sentUcReminders = sequelize.define("sentUcReminders", {
+			id: {
+				type: Sequelize.STRING,
+				primaryKey: true,
+			},
 		})
 
 		return db;

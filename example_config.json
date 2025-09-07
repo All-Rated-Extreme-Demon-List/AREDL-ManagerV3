@@ -23,5 +23,10 @@
     "shiftsStartedID": "",
     "enableShiftReminders": true,
     "sendShiftRemindersSchedule": "0 * * * *",
-    "shiftReminderExpireThreshold": 3
+    "shiftReminderExpireThreshold": 3,
+
+    "ucReminderSchedule": "0 */6 * * *",
+    "ucReminderChannel": "",
+    "ucReminderThreshold": 3,
+    "ucRemindersEnabled": false
 }
