@@ -242,7 +242,7 @@ module.exports = {
 			}
 			
 			if (level.gddl_tier) {
-				infoLines.push(`**GDDL Tier:** ${level.gddl_tier}`);
+				infoLines.push(`**GDDL Tier:** ${level.gddl_tier.toFixed(2)}`);
 			}
 
 			let info = new TextDisplayBuilder().setContent(infoLines.join("\n### "));
