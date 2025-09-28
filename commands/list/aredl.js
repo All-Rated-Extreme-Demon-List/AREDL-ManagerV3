@@ -173,7 +173,7 @@ module.exports = {
 			);
 
 			const text2 = new TextDisplayBuilder().setContent(
-				level.description !== "" ? `${`-# ${level.description}`}` : "_No description._"
+				level.description && level.description !== "" ? `${`-# ${level.description}`}` : "_No description._"
 			);
 
 			let section = new SectionBuilder().addTextDisplayComponents(text2);
