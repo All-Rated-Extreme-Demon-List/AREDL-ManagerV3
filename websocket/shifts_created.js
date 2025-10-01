@@ -1,7 +1,6 @@
 const logger = require('log4js').getLogger();
 const { guildId, staffGuildId, shiftsStartedID, enableSeparateStaffServer } = require('../config.json');
-const { api } = require('../api');
-const { EmbedBuilder } = require('discord.js');
+const { sendShiftNotif } = require("../others/shiftNotifs.js")
 
 module.exports = {
 	notification_type: "SHIFTS_CREATED",
@@ -14,40 +13,22 @@ module.exports = {
 		const channel = staffGuild.channels.cache.get(shiftsStartedID);
 
 		for (const shift of data) {
-			const reviewerResponse = await api.send(`/users/${shift.user_id}`, 'GET')
-			if (reviewerResponse.error) {
-				logger.error(`Error fetching reviewer data: ${reviewerResponse.data.message}`);
-				continue;
+			const dbShift = await db.shiftNotifs.create({
+				user_id: shift.user_id,
+				start_at: shift.start_at,
+				end_at: shift.end_at,
+				target_count: shift.target_count
+			})
+			const currentTime = new Date().getTime();
+			const startAt = new Date(shift.start_at);
+			
+			if (startAt.getTime() <= currentTime) {
+				sendShiftNotif(channel, shift, db, dbShift.id);
+			} else {
+				setTimeout(() => {
+					sendShiftNotif(channel, shift, db, dbShift.id);
+				}, startAt.getTime() - currentTime);
 			}
-			let pingStr = undefined;
-			if (reviewerResponse.data.discord_id) {
-				const settings = await db.settings.findOne({
-					where: {
-						user: reviewerResponse.data.discord_id
-					}
-				});
-				if (!settings || settings.shiftPings === true) {
-					pingStr = `<@${reviewerResponse.data.discord_id}>`;
-				};
-			}
-			// Get unix timestamps for the Discord embed
-			const startDate = Math.floor(new Date(shift.start_at).getTime() / 1000);
-			const endDate = Math.floor(new Date(shift.end_at).getTime() / 1000);
-
-			const archiveEmbed = new EmbedBuilder()
-				.setColor(0x8fce00)
-				.setTitle(`:white_check_mark: Shift started!`)
-				.setDescription(`${reviewerResponse.data.discord_id ? `<@${reviewerResponse.data.discord_id}>` : reviewerResponse.data.global_name}`)
-				.addFields(
-					[
-						{ name: 'Count', value: `${shift.target_count} records` },
-						{ name: 'Starts at', value: `<t:${startDate}>` },
-						{ name: "Ends at", value: `<t:${endDate}>, <t:${endDate}:R>`}
-					]
-				)
-				.setTimestamp();
-
-			channel.send({ content: pingStr, embeds: [archiveEmbed] });
 		}
 	}
 }

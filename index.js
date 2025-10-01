@@ -3,7 +3,7 @@ const log4js = require('log4js');
 const Sequelize = require('sequelize');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { createDbSchema } =  require('./others/dbSchema.js');
-const { clientInit, sequelizeInit, initAPIWebsocket } = require('./startUtils.js');
+const { clientInit, sequelizeInit, initAPIWebsocket, resumeShiftTimers } = require('./startUtils.js');
 
 // Logger
 log4js.configure('./log4js.json');
@@ -64,6 +64,15 @@ async function start() {
 	} catch (error) {
 		logger.error('Unable to login client: \n', error);
 		process.exit(1);
+	}
+
+	try {
+		logger.info("Resuming pending shift notifications...")
+		const count = await resumeShiftTimers(client, db);
+		if (count > 0) logger.info(`Resumed ${count} pending shift notifications.`);
+		else logger.info('No pending shift notifications to resume.');
+	} catch (error) {
+		logger.error('Unable to resume pending shift notifications: \n', error);
 	}
 }
 

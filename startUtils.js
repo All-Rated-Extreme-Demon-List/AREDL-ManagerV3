@@ -2,10 +2,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Collection } = require('discord.js');
 const cron = require('node-cron');
-const { githubOwner, githubRepo, websocketURL } = require('./config.json');
+const { websocketURL, shiftsStartedID, guildId, enableSeparateStaffServer, staffGuildId } = require('./config.json');
 const logger = require('log4js').getLogger();
 const errorLogger = require('log4js').getLogger('error');
 const WebSocket = require('ws');
+const { sendShiftNotif } = require("./others/shiftNotifs")
 
 module.exports = {
 	async clientInit(client) {
@@ -181,5 +182,30 @@ module.exports = {
 			logger.warn(`Websocket closed (${code}): ${reason}. Reconnecting in 5s…`);
 			setTimeout(() => module.exports.initAPIWebsocket(client, apiToken), 5000);
 		});
+	},
+	async resumeShiftTimers(client, db) {
+		const guild = await client.guilds.fetch(guildId);
+		const staffGuild = (enableSeparateStaffServer ? await client.guilds.fetch(staffGuildId) : guild);
+		const channel = await staffGuild.channels.fetch(shiftsStartedID);
+		const shifts = await db.shiftNotifs.findAll();
+		const now = new Date().getTime() / 1000;
+		for (const dbShift of shifts) {
+			const startTime = new Date(dbShift.start_at).getTime() / 1000;
+			const shift = {
+				user_id: dbShift.user_id,
+				start_at: dbShift.start_at,
+				end_at: dbShift.end_at,
+				target_count: dbShift.target_count
+			}
+			if (startTime < now) {
+				await sendShiftNotif(channel, shift, db, dbShift.id);
+			} else {
+				const waitTime = startTime - now;
+				setTimeout(async () => {
+					await sendShiftNotif(channel, shift, db, dbShift.id);
+				}, waitTime * 1000);
+			}
+		}
+		return shifts.length;
 	}
 }
