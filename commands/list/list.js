@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, AttachmentBuilder, FileBuilder, VoiceChannelEffectSendAnimationType } = require('discord.js');
-const logger = require('log4js').getLogger();
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, SeparatorSpacingSize, AttachmentBuilder, FileBuilder } = require('discord.js');
 const { api } = require("../../api.js");
 
 module.exports = {
@@ -53,9 +52,9 @@ module.exports = {
 				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
 			}
 
-			let [lvl1res, lvl2res] = await Promise.all([
-				await api.send(`/aredl/levels/${ID1}/records`),
-				await api.send(`/aredl/levels/${ID2}/records`)
+			const [lvl1res, lvl2res] = await Promise.all([
+				api.send(`/aredl/levels/${ID1}`),
+				api.send(`/aredl/levels/${ID2}`),
 			])
 
 			if (lvl1res.error || lvl2res.error) {
@@ -80,20 +79,20 @@ module.exports = {
 					)
 				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
 			}
+			
+			const [level1, level2] = [lvl1res.data, lvl2res.data];
 
-			let records1 = lvl1res.data;
-			let records2 = lvl2res.data;
+			const [lvl1RecordsRes, lvl2RecordsRes] = await Promise.all([
+				await api.send(`/aredl/levels/${ID1}/records`),
+				await api.send(`/aredl/levels/${ID2}/records`)
+			])
 
-			let filteredRecords = records1.filter(rec => 
-				records2.some(rec2 => rec2.submitted_by.id === rec.submitted_by.id)
-			)
-
-			if (filteredRecords.length == 0) {
+			if (lvl1RecordsRes.error || lvl2RecordsRes.error) {
 				let container = new ContainerBuilder()
-					.setAccentColor(0xFF6F00)
+					.setAccentColor(0xFF0000)
 					.addTextDisplayComponents(
-						new TextDisplayBuilder().setContent(`## Mutual victors`),
-						new TextDisplayBuilder().setContent("There are no mutual victors on these levels.")
+						new TextDisplayBuilder().setContent(`## :x: Error!`),
+						new TextDisplayBuilder().setContent(`Error fetching records for ${lvl1RecordsRes.error && lvl2RecordsRes.error ? "both levels" : lvl1RecordsRes.error ? "level 1" : lvl2RecordsRes.error ? "level 2" : "one of the levels"}!`)
 					)
 					.addActionRowComponents(
 						new ActionRowBuilder()
@@ -108,7 +107,36 @@ module.exports = {
 									.setURL(`https://aredl.net/list/${ID2}`),
 							)
 					)
+				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+			}
 
+			let records1 = lvl1RecordsRes.data;
+			let records2 = lvl2RecordsRes.data;
+
+			let filteredRecords = records1.filter(rec => 
+				records2.some(rec2 => rec2.submitted_by.id === rec.submitted_by.id)
+			)
+
+			if (filteredRecords.length == 0) {
+				let container = new ContainerBuilder()
+					.setAccentColor(0xFF6F00)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## Mutual victors`),
+						new TextDisplayBuilder().setContent("*There are no mutual victors on these levels.*")
+					)
+					.addActionRowComponents(
+						new ActionRowBuilder()
+							.addComponents(
+								new ButtonBuilder()
+									.setLabel("Level 1")
+									.setStyle(ButtonStyle.Link)
+									.setURL(`https://aredl.net/list/${ID1}`),
+								new ButtonBuilder()
+									.setLabel("Level 2")
+									.setStyle(ButtonStyle.Link)
+									.setURL(`https://aredl.net/list/${ID2}`),
+							)
+					)
 				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
 			}
 
@@ -116,18 +144,34 @@ module.exports = {
 			let str = `- ` + filteredRecords.map(
 				rec => rec.submitted_by.global_name
 			).join("\n- ");
-			
-			let name = `mutual_victors_${ID1}_${ID2}.txt`;
-			const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
-			const file = new FileBuilder().setURL(`attachment://${name}`)
+
+			const shouldSendFile = str.length > 3800;
+
+			const files = [];
 			
 			let container = new ContainerBuilder()
 				.setAccentColor(0xFF6F00)
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(`## Mutual victors`),
-					new TextDisplayBuilder().setContent(`There are ${filteredRecords.length} mutual victors on these levels.`)
+					new TextDisplayBuilder().setContent(`**${level1.name}** vs **${level2.name}**`),
+					new TextDisplayBuilder().setContent(`*There are ${filteredRecords.length} mutual victors on these levels.*`)
 				)
-				.addFileComponents(file)
+				.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Small))
+
+			if (shouldSendFile) {
+				const name = `mutual_victors_${level1.name.toLowerCase().replace(" ", "_")}_${level2.name.toLowerCase().replace(" ", "_")}.txt`;
+				const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
+				const file = new FileBuilder().setURL(`attachment://${name}`)
+				files.push(attachment)
+				container.addFileComponents(file)
+			} else {
+				container.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(str)
+				);
+			}
+
+			container
+				.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Small))
 				.addActionRowComponents(
 					new ActionRowBuilder()
 						.addComponents(
@@ -142,7 +186,7 @@ module.exports = {
 						)
 				)
 
-			return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container], files: [attachment] })
+			return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container], files: files })
 		}
 	}
 };

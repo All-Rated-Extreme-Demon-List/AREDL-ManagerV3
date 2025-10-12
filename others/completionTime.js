@@ -1,4 +1,4 @@
-export const completionTimeSplit = (time) => {
+const completionTimeSplit = (time) => {
     const hours = Math.floor(time / 3600000);
     const minutes = Math.floor((time - hours * 3600000) / 60000);
     const seconds = Math.floor(
@@ -14,7 +14,7 @@ export const completionTimeSplit = (time) => {
     };
 };
 
-export const completionTimeToMs = (time) => {
+const completionTimeToMs = (time) => {
     return (
         time.hours * 3600000 +
         time.minutes * 60000 +
@@ -22,7 +22,7 @@ export const completionTimeToMs = (time) => {
         time.milliseconds
     );
 };
-export const getCompletionTime = (time) => {
+const getCompletionTime = (time) => {
     const {
         hours,
         minutes: minutes_raw,
@@ -33,3 +33,10 @@ export const getCompletionTime = (time) => {
     const seconds = String(seconds_raw).padStart(2, '0');
     return `${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
+
+
+module.exports = {
+    completionTimeSplit,
+    completionTimeToMs,
+    getCompletionTime,
+}
