@@ -20,7 +20,13 @@ module.exports = {
 					option.setName('level2')
 						.setDescription('The name of the second level')
 						.setAutocomplete(true)
-						.setRequired(true))),
+						.setRequired(true))
+				.addIntegerOption(option => 
+					option.setName("showinchannel")
+						.setDescription("Whether to send the message in this channel instead of only showing it to you")
+						.addChoices(
+							{ name: "Yes", value: 1 },)
+				)),
 	async autocomplete(interaction) {
 		const focused = interaction.options.getFocused();
 		let res = await api.send("/aredl/levels", "GET", {name_contains: focused.toLowerCase()});
@@ -36,11 +42,12 @@ module.exports = {
 		);
 	},
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
 
 		if (interaction.options.getSubcommand() === 'mutualvictors') {
 			let ID1 = interaction.options.getString("level1");
 			let ID2 = interaction.options.getString("level2");
+			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
+
 
 			if (ID1 === ID2) {
 				let container = new ContainerBuilder()
@@ -49,7 +56,7 @@ module.exports = {
 						new TextDisplayBuilder().setContent(`## :x: Nope!`),
 						new TextDisplayBuilder().setContent("You must select two different levels. That's the whole point of the command...")
 					)
-				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+				return await interaction.reply({ flags: MessageFlags.IsComponentsV2, components: [container] })
 			}
 
 			const [lvl1res, lvl2res] = await Promise.all([
@@ -77,7 +84,7 @@ module.exports = {
 									.setURL(`https://aredl.net/list/${ID2}`),
 							)
 					)
-				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+				return await interaction.reply({ flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral], components: [container] })
 			}
 			
 			const [level1, level2] = [lvl1res.data, lvl2res.data];
@@ -107,7 +114,7 @@ module.exports = {
 									.setURL(`https://aredl.net/list/${ID2}`),
 							)
 					)
-				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+				return await interaction.reply({ flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral], components: [container] })
 			}
 
 			let records1 = lvl1RecordsRes.data;
@@ -122,6 +129,7 @@ module.exports = {
 					.setAccentColor(0xFF6F00)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## Mutual victors`),
+						new TextDisplayBuilder().setContent(`**${level1.name}** vs **${level2.name}**`),
 						new TextDisplayBuilder().setContent("*There are no mutual victors on these levels.*")
 					)
 					.addActionRowComponents(
@@ -137,7 +145,7 @@ module.exports = {
 									.setURL(`https://aredl.net/list/${ID2}`),
 							)
 					)
-				return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container] })
+				return await interaction.reply({ flags: ephemeral ? [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] : [MessageFlags.IsComponentsV2], components: [container] })
 			}
 
 			// can't use username because of the placeholder username randomness
@@ -186,7 +194,7 @@ module.exports = {
 						)
 				)
 
-			return await interaction.editReply({ flags: MessageFlags.IsComponentsV2, components: [container], files: files })
+			return await interaction.reply({ flags: ephemeral ? [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] : MessageFlags.IsComponentsV2, components: [container], files: files })
 		}
 	}
 };
