@@ -162,7 +162,7 @@ module.exports = {
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(`## Mutual victors`),
 					new TextDisplayBuilder().setContent(`**${level1.name}** vs **${level2.name}**`),
-					new TextDisplayBuilder().setContent(`*There are ${filteredRecords.length} mutual victors on these levels.*`)
+					new TextDisplayBuilder().setContent(`*There ${fiteredRecords.length === 1 ? 'is 1 mutual victor' : `are ${filteredRecords.length} mutual victors`} on these levels.*`)
 				)
 				.addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Small))
 
