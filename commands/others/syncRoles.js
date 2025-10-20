@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, TextDisplayBuilder, MessageFlags, ContainerBuilder, SeparatorSpacingSize } = require('discord.js');
+const { SlashCommandBuilder, TextDisplayBuilder, MessageFlags, ContainerBuilder, SeparatorSpacingSize, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { api } = require("../../api.js");
 const {
     pointsRoleIDs,
@@ -13,6 +13,7 @@ const logger = require("log4js").getLogger()
 
 module.exports = {
 	enabled: true,
+    cooldown: 5,
 	data: new SlashCommandBuilder()
 		.setName('syncroles')
 		.setDescription('Sync all roles from your profile to your account')
@@ -28,11 +29,12 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         // do not stack if stack is explicitly set to "off", otherwise stack
         const shouldStack = interaction.options.getNumber('stack') !== 0;
-
-        // placeholder, sphericle's user id on the dev api
-        const userId = "71dcba84-55e6-48cf-a826-08ad1bf15abd";
-        const profileReq = await api.send(`/aredl/profile/${userId}`);
+        const profileReq = await api.send(`/aredl/profile/${interaction.user.id}`);
         if (profileReq.error) {
+            if (profileReq.data.status === 404) {
+                logger.error("Sync roles - User not found:", profileReq.data.message);
+                return interaction.editReply(`:x: Could not find your profile on the leaderboard!`);
+            }
             logger.error("Sync roles - Error fetching profile:", profileReq.data.message);
             return interaction.editReply(`Error fetching profile: ${profileReq.data.message}`);
         }
@@ -105,18 +107,34 @@ module.exports = {
 
         const container = new ContainerBuilder().setAccentColor(0x00ff00);
         container.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`### :white_check_mark: Roles synced!`)
+            new TextDisplayBuilder().setContent(`## :white_check_mark: Roles synced!`)
         );
         container.addSeparatorComponents((separator) =>
             separator.setSpacing(SeparatorSpacingSize.Small)
         );
+
+        const hardestRank = records.reduce((prev, curr) => prev.level.position < curr.level.position ? prev : curr)?.level.position;
         container.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`**Added roles:**`),
+            new TextDisplayBuilder().setContent(`## **Stats:**`),
+            new TextDisplayBuilder().setContent(`Points: ${profile.rank.total_points}\nPacks: ${profile.packs.length === 0 ? "None" : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 ? ":white_check_mark:" : ":x:"}\nCreator: ${profile.created.length > 0 ? ":white_check_mark:" : ":x:"}\nHardest: #${hardestRank}`)
+        )
+        container.addSeparatorComponents((separator) =>
+            separator.setSpacing(SeparatorSpacingSize.Small)
+        );
+        container.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## **Added roles:**`),
             new TextDisplayBuilder().setContent(addedRoles.length === 0 ? 'No new roles!' : addedRoles.join('\n'))
         )
+        const button = new ButtonBuilder()
+            .setStyle(ButtonStyle.Link)
+            .setLabel('Open profile')
+            .setURL(`https://aredl.net/profiles/${profile.id}`);
+
+        const row = new ActionRowBuilder().setComponents(button);
+
         return await interaction.editReply({
             flags: MessageFlags.IsComponentsV2,
-            components: [container],
+            components: [container, row],
         });
 	},
 };
