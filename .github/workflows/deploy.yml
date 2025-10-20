@@ -67,7 +67,14 @@ jobs:
             "missedShiftsID": "${{ secrets.MISSED_SHIFTS_ID }}",
             "enableShiftReminders": ${{ secrets.ENABLE_SHIFT_REMINDERS }},
             "sendShiftRemindersSchedule": "${{ secrets.SEND_SHIFT_REMINDERS_SCHEDULE }}",
-            "shiftReminderExpireThreshold": ${{ secrets.SHIFT_REMINDER_EXPIRE_THRESHOLD }}
+            "shiftReminderExpireThreshold": ${{ secrets.SHIFT_REMINDER_EXPIRE_THRESHOLD }},
+            "pointsRoleIDs": ${{ secrets.POINTS_ROLE_IDS }},
+            "packRoleIDs": ${{ secrets.PACK_ROLE_IDS }},
+            "topLevelRoleIDs": ${{ secrets.TOP_LEVEL_ROLE_IDS }},
+            "extremeGrinderRoleID": "${{ secrets.EXTREME_GRINDER_ROLE_ID }}",
+            "opinionPermsRoleID": "${{ secrets.OPINION_PERMS_ROLE_ID }}",
+            "creatorRoleID": "${{ secrets.CREATOR_ROLE_ID }}",
+            "verifierRoleID": "${{ secrets.VERIFIER_ROLE_ID }}"
           }
           EOF
 
