@@ -52,6 +52,13 @@ module.exports = {
 			target_count: Sequelize.INTEGER
 		});
 
+		db.info_messages = sequelize.define('info_messages', {
+			name: Sequelize.STRING,
+			guild: Sequelize.STRING,
+			channel: Sequelize.STRING,
+			discordid: Sequelize.STRING,
+		});
+
 		return db;
 	},
 };

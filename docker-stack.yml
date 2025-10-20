@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   bot:
     image: ${IMAGE_REPO:-aredl-manager-v3:local}
