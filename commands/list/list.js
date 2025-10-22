@@ -3,9 +3,6 @@ const {
 	ContainerBuilder,
 	TextDisplayBuilder,
 	MessageFlags,
-	ButtonBuilder,
-	ButtonStyle,
-	ActionRowBuilder,
 	SeparatorSpacingSize,
 	AttachmentBuilder,
 	FileBuilder,
@@ -44,6 +41,25 @@ module.exports = {
 						)
 						.addChoices({ name: "Yes", value: 1 })
 				)
+		)
+		.addSubcommand((subcommand) =>
+			subcommand.setName("victors")
+				.setDescription("Display all victors of a level")
+				.addStringOption((option) =>
+					option
+						.setName("level")
+						.setDescription("The name of the level")
+						.setAutocomplete(true)
+						.setRequired(true)
+				)
+				.addIntegerOption((option) =>
+					option
+						.setName("showinchannel")
+						.setDescription(
+							"Whether to send the message in this channel instead of only showing it to you"
+						)
+						.addChoices({ name: "Yes", value: 1 })
+				)
 		),
 	async autocomplete(interaction) {
 		const focused = interaction.options.getFocused();
@@ -67,7 +83,8 @@ module.exports = {
 		);
 	},
 	async execute(interaction) {
-		if (interaction.options.getSubcommand() === "mutualvictors") {
+		const subcommand = interaction.options.getSubcommand();
+		if (subcommand === "mutualvictors") {
 			let ID1 = interaction.options.getString("level1");
 			let ID2 = interaction.options.getString("level2");
 			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
@@ -214,6 +231,108 @@ module.exports = {
 				.replaceAll(" ", "_")}_${level2.name
 					.toLowerCase()
 					.replaceAll(" ", "_")}.txt`;
+			const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
+			const file = new FileBuilder().setURL(`attachment://${name}`);
+			container.addFileComponents(file);
+			const files = [attachment];
+
+			return await interaction.reply({
+				flags: ephemeral
+					? [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
+					: MessageFlags.IsComponentsV2,
+				components: [container],
+				files: files,
+			});
+		} else if (subcommand === "victors") {
+			let ID = interaction.options.getString("level");
+			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
+
+			// Get level data (including level name)
+			const lvlRes = await api.send(`/aredl/levels/${ID}`);
+
+			if (lvlRes.error) {
+				let container = new ContainerBuilder()
+					.setAccentColor(0xff0000)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## :x: Error`),
+						new TextDisplayBuilder().setContent("Error fetching level data!")
+					);
+				return await interaction.reply({
+					flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+					components: [container],
+				});
+			}
+
+			const level = lvlRes.data;
+
+			// Get record data
+			const recordsRes = await api.send(`/aredl/levels/${ID}/records`);
+
+			if (recordsRes.error) {
+				let container = new ContainerBuilder()
+					.setAccentColor(0xff0000)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## :x: Error`),
+						new TextDisplayBuilder().setContent(`Error fetching records for **[${level.name}](https://aredl.net/list/${ID})**!`)
+					);
+				return await interaction.reply({
+					flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+					components: [container],
+				});
+			}
+
+			let records = recordsRes.data;
+
+			if (records.length == 0) {
+				let container = new ContainerBuilder()
+					.setAccentColor(0xff6f00)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## ${level.name}`),
+						new TextDisplayBuilder().setContent(
+							`***[${level.name}](https://aredl.net/list/${ID})** has no victors.*`
+						)
+					);
+				return await interaction.reply({
+					flags: ephemeral
+						? [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
+						: [MessageFlags.IsComponentsV2],
+					components: [container],
+				});
+			}
+
+			// can't use username because of the placeholder username randomness
+			let str =
+				`- ` +
+				records.map((rec) => rec.submitted_by.global_name).join("\n- ");
+
+			// Discord message character limit
+			const tooLong = str.length > 4000;
+
+			let container = new ContainerBuilder()
+				.setAccentColor(0xff6f00)
+				.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(`## ${level.name}`),
+					new TextDisplayBuilder().setContent(
+						`*There ${records.length === 1
+							? "is 1 victor"
+							: `are ${records.length} victors`
+						} on **[${level.name}](https://aredl.net/list/${ID})**.*`
+					)
+				)
+				.addSeparatorComponents((separator) =>
+					separator.setSpacing(SeparatorSpacingSize.Small)
+				);
+
+			// Only send the message if it fits within the message limits
+			if (!tooLong) {
+				container.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(str)
+				);
+			}
+
+			const name = `victors_${level.name
+				.toLowerCase()
+				.replaceAll(" ", "_")}.txt`;
 			const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
 			const file = new FileBuilder().setURL(`attachment://${name}`);
 			container.addFileComponents(file);

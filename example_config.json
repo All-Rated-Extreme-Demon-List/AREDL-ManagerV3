@@ -28,5 +28,21 @@
     "ucReminderSchedule": "0 */6 * * *",
     "ucReminderChannel": "",
     "ucReminderThreshold": 3,
-    "ucRemindersEnabled": false
+    "ucRemindersEnabled": false,
+    
+    "pointsRoleIDs": {
+        "50": ""
+    },
+    "packRoleIDs": {
+        "1": ""
+    },
+    "topLevelRoleIDs": {
+        "1": ""
+    },
+    "extremeGrinderRoleID": "",
+    "opinionPermsRoleID": "",
+    "creatorRoleID": "",
+    "verifierRoleID": "",
+
+    "infoMessageUpdate": "0 * * * *"
 }
