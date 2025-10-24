@@ -9,6 +9,12 @@ const {
 } = require("discord.js");
 const { api } = require("../../api.js");
 
+const processLevelName = (name) => {
+	return name
+		.toLowerCase()
+		.replace(/[^a-z0-9_]/g, '_');
+}
+
 module.exports = {
 	cooldown: 5,
 	enabled: true,
@@ -226,11 +232,7 @@ module.exports = {
 				);
 			}
 
-			const name = `mutual_victors_${level1.name
-				.toLowerCase()
-				.replaceAll(" ", "_")}_${level2.name
-					.toLowerCase()
-					.replaceAll(" ", "_")}.txt`;
+			const name = `mutual_victors_${processLevelName(level1.name)}_${processLevelName(level2.name)}.txt`;
 			const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
 			const file = new FileBuilder().setURL(`attachment://${name}`);
 			container.addFileComponents(file);
@@ -330,9 +332,7 @@ module.exports = {
 				);
 			}
 
-			const name = `victors_${level.name
-				.toLowerCase()
-				.replaceAll(" ", "_")}.txt`;
+			const name = `victors_${processLevelName(level.name)}.txt`;
 			const attachment = new AttachmentBuilder(Buffer.from(str)).setName(name);
 			const file = new FileBuilder().setURL(`attachment://${name}`);
 			container.addFileComponents(file);
