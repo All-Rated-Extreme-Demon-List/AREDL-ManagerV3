@@ -74,7 +74,8 @@ jobs:
             "extremeGrinderRoleID": "${{ secrets.EXTREME_GRINDER_ROLE_ID }}",
             "opinionPermsRoleID": "${{ secrets.OPINION_PERMS_ROLE_ID }}",
             "creatorRoleID": "${{ secrets.CREATOR_ROLE_ID }}",
-            "verifierRoleID": "${{ secrets.VERIFIER_ROLE_ID }}"
+            "verifierRoleID": "${{ secrets.VERIFIER_ROLE_ID }}",
+            "timeoutLogsChannelID": "${{ secrets.TIMEOUT_LOGS_CHANNEL_ID }}"
           }
           EOF
 
