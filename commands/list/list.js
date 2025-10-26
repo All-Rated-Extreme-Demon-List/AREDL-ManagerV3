@@ -41,6 +41,14 @@ module.exports = {
 				)
 				.addIntegerOption((option) =>
 					option
+						.setName("high-extremes")
+						.setDescription(
+							"Whether to only show players with 50+ extremes"
+						)
+						.addChoices({ name: "Yes", value: 1 })
+				)
+				.addIntegerOption((option) =>
+					option
 						.setName("showinchannel")
 						.setDescription(
 							"Whether to send the message in this channel instead of only showing it to you"
@@ -57,6 +65,14 @@ module.exports = {
 						.setDescription("The name of the level")
 						.setAutocomplete(true)
 						.setRequired(true)
+				)
+				.addIntegerOption((option) =>
+					option
+						.setName("high-extremes")
+						.setDescription(
+							"Whether to only show players with 50+ extremes"
+						)
+						.addChoices({ name: "Yes", value: 1 })
 				)
 				.addIntegerOption((option) =>
 					option
@@ -93,6 +109,7 @@ module.exports = {
 		if (subcommand === "mutualvictors") {
 			let ID1 = interaction.options.getString("level1");
 			let ID2 = interaction.options.getString("level2");
+			let highExtremes = interaction.options.getInteger("high-extremes") === 1;
 			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
 
 			if (ID1 === ID2) {
@@ -142,8 +159,16 @@ module.exports = {
 
 			// Get record data
 			const [lvl1RecordsRes, lvl2RecordsRes] = await Promise.all([
-				await api.send(`/aredl/levels/${ID1}/records`),
-				await api.send(`/aredl/levels/${ID2}/records`),
+				await api.send(
+					`/aredl/levels/${ID1}/records`,
+					'GET',
+					{high_extremes: highExtremes}
+				),
+				await api.send(
+					`/aredl/levels/${ID2}/records`,
+					'GET',
+					{high_extremes: highExtremes}
+				),
 			]);
 
 			if (lvl1RecordsRes.error || lvl2RecordsRes.error) {
@@ -152,7 +177,7 @@ module.exports = {
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Error!`),
 						new TextDisplayBuilder().setContent(
-							`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**`
+							`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`
 						),
 						new TextDisplayBuilder().setContent(
 							`Error fetching records for ${lvl1RecordsRes.error && lvl2RecordsRes.error
@@ -185,7 +210,7 @@ module.exports = {
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## Mutual victors`),
 						new TextDisplayBuilder().setContent(
-							`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**`
+							`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`
 						),
 						new TextDisplayBuilder().setContent(
 							"*There are no mutual victors on these levels.*"
@@ -202,7 +227,7 @@ module.exports = {
 			// can't use username because of the placeholder username randomness
 			let str =
 				`- ` +
-				filteredRecords.map((rec) => rec.submitted_by.global_name).join("\n- ");
+				filteredRecords.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
 
 			// Discord message character limit
 			const tooLong = str.length > 4000;
@@ -212,7 +237,7 @@ module.exports = {
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(`## Mutual victors`),
 					new TextDisplayBuilder().setContent(
-						`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**`
+						`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`
 					),
 					new TextDisplayBuilder().setContent(
 						`*There ${filteredRecords.length === 1
@@ -248,6 +273,7 @@ module.exports = {
 		} else if (subcommand === "victors") {
 			let ID = interaction.options.getString("level");
 			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
+			const highExtremes = interaction.options.getInteger("high-extremes") === 1;
 
 			// Get level data (including level name)
 			const lvlRes = await api.send(`/aredl/levels/${ID}`);
@@ -268,7 +294,11 @@ module.exports = {
 			const level = lvlRes.data;
 
 			// Get record data
-			const recordsRes = await api.send(`/aredl/levels/${ID}/records`);
+			const recordsRes = await api.send(
+				`/aredl/levels/${ID}/records`,
+				'GET',
+				{high_extremes: highExtremes}
+			);
 
 			if (recordsRes.error) {
 				let container = new ContainerBuilder()
@@ -291,7 +321,7 @@ module.exports = {
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## ${level.name}`),
 						new TextDisplayBuilder().setContent(
-							`***[${level.name}](https://aredl.net/list/${ID})** has no victors.*`
+							`***[${level.name}](https://aredl.net/list/${ID})** has no victors${highExtremes ? " who have 50+ extremes" : ""}.*`
 						)
 					);
 				return await interaction.reply({
@@ -305,7 +335,7 @@ module.exports = {
 			// can't use username because of the placeholder username randomness
 			let str =
 				`- ` +
-				records.map((rec) => rec.submitted_by.global_name).join("\n- ");
+				records.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
 
 			// Discord message character limit
 			const tooLong = str.length > 4000;
@@ -316,8 +346,8 @@ module.exports = {
 					new TextDisplayBuilder().setContent(`## ${level.name}`),
 					new TextDisplayBuilder().setContent(
 						`*There ${records.length === 1
-							? "is 1 victor"
-							: `are ${records.length} victors`
+							? `is 1 victor${highExtremes ? " with 50+ extremes" : ""}`
+							: `are ${records.length} victors${highExtremes ? " with 50+ extremes" : ""}`
 						} on **[${level.name}](https://aredl.net/list/${ID})**.*`
 					)
 				)
