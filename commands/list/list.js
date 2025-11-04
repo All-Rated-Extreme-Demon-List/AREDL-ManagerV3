@@ -9,6 +9,7 @@ const {
 	ChatInputCommandInteraction,
 } = require("discord.js");
 const { api } = require("../../api.js");
+const { opinionPermsRoleID, extremeGrinderRoleID, guildId } = require("../../config.json");
 
 const processLevelName = (name) => {
 	return name
@@ -86,7 +87,7 @@ module.exports = {
 		),
 	async autocomplete(interaction) {
 		const focused = interaction.options.getFocused();
-		let res = await api.send("/aredl/levels", "GET", {
+		const res = await api.send("/aredl/levels", "GET", {
 			name_contains: focused.toLowerCase(),
 		});
 		if (res.error) {
@@ -111,13 +112,13 @@ module.exports = {
 	async execute(interaction) {
 		const subcommand = interaction.options.getSubcommand();
 		if (subcommand === "mutualvictors") {
-			let ID1 = interaction.options.getString("level1");
-			let ID2 = interaction.options.getString("level2");
-			let highExtremes = interaction.options.getInteger("high-extremes") === 1;
+			const ID1 = interaction.options.getString("level1");
+			const ID2 = interaction.options.getString("level2");
+			const highExtremes = interaction.options.getInteger("high-extremes") === 1;
 			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
 
 			if (ID1 === ID2) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff0000)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Nope!`),
@@ -138,7 +139,7 @@ module.exports = {
 			]);
 
 			if (lvl1res.error || lvl2res.error) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff0000)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Error!`),
@@ -176,7 +177,7 @@ module.exports = {
 			]);
 
 			if (lvl1RecordsRes.error || lvl2RecordsRes.error) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff0000)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Error!`),
@@ -200,16 +201,15 @@ module.exports = {
 				});
 			}
 
-			let records1 = lvl1RecordsRes.data;
-			let records2 = lvl2RecordsRes.data;
+			const records1 = lvl1RecordsRes.data;
+			const records2 = lvl2RecordsRes.data;
 
-			// Filter by records where the submitter also has a record on the other level
-			let filteredRecords = records1.filter((rec) =>
+			const filteredRecords = records1.filter((rec) =>
 				records2.some((rec2) => rec2.submitted_by.id === rec.submitted_by.id)
 			);
 
 			if (filteredRecords.length == 0) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff6f00)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## Mutual victors`),
@@ -227,16 +227,57 @@ module.exports = {
 					components: [container],
 				});
 			}
+			 
+			const guild = interaction.client.guilds.cache.get(guildId);
+			if (!guild) {
+				const container = new ContainerBuilder()
+					.setAccentColor(0xff0000)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## :x: Error`),
+						new TextDisplayBuilder().setContent("Error fetching guild data!")
+					);
+				return await interaction.reply({
+					flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+					components: [container],
+				});
+			}
+			
+			const victors = filteredRecords.map((rec) => {
+				const member = !rec.submitted_by.discord_id ? undefined : guild.members.cache.get(rec.submitted_by.discord_id);
+				return {
+					username: `- ${rec.submitted_by.global_name}`,
+					discordTag: rec.submitted_by.discord_id ? `<@${rec.submitted_by.discord_id}>` : undefined,
+					inServer: member ? true : false,
+					hasPerms: member ? member.roles.cache.hasAny(opinionPermsRoleID, extremeGrinderRoleID) : undefined,
+				};
+			}).sort((a, b) => {
+				const sortOrder = [
+					{ type: "no_linked_discord", order: 1 },
+					{ type: "not_in_server", order: 2 },
+					{ type: "no_opinion_perms", order: 3 },
+					{ type: "has_opinion_perms", order: 4 },
+				];
+				const aType = a.discordTag ? (a.inServer ? (a.hasPerms ? "has_opinion_perms" : "no_opinion_perms") : "not_in_server") : "no_linked_discord";
+				const bType = b.discordTag ? (b.inServer ? (b.hasPerms ? "has_opinion_perms" : "no_opinion_perms") : "not_in_server") : "no_linked_discord";
 
-			// can't use username because of the placeholder username randomness
-			let str =
-				`- ` +
-				filteredRecords.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
+				const aOrder = sortOrder.find((o) => o.type === aType).order;
+				const bOrder = sortOrder.find((o) => o.type === bType).order;
+
+				if (aOrder !== bOrder) {
+					return bOrder - aOrder;
+				}
+				return a.username.localeCompare(b.username);
+			})
+			
+
+			const str = victors.map((v) => 
+				`${v.username}${v.discordTag ? `\t${v.discordTag}` : ""}${v.discordTag !== undefined && !v.hasPerms ? `\t${v.inServer ? "(No opinion perms)" : "(Not in server)"}` : ""}`
+			).join("\n");
 
 			// Discord message character limit (also account for other text on embed, limit is 4000)
 			const tooLong = str.length > 3850;
 
-			let container = new ContainerBuilder()
+			const container = new ContainerBuilder()
 				.setAccentColor(0xff6f00)
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(`## Mutual victors`),
@@ -275,7 +316,7 @@ module.exports = {
 				files: files,
 			});
 		} else if (subcommand === "victors") {
-			let ID = interaction.options.getString("level");
+			const ID = interaction.options.getString("level");
 			const ephemeral = interaction.options.getInteger("showinchannel") !== 1;
 			const highExtremes = interaction.options.getInteger("high-extremes") === 1;
 
@@ -283,7 +324,7 @@ module.exports = {
 			const lvlRes = await api.send(`/aredl/levels/${ID}`);
 
 			if (lvlRes.error) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff0000)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Error`),
@@ -305,7 +346,7 @@ module.exports = {
 			);
 
 			if (recordsRes.error) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff0000)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## :x: Error`),
@@ -317,10 +358,10 @@ module.exports = {
 				});
 			}
 
-			let records = recordsRes.data;
+			const records = recordsRes.data;
 
 			if (records.length == 0) {
-				let container = new ContainerBuilder()
+				const container = new ContainerBuilder()
 					.setAccentColor(0xff6f00)
 					.addTextDisplayComponents(
 						new TextDisplayBuilder().setContent(`## ${level.name}`),
@@ -336,15 +377,57 @@ module.exports = {
 				});
 			}
 
-			// can't use username because of the placeholder username randomness
-			let str =
-				`- ` +
-				records.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
+			const guild = interaction.client.guilds.cache.get(guildId);
+			if (!guild) {
+				const container = new ContainerBuilder()
+					.setAccentColor(0xff0000)
+					.addTextDisplayComponents(
+						new TextDisplayBuilder().setContent(`## :x: Error`),
+						new TextDisplayBuilder().setContent("Error fetching guild data!")
+					);
+				return await interaction.reply({
+					flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+					components: [container],
+				});
+			}
+
+			const victors = records.map((rec) => {
+				// Get member object if they have a discord ID
+				const member = !rec.submitted_by.discord_id ? undefined : guild.members.cache.get(rec.submitted_by.discord_id);
+
+				return {
+					username: `- ${rec.submitted_by.global_name}`,
+					discordTag: rec.submitted_by.discord_id ? `<@${rec.submitted_by.discord_id}>` : undefined,
+					inServer: member ? true : false,
+					hasPerms: member ? member.roles.cache.hasAny(opinionPermsRoleID, extremeGrinderRoleID) : undefined,
+				};
+			}).sort((a, b) => {
+				const sortOrder = [
+					{ type: "no_linked_discord", order: 1 },
+					{ type: "not_in_server", order: 2 },
+					{ type: "no_opinion_perms", order: 3 },
+					{ type: "has_opinion_perms", order: 4 },
+				];
+				const aType = a.discordTag ? (a.inServer ? (a.hasPerms ? "has_opinion_perms" : "no_opinion_perms") : "not_in_server") : "no_linked_discord";
+				const bType = b.discordTag ? (b.inServer ? (b.hasPerms ? "has_opinion_perms" : "no_opinion_perms") : "not_in_server") : "no_linked_discord";
+
+				const aOrder = sortOrder.find((o) => o.type === aType).order;
+				const bOrder = sortOrder.find((o) => o.type === bType).order;
+
+				if (aOrder !== bOrder) {
+					return bOrder - aOrder;
+				}
+				return a.username.localeCompare(b.username);
+			})
+
+			const str = victors.map((v) => 
+				`${v.username}${v.discordTag ? `\t${v.discordTag}` : ""}${v.discordTag !== undefined && !v.hasPerms ? `\t${v.inServer ? "(No opinion perms)" : "(Not in server)"}` : ""}`
+			).join("\n");
 
 			// Discord message character limit (also account for other text on embed, limit is 4000)
 			const tooLong = str.length > 3850;
 
-			let container = new ContainerBuilder()
+			const container = new ContainerBuilder()
 				.setAccentColor(0xff6f00)
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(`## ${level.name}`),
