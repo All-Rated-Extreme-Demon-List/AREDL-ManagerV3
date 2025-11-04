@@ -6,6 +6,7 @@ const {
 	SeparatorSpacingSize,
 	AttachmentBuilder,
 	FileBuilder,
+	ChatInputCommandInteraction,
 } = require("discord.js");
 const { api } = require("../../api.js");
 
@@ -104,6 +105,9 @@ module.exports = {
 				}))
 		);
 	},
+	/**
+	 * @param {ChatInputCommandInteraction} interaction
+	 */
 	async execute(interaction) {
 		const subcommand = interaction.options.getSubcommand();
 		if (subcommand === "mutualvictors") {
@@ -229,8 +233,8 @@ module.exports = {
 				`- ` +
 				filteredRecords.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
 
-			// Discord message character limit
-			const tooLong = str.length > 4000;
+			// Discord message character limit (also account for other text on embed, limit is 4000)
+			const tooLong = str.length > 3850;
 
 			let container = new ContainerBuilder()
 				.setAccentColor(0xff6f00)
@@ -337,8 +341,8 @@ module.exports = {
 				`- ` +
 				records.map((rec) => `${rec.submitted_by.global_name}${rec.submitted_by.discord_id ? `\t<@${rec.submitted_by.discord_id}>` : ""}`).join("\n- ");
 
-			// Discord message character limit
-			const tooLong = str.length > 4000;
+			// Discord message character limit (also account for other text on embed, limit is 4000)
+			const tooLong = str.length > 3850;
 
 			let container = new ContainerBuilder()
 				.setAccentColor(0xff6f00)
