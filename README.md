@@ -1,4 +1,4 @@
-# AREDL Manager V2](https://github.com/TheShittyList/GDListTemplate)
+# AREDL Manager V2
 
 ## Setup
 
