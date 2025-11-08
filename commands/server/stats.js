@@ -26,6 +26,13 @@ module.exports = {
                 .setDescription(
                     'Send the initial stats info message (placeholder)',
                 ),
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName('send-list-stats-message-public')
+                .setDescription(
+                    'Send the initial stats info message (placeholder) (public version)',
+                ),
         ),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
@@ -142,6 +149,36 @@ module.exports = {
 
             return interaction.editReply(
                 `\`list_stats\` message sent and stored in the database.`,
+            );
+        }
+
+        if (sub === 'send-list-stats-message-public') {
+            const { db } = require('../../index.js');
+
+            const existing = await db.info_messages.findOne({
+                where: { name: 'list_stats_public' },
+            });
+            if (existing) {
+                return interaction.editReply(
+                    `A \`list_stats_public\` message already exists. Delete it from the DB if you want to create a new one.`,
+                );
+            }
+
+            const msg = await interaction.channel.send({
+                content: `List stats panel will appear here soon…`,
+            });
+
+            await db.info_messages.create({
+                name: 'list_stats_public',
+                guild: interaction.guild.id,
+                channel: interaction.channel.id,
+                discordid: msg.id,
+            });
+
+            infoMessageUpdate.execute();
+
+            return interaction.editReply(
+                `\`list_stats_public\` message sent and stored in the database.`,
             );
         }
     },
