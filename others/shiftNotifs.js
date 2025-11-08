@@ -1,22 +1,29 @@
-const { api } = require("../api.js");
+const { api } = require('../api.js');
 const logger = require('log4js').getLogger();
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     sendShiftNotif: async (channel, shift, db, shiftID) => {
-        const reviewerResponse = await api.send(`/users/${shift.user_id}`, 'GET')
+        const reviewerResponse = await api.send(
+            `/users/${shift.user_id}`,
+            'GET',
+        );
         if (reviewerResponse.error) {
-            logger.error(`Error fetching reviewer data: ${reviewerResponse.data.message}`);
+            logger.error(
+                `Error fetching reviewer data: ${reviewerResponse.data.message}`,
+            );
             return;
         }
         let pingStr = undefined;
         if (reviewerResponse.data.discord_id) {
-            const settings = await db.settings.findOne({ where: {
-                user: reviewerResponse.data.discord_id
-            }});
+            const settings = await db.settings.findOne({
+                where: {
+                    user: reviewerResponse.data.discord_id,
+                },
+            });
             if (!settings || settings.shiftPings === true) {
                 pingStr = `<@${reviewerResponse.data.discord_id}>`;
-            };
+            }
         }
         // Get unix timestamps for the Discord embed
         const startDate = Math.floor(new Date(shift.start_at).getTime() / 1000);
@@ -25,18 +32,18 @@ module.exports = {
         const archiveEmbed = new EmbedBuilder()
             .setColor(0x8fce00)
             .setTitle(`:white_check_mark: Shift started!`)
-            .setDescription(`${reviewerResponse.data.discord_id ? `<@${reviewerResponse.data.discord_id}>` : reviewerResponse.data.global_name}`)
-            .addFields(
-                [
-                    { name: 'Count', value: `${shift.target_count} records` },
-                    { name: 'Starts at', value: `<t:${startDate}>` },
-                    { name: "Ends at", value: `<t:${endDate}>, <t:${endDate}:R>`}
-                ]
+            .setDescription(
+                `${reviewerResponse.data.discord_id ? `<@${reviewerResponse.data.discord_id}>` : reviewerResponse.data.global_name}`,
             )
+            .addFields([
+                { name: 'Count', value: `${shift.target_count} records` },
+                { name: 'Starts at', value: `<t:${startDate}>` },
+                { name: 'Ends at', value: `<t:${endDate}>, <t:${endDate}:R>` },
+            ])
             .setTimestamp();
 
         await channel.send({ content: pingStr, embeds: [archiveEmbed] });
-        
+
         await db.shiftNotifs.destroy({ where: { id: shiftID } });
-    }
-}
+    },
+};

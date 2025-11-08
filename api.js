@@ -1,6 +1,6 @@
 const { getLogger } = require('log4js');
 const errorLogger = getLogger('error');
-const { baseURL } = require('./config.json')
+const { baseURL } = require('./config.json');
 
 class ApiError extends Error {
     constructor(message, status, data) {
@@ -11,7 +11,7 @@ class ApiError extends Error {
 }
 
 const api = {
-    send: async function(path, method, query, body, token) {
+    send: async function (path, method, query, body, token) {
         let cleanedQuery;
         if (query) {
             cleanedQuery = Object.entries(query)
@@ -26,7 +26,8 @@ const api = {
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+        headers['User-Agent'] =
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
         const requestOptions = { method, headers };
         if (body) requestOptions.body = JSON.stringify(body);

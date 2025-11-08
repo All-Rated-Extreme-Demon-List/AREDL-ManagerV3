@@ -1,32 +1,33 @@
 {
-  "name": "aredl-bot",
-  "version": "3.0.0",
-  "description": "Discord bot for managing the All Rated Extreme Demons List",
-  "main": "index.js",
-  "scripts": {
-    "deploy": "node ./deploy-commands.js",
-    "start": "node ./index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Minebox260",
-  "license": "ISC",
-  "dependencies": {
-    "@napi-rs/canvas": "^0.1.77",
-    "chart.js": "^4.5.0",
-    "chartjs-node-canvas": "^5.0.0",
-    "discord.js": "^14.21.0",
-    "exceljs": "^4.4.0",
-    "is-url-http": "^2.3.10",
-    "iso-3166-1": "^2.1.1",
-    "log-timestamp": "^0.3.0",
-    "log4js": "^6.9.1",
-    "node-cron": "^4.2.1",
-    "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.33",
-    "eslint": "^9.33",
-    "globals": "^16.3.0"
-  }
+    "name": "aredl-bot",
+    "version": "3.0.0",
+    "description": "Discord bot for managing the All Rated Extreme Demons List",
+    "main": "index.js",
+    "scripts": {
+        "deploy": "node ./deploy-commands.js",
+        "start": "node ./index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Minebox260",
+    "license": "ISC",
+    "dependencies": {
+        "@napi-rs/canvas": "^0.1.77",
+        "chart.js": "^4.5.0",
+        "chartjs-node-canvas": "^5.0.0",
+        "discord.js": "^14.21.0",
+        "exceljs": "^4.4.0",
+        "is-url-http": "^2.3.10",
+        "iso-3166-1": "^2.1.1",
+        "log-timestamp": "^0.3.0",
+        "log4js": "^6.9.1",
+        "node-cron": "^4.2.1",
+        "sequelize": "^6.37.7",
+        "sqlite3": "^5.1.7"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.33",
+        "eslint": "^9.33",
+        "globals": "^16.3.0",
+        "prettier": "^3.6.2"
+    }
 }

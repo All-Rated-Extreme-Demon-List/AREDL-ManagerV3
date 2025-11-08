@@ -34,9 +34,8 @@ const getCompletionTime = (time) => {
     return `${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
-
 module.exports = {
     completionTimeSplit,
     completionTimeToMs,
     getCompletionTime,
-}
+};

@@ -4,13 +4,13 @@ const infoMessageUpdate = require('../scheduled/infoMessageUpdate.js');
 const logger = require('log4js').getLogger();
 
 module.exports = {
-	name: Events.ClientReady,
-	once: true,
-	async execute() {
-		await scheduledTasksInit();
-		logger.info(`Initialization complete`);
+    name: Events.ClientReady,
+    once: true,
+    async execute() {
+        await scheduledTasksInit();
+        logger.info(`Initialization complete`);
 
-		infoMessageUpdate.execute()
-		return 1;
-	},
+        infoMessageUpdate.execute();
+        return 1;
+    },
 };

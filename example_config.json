@@ -11,12 +11,12 @@
     "guildId": "",
     "staffGuildId": "",
 
-    "classicArchiveRecordsID" : "",
-    "platArchiveRecordsID" : "",
-    "classicRecordsID" : "",
-    "platRecordsID" : "",
-    
-    "guildMemberAddID" : "",
+    "classicArchiveRecordsID": "",
+    "platArchiveRecordsID": "",
+    "classicRecordsID": "",
+    "platRecordsID": "",
+
+    "guildMemberAddID": "",
 
     "completedShiftsID": "",
     "missedShiftsID": "",
@@ -29,7 +29,7 @@
     "ucReminderChannel": "",
     "ucReminderThreshold": 3,
     "ucRemindersEnabled": false,
-    
+
     "pointsRoleIDs": {
         "50": ""
     },
