@@ -57,6 +57,7 @@ jobs:
                     "clientId": "${{ secrets.CLIENT_ID }}",
                     "guildId": "${{ secrets.GUILD_ID }}",
                     "staffGuildId": "${{ secrets.STAFF_GUILD_ID }}",
+                    "infoMessageUpdateSchedule": "${{ secrets.INFO_MESSAGE_UPDATE_SCHEDULE }}",
                     "classicArchiveRecordsID": "${{ secrets.CLASSIC_ARCHIVE_RECORDS_ID }}",
                     "platArchiveRecordsID": "${{ secrets.PLAT_ARCHIVE_RECORDS_ID }}",
                     "classicRecordsID": "${{ secrets.CLASSIC_RECORDS_ID }}",
