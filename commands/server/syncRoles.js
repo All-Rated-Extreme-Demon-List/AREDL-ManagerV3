@@ -7,6 +7,7 @@ const {
     ButtonBuilder,
     ButtonStyle,
     ActionRowBuilder,
+    ChatInputCommandInteraction,
 } = require('discord.js');
 const { api } = require('../../api.js');
 const {
@@ -35,6 +36,9 @@ module.exports = {
                     { name: 'Off', value: 0 },
                 ]),
         ),
+    /**
+     * @param {ChatInputCommandInteraction} interaction 
+     */
     async execute(interaction) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         // do not stack if stack is explicitly set to "off", otherwise stack
@@ -85,8 +89,7 @@ module.exports = {
                     );
                     return;
                 }
-                interaction.member.roles.add(roleId);
-                addedRoles.push(`- <@&${roleId}>`);
+                addedRoles.push(roleId);
             }
         };
 
@@ -109,7 +112,7 @@ module.exports = {
         // Points roles
         processRoleType(
             pointsRoleIDs,
-            (req) => profile.rank.total_points / 10 >= req,
+            (req) => Math.round(profile.rank.total_points / 10) >= req,
         );
         // Pack roles
         processRoleType(packRoleIDs, (req) => profile.packs.length >= req);
@@ -135,6 +138,16 @@ module.exports = {
             addRoles([extremeGrinderRoleID]);
         }
 
+        try {
+            await interaction.member.roles.add(addedRoles);
+        } catch (e) {
+            logger.error('Sync roles - Error adding roles:', );
+            logger.error(e);
+            return interaction.editReply(
+                `:x: Error adding roles, please try again later`,
+            );
+        }
+
         const container = new ContainerBuilder().setAccentColor(0x00ff00);
         container.addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
@@ -151,7 +164,7 @@ module.exports = {
         container.addTextDisplayComponents(
             new TextDisplayBuilder().setContent(`## **Stats:**`),
             new TextDisplayBuilder().setContent(
-                `Points: ${profile.rank.total_points / 10}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${profile.created.length > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`,
+                `Points: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${profile.created.length > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`,
             ),
         );
         container.addSeparatorComponents((separator) =>
@@ -162,7 +175,7 @@ module.exports = {
             new TextDisplayBuilder().setContent(
                 addedRoles.length === 0
                     ? 'No new roles!'
-                    : addedRoles.join('\n'),
+                    : addedRoles.map((r) => `<@&${r}>`).join('\n'),
             ),
         );
         const button = new ButtonBuilder()
