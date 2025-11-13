@@ -67,11 +67,9 @@ module.exports = {
             },
             points: {
                 type: Sequelize.NUMBER,
-                defaultValue: 25,
-                min: 0,
-                max: 30
+                defaultValue: 25
             },
-        })
+        });
 
         return db;
     },
