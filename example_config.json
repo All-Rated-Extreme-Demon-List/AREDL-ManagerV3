@@ -44,7 +44,7 @@
     "creatorRoleID": "",
     "verifierRoleID": "",
 
-    "infoMessageUpdate": "0 * * * *",
+    "infoMessageUpdateSchedule": "0 * * * *",
 
     "timeoutLogsChannelID": ""
 }

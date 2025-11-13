@@ -11,6 +11,7 @@ module.exports = {
     notification_type: 'SHIFTS_CREATED',
     async handle(client, data) {
         logger.log('Received shift created notification:', data);
+        if (!shiftsStartedID) return;
         const { db } = require('../index.js');
 
         const guild = await client.guilds.fetch(guildId);

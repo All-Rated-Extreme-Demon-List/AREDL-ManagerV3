@@ -230,6 +230,10 @@ module.exports = {
         });
     },
     async resumeShiftTimers(client, db) {
+        if (!shiftsStartedID) {
+            logger.warn("Shifts started channel not configured. Skipping...");
+            return 0;
+        }
         const guild = await client.guilds.fetch(guildId);
         const staffGuild = enableSeparateStaffServer
             ? await client.guilds.fetch(staffGuildId)
