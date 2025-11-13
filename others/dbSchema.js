@@ -60,6 +60,19 @@ module.exports = {
             discordid: Sequelize.STRING,
         });
 
+        db.staff_points = sequelize.define("staff_points", {
+            user: {
+                type: Sequelize.STRING,
+                primaryKey: true
+            },
+            points: {
+                type: Sequelize.NUMBER,
+                defaultValue: 25,
+                min: 0,
+                max: 30
+            },
+        })
+
         return db;
     },
 };
