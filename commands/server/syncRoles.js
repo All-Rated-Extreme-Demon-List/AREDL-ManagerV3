@@ -188,7 +188,7 @@ module.exports = {
         container.addTextDisplayComponents(
             new TextDisplayBuilder().setContent(`## **Stats:**`),
             new TextDisplayBuilder().setContent(
-                `Points: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${profile.created.length > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`,
+                `Points: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${(profile.verified.length > 0 || arepl.created.length > 0) ? ':white_check_mark:' : ':x:'}\nCreator: ${(profile.created.length > 0 || arepl.created.length > 0) ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`,
             ),
         );
         container.addSeparatorComponents((separator) =>
