@@ -43,6 +43,7 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         // do not stack if stack is explicitly set to "off", otherwise stack
         const shouldStack = interaction.options.getNumber('stack') !== 0;
+
         const profileReq = await api.send(
             `/aredl/profile/${interaction.user.id}`,
         );
@@ -65,6 +66,29 @@ module.exports = {
             );
         }
         const profile = profileReq.data;
+        const areplReq = await api.send(
+            `/arepl/profile/${interaction.user.id}`,
+        );
+        if (areplReq.error) {
+            if (areplReq.data.status === 404) {
+                logger.error(
+                    'Sync roles - User not found (Platformer):',
+                    areplReq.data.message,
+                );
+                return interaction.editReply(
+                    `:x: Could not find your platformer profile on the leaderboard!`,
+                );
+            }
+            logger.error(
+                'Sync roles - Error fetching platformer profile:',
+                areplReq.data.message,
+            );
+            return interaction.editReply(
+                `Error fetching platformer profile: ${areplReq.data.message}`,
+            );
+        }
+        const arepl = areplReq.data;
+
         const addedRoles = [];
 
         // remove all roles to account for different stacking preferences
@@ -126,11 +150,11 @@ module.exports = {
             addRoles([opinionPermsRoleID]);
         }
         // Creator role
-        if (profile.created.length > 0) {
+        if (profile.created.length > 0 || arepl.created.length > 0) {
             addRoles([creatorRoleID]);
         }
         // Verifier role
-        if (profile.verified.length > 0) {
+        if (profile.verified.length > 0 || arepl.verified.length > 0) {
             addRoles([verifierRoleID]);
         }
         // Extreme Grinder role
