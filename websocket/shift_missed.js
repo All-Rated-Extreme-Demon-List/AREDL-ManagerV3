@@ -77,7 +77,7 @@ module.exports = {
                         inline: true,
                     },
                     { name: 'Time', value: `<t:${startDate}>`, inline: true },
-                    { name: 'Points', value: `${newPoints ? newPoints : 'N/A'}`, inline: true },
+                    { name: 'Points', value: `${newPoints ? Math.round(newPoints * 100) / 100 : 'N/A'}`, inline: true },
                 ])
                 .setTimestamp();
 

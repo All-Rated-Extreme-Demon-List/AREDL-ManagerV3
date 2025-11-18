@@ -14,6 +14,6 @@ module.exports = {
         const [user, _] = await db.staff_points.findOrCreate({ 
             where: { user: interaction.user.id }
         });
-        return await interaction.editReply(`You have **${user.points}** points.`);
+        return await interaction.editReply(`You have **${Math.round(user.points * 100) / 100}** points.`);
     },
 };

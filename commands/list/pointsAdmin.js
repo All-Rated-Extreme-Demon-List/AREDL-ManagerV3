@@ -95,7 +95,7 @@ module.exports = {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder()
                         .setContent(
-                            allStats.length == 0 ? "No data." : allStats.map((stat) => `<@${stat.user}> - _\`${stat.points}\` points_`).join("\n")
+                            allStats.length == 0 ? "No data." : allStats.map((stat) => `<@${stat.user}> - _\`${Math.round(stat.points * 100) / 100}\` points_`).join("\n")
                         )
                 );
 
@@ -107,7 +107,7 @@ module.exports = {
             const user = interaction.options.getUser("user");
             const [points, _] = await db.staff_points.findOrCreate({ where: { user: user.id } });
             return await interaction.editReply(
-                `<@${user.id}> has ${points.points} points.`
+                `<@${user.id}> has ${Math.round(points.points * 100) / 100} points.`
             )
         } else if (subcommand === "set") {
             const user = interaction.options.getUser("user");
@@ -126,7 +126,7 @@ module.exports = {
                 entry.save();
             }
             return await interaction.editReply(
-                `:white_check_mark: Set points for <@${user.id}> to ${points}.`
+                `:white_check_mark: Set points for <@${user.id}> to ${Math.round(points * 100) / 100}.`
             )
 
         } else if (subcommand === "transfer") {
@@ -151,7 +151,7 @@ module.exports = {
             transferToPoints.save();
             transferFromPoints.destroy();
             return await interaction.editReply(
-                `:white_check_mark: Transferred points from <@${transferFrom.id}> to <@${transferTo.id}>. <@${transferTo.id}> now has ${transferToPoints.points} points.`
+                `:white_check_mark: Transferred points from <@${transferFrom.id}> to <@${transferTo.id}>. <@${transferTo.id}> now has ${Math.round(transferToPoints.points * 100) / 100} points.`
             )
         } else if (subcommand === "clear") {
             const user = interaction.options.getUser("user");

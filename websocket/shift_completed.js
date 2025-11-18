@@ -61,7 +61,7 @@ module.exports = {
                 },
                 {
                     name: 'Points',
-                    value: `${newPoints ? newPoints : 'N/A'}`,
+                    value: `${newPoints ? Math.round(newPoints * 100) / 100 : 'N/A'}`,
                     inline: true,
                 },
             ])
