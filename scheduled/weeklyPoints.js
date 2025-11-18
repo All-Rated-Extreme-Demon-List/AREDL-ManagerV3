@@ -110,7 +110,7 @@ module.exports = {
         }
 
         if (sendWeeklyUpdates) {
-            const embeds = changes.map((change) => {
+            const embeds = changes.sort((a, b) => b.diff - a.diff).map((change) => {
                 return new EmbedBuilder()
                     .setTitle(change.completed ? "Weekly points added" : "Weekly points removed")
                     .setDescription(`<@${change.user}>`)
