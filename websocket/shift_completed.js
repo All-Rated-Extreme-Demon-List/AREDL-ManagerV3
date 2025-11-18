@@ -26,6 +26,18 @@ module.exports = {
             return;
         }
 
+        let newPoints = null;
+        if (reviewerResponse.data.discord_id) {
+            const [points, _] = await db.staff_points.findOrCreate({
+                where: { user: reviewerResponse.data.discord_id },
+            });
+            points.points = Math.min(points.points + pointsOnShiftComplete, 30);
+            newPoints = points.points;
+            points.save();
+        } else {
+            logger.warn(`Shift completed - no Discord ID found for ${reviewerResponse.data.global_name}`);
+        }
+
         // unix epochs
         let startDate = Math.floor(new Date(data.start_at) / 1000);
         let endDate = Math.floor(new Date(data.end_at) / 1000);
@@ -47,6 +59,11 @@ module.exports = {
                     value: `<t:${startDate}> - <t:${endDate}>`,
                     inline: true,
                 },
+                {
+                    name: 'Points',
+                    value: `${newPoints ? newPoints : 'N/A'}`,
+                    inline: true,
+                },
             ])
             .setTimestamp();
 
@@ -59,15 +76,7 @@ module.exports = {
             .get(completedShiftsID)
             .send({ embeds: [archiveEmbed] });
 
-        if (reviewerResponse.data.discord_id) {
-            const [points, _] = await db.staff_points.findOrCreate({
-                where: { user: data.user_id },
-            });
-            points.points = Math.min(points.points + pointsOnShiftComplete, 30);
-            points.save();
-        } else {
-            logger.warn(`Shift completed - no Discord ID found for ${reviewerResponse.data.global_name}`);
-        }
+        
         
         return;
     },

@@ -93,12 +93,10 @@ module.exports = {
                 )
                 .addSeparatorComponents((separator) => separator.setSpacing(SeparatorSpacingSize.Small))
                 .addTextDisplayComponents(
-                    allStats.map((stat) => 
-                        new TextDisplayBuilder()
-                            .setContent(
-                                `<@${stat.user}> - _\`${stat.points}\` points_`
-                            )
-                    )
+                    new TextDisplayBuilder()
+                        .setContent(
+                            allStats.length == 0 ? "No data." : allStats.map((stat) => `<@${stat.user}> - _\`${stat.points}\` points_`).join("\n")
+                        )
                 );
 
             return await interaction.editReply({

@@ -71,6 +71,14 @@ module.exports = {
             },
         });
 
+        db.weekly_missed_shifts = sequelize.define("weekly_missed_shifts", {
+            user: {
+                type: Sequelize.STRING,
+                primaryKey: true
+            },
+            missed_all: Sequelize.BOOLEAN
+        })
+
         return db;
     },
 };
