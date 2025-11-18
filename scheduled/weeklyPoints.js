@@ -99,12 +99,6 @@ module.exports = {
                             diff: -pointsBiweeklyMissed
                         })
                     }
-                } else if (allMissed) {
-                    changes.push({
-                        user: staffId,
-                        completed: false,
-                        diff: 0
-                    })
                 }
             }
             user.save();
