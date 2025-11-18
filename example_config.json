@@ -54,5 +54,6 @@
     "pointsWeeklyCompleted": 2,
     "pointsBiweeklyMissed": 6,
     "sendWeeklyUpdates": true,
-    "weeklyUpdatesChannelId": "1431707278851182613"
+    "weeklyUpdatesChannelId": "1431707278851182613",
+    "filterByGuildMembers": true
 }

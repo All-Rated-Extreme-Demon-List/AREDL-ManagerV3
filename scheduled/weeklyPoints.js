@@ -1,5 +1,15 @@
 const { api } = require('../api.js');
-const { apiToken, pointsWeeklyCompleted, pointsBiweeklyMissed, sendWeeklyUpdates, guildId, weeklyUpdatesChannelId, enableSeparateStaffServer, staffGuildId } = require('../config.json');
+const {
+    apiToken,
+    pointsWeeklyCompleted,
+    pointsBiweeklyMissed,
+    sendWeeklyUpdates,
+    guildId,
+    weeklyUpdatesChannelId,
+    enableSeparateStaffServer,
+    staffGuildId,
+    filterByGuildMembers
+} = require('../config.json');
 const logger = require("log4js").getLogger();
 const { EmbedBuilder } = require("discord.js")
 
@@ -38,7 +48,12 @@ module.exports = {
         logger.log('Scheduled - Calculating weekly points');
 
         const { db, client } = require('../index.js');
-        
+
+        const guild = client.guilds.cache.get(guildId);
+        const staffGuild = enableSeparateStaffServer
+            ? client.guilds.cache.get(staffGuildId)
+            : guild;
+
         const now = new Date();
         const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -57,6 +72,7 @@ module.exports = {
         const changes = [];
 
         for (const [staffId, shifts] of Object.entries(allShifts)) {
+            if (!staffGuild.members.cache.has(staffId) && filterByGuildMembers) continue;
             const allCompleted = shifts.every((shift) => shift.status === "Completed");
             const allMissed = shifts.every((shift) => shift.status === "Expired");
 
@@ -76,7 +92,7 @@ module.exports = {
             }
 
             if (allCompleted) {
-                user.points = Math.min(user.points + pointsWeeklyCompleted, 30); 
+                user.points = Math.min(user.points + pointsWeeklyCompleted, 30);
                 changes.push({
                     user: staffId,
                     completed: true,
@@ -87,7 +103,7 @@ module.exports = {
                     const missedLastShift = await db.weekly_missed_shifts.findOne({
                         where: { user: staffId }
                     })
-                    
+
                     if (
                         missedLastShift && missedLastShift.missed_all && // if last week's shifts were missed
                         allMissed // and this week's shifts were missed
@@ -128,10 +144,6 @@ module.exports = {
                         }
                     ])
             })
-            const guild = client.guilds.cache.get(guildId);
-            const staffGuild = enableSeparateStaffServer
-                ? client.guilds.cache.get(staffGuildId)
-                : guild;
             if (embeds.length > 0) {
                 for (let i = 0; i < embeds.length; i += 10) {
                     const embedBatch = embeds.slice(i, i + 10);
@@ -143,6 +155,6 @@ module.exports = {
         }
 
         return;
-        
+
     },
 };
