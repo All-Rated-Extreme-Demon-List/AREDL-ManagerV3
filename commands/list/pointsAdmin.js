@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, ChatInputCommandInteraction, ContainerBuilder, SeparatorSpacingSize, TextDisplayBuilder, MessageFlags } = require('discord.js');
+const { enableStaffPoints } = require('../../config.json');
 
 module.exports = {
-    enabled: true,
+    enabled: enableStaffPoints,
     data: new SlashCommandBuilder()
         .setName('pointsadmin')
         .setDefaultMemberPermissions(0)

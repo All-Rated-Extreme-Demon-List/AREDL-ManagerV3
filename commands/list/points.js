@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } = require('discord.js');
+const { enableStaffPoints } = require('../../config.json');
 
 module.exports = {
-    enabled: true,
+    enabled: enableStaffPoints,
     data: new SlashCommandBuilder()
         .setName('points')
         .setDescription('View your total Pukeko Points.'),

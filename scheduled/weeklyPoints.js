@@ -8,7 +8,9 @@ const {
     weeklyUpdatesChannelId,
     enableSeparateStaffServer,
     staffGuildId,
-    filterByGuildMembers
+    filterByGuildMembers,
+    enableStaffPoints,
+    enableWeeklyStaffPoints
 } = require('../config.json');
 const logger = require("log4js").getLogger();
 const { EmbedBuilder } = require("discord.js")
@@ -43,7 +45,7 @@ const getShifts = async (cutoff) => {
 module.exports = {
     name: 'weeklyPointsGain',
     cron: "0 0 * * 1", // weekly
-    enabled: false,
+    enabled: enableStaffPoints && enableWeeklyStaffPoints,
     async execute() {
         logger.log('Scheduled - Calculating weekly points');
 
