@@ -51,9 +51,9 @@ module.exports = {
                 const recordsDone = shift.completed_count / shift.target_count;
 
                 if (recordsDone >= (2/3)) {
-                    points.points = Math.max(points.points - (maxPointsOnShiftMiss * 2/3), 0);
-                } else if (recordsDone >= (1/3)) {
                     points.points = Math.max(points.points - (maxPointsOnShiftMiss * 1/3), 0);
+                } else if (recordsDone >= (1/3)) {
+                    points.points = Math.max(points.points - (maxPointsOnShiftMiss * 2/3), 0);
                 } else {
                     points.points = Math.max(points.points - maxPointsOnShiftMiss, 0);
                 }
