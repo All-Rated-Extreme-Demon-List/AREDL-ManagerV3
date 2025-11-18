@@ -51,8 +51,6 @@
     "pointsOnShiftComplete": 1,
     "maxPointsOnShiftMiss": 6,
 
-    "pointsWeeklyGainedSchedule": "0 0 * * 0",
-    "pointsBiweeklyLostSchedule": "0 0 * * 0",
     "pointsWeeklyCompleted": 2,
     "pointsBiweeklyMissed": 6,
     "sendWeeklyUpdates": true,
