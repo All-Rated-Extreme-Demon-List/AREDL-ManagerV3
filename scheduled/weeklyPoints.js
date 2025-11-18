@@ -22,10 +22,10 @@ const getShifts = async (cutoff) => {
             return;
         }
         shifts.push(...shiftsReq.data.data);
-        if (new Date(shifts[shifts.length - 1].start_at) >= cutoff && page < maxPage && shiftsReq.data.data.length > 0) {
+        if (new Date(shifts[shifts.length - 1].end_at) >= cutoff && page < maxPage && shiftsReq.data.data.length > 0) {
             page++;
         } else {
-            return shifts.filter((shift) => new Date(shift.start_at) >= cutoff && shift.status !== "Running");
+            return shifts.filter((shift) => new Date(shift.end_at) >= cutoff && shift.status !== "Running");
         }
     }
 }
