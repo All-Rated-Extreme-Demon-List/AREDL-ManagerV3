@@ -4,6 +4,7 @@ const {
     staffGuildId,
     completedShiftsID,
     enableSeparateStaffServer,
+    pointsOnShiftComplete,
 } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
@@ -11,6 +12,7 @@ const { EmbedBuilder } = require('discord.js');
 module.exports = {
     notification_type: 'SHIFT_COMPLETED',
     async handle(client, data) {
+        const { db } = require('../index.js');
         logger.log('Received shift completed notification:', data);
 
         const reviewerResponse = await api.send(
@@ -22,6 +24,18 @@ module.exports = {
                 `Error fetching reviewer data: ${reviewerResponse.data.message}`,
             );
             return;
+        }
+
+        let newPoints = null;
+        if (reviewerResponse.data.discord_id) {
+            const [points, _] = await db.staff_points.findOrCreate({
+                where: { user: reviewerResponse.data.discord_id },
+            });
+            points.points = Math.min(points.points + pointsOnShiftComplete, 30);
+            newPoints = points.points;
+            points.save();
+        } else {
+            logger.warn(`Shift completed - no Discord ID found for ${reviewerResponse.data.global_name}`);
         }
 
         // unix epochs
@@ -45,16 +59,25 @@ module.exports = {
                     value: `<t:${startDate}> - <t:${endDate}>`,
                     inline: true,
                 },
+                {
+                    name: 'Points',
+                    value: `${newPoints ? Math.round(newPoints * 100) / 100 : 'N/A'}`,
+                    inline: true,
+                },
             ])
             .setTimestamp();
 
-        const guild = await client.guilds.fetch(guildId);
+        const guild = await client.guilds.cache.get(guildId);
         const staffGuild = enableSeparateStaffServer
-            ? await client.guilds.fetch(staffGuildId)
+            ? await client.guilds.cache.get(staffGuildId)
             : guild;
 
         staffGuild.channels.cache
             .get(completedShiftsID)
             .send({ embeds: [archiveEmbed] });
+
+        
+        
+        return;
     },
 };

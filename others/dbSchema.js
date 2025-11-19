@@ -60,6 +60,25 @@ module.exports = {
             discordid: Sequelize.STRING,
         });
 
+        db.staff_points = sequelize.define("staff_points", {
+            user: {
+                type: Sequelize.STRING,
+                primaryKey: true
+            },
+            points: {
+                type: Sequelize.NUMBER,
+                defaultValue: 25
+            },
+        });
+
+        db.weekly_missed_shifts = sequelize.define("weekly_missed_shifts", {
+            user: {
+                type: Sequelize.STRING,
+                primaryKey: true
+            },
+            missed_all: Sequelize.BOOLEAN
+        })
+
         return db;
     },
 };

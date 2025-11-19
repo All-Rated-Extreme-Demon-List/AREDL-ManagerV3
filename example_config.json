@@ -46,5 +46,16 @@
 
     "infoMessageUpdateSchedule": "0 * * * *",
 
-    "timeoutLogsChannelID": ""
+    "timeoutLogsChannelID": "",
+    
+    "pointsOnShiftComplete": 1,
+    "maxPointsOnShiftMiss": 6,
+
+    "enableStaffPoints": true,
+    "enableWeeklyStaffPoints": true,
+    "pointsWeeklyCompleted": 2,
+    "pointsBiweeklyMissed": 6,
+    "sendWeeklyUpdates": true,
+    "weeklyUpdatesChannelId": "",
+    "filterByGuildMembers": true
 }

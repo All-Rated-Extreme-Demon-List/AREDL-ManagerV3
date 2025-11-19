@@ -4,6 +4,7 @@ const {
     staffGuildId,
     missedShiftsID,
     enableSeparateStaffServer,
+    maxPointsOnShiftMiss
 } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
@@ -11,6 +12,7 @@ const { EmbedBuilder } = require('discord.js');
 module.exports = {
     notification_type: 'SHIFTS_MISSED',
     async handle(client, data) {
+        const { db } = require('../index.js');
         logger.log('Received shift missed notification:', data);
 
         const guild = await client.guilds.fetch(guildId);
@@ -40,6 +42,26 @@ module.exports = {
                 reviewer = reviewerResponse.data;
                 foundReviewers.push(reviewer);
             }
+
+            let newPoints = null;
+            if (reviewer.discord_id) {
+                const [points, _] = await db.staff_points.findOrCreate({
+                    where: { user: reviewer.id },
+                })
+                const recordsDone = shift.completed_count / shift.target_count;
+
+                if (recordsDone >= (2/3)) {
+                    points.points = Math.max(points.points - (maxPointsOnShiftMiss * 1/3), 0);
+                } else if (recordsDone >= (1/3)) {
+                    points.points = Math.max(points.points - (maxPointsOnShiftMiss * 2/3), 0);
+                } else {
+                    points.points = Math.max(points.points - maxPointsOnShiftMiss, 0);
+                }
+                newPoints = points.points;
+                points.save();
+            } else {
+                logger.warn(`Shift Missed - Reviewer ${data.user_id} has no Discord ID, skipping points decrement.`);
+            }
             // unix epochs
             let startDate = Math.floor(new Date(shift.start_at) / 1000);
             const shiftEmbed = new EmbedBuilder()
@@ -55,6 +77,7 @@ module.exports = {
                         inline: true,
                     },
                     { name: 'Time', value: `<t:${startDate}>`, inline: true },
+                    { name: 'Points', value: `${newPoints ? Math.round(newPoints * 100) / 100 : 'N/A'}`, inline: true },
                 ])
                 .setTimestamp();
 
