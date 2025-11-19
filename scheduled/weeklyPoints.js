@@ -10,7 +10,9 @@ const {
     staffGuildId,
     filterByGuildMembers,
     enableStaffPoints,
-    enableWeeklyStaffPoints
+    enableWeeklyStaffPoints,
+    defaultPoints,
+    maxPoints,
 } = require('../config.json');
 const logger = require("log4js").getLogger();
 const { EmbedBuilder } = require("discord.js")
@@ -82,6 +84,7 @@ module.exports = {
                 where: {
                     user: staffId,
                 },
+                defaults: { points: defaultPoints },
             });
 
 
@@ -94,7 +97,7 @@ module.exports = {
             }
 
             if (allCompleted) {
-                user.points = Math.min(user.points + pointsWeeklyCompleted, 30);
+                user.points = Math.min(user.points + pointsWeeklyCompleted, maxPoints);
                 changes.push({
                     user: staffId,
                     completed: true,

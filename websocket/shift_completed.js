@@ -5,6 +5,8 @@ const {
     completedShiftsID,
     enableSeparateStaffServer,
     pointsOnShiftComplete,
+    maxPoints,
+    defaultPoints
 } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
@@ -30,8 +32,10 @@ module.exports = {
         if (reviewerResponse.data.discord_id) {
             const [points, _] = await db.staff_points.findOrCreate({
                 where: { user: reviewerResponse.data.discord_id },
+                defaults: { points: defaultPoints },
             });
-            points.points = Math.min(points.points + pointsOnShiftComplete, 30);
+            points.points = Math.min(points.points + pointsOnShiftComplete, maxPoints);
+            console.log(JSON.stringify(points, null, 2));
             newPoints = points.points;
             points.save();
         } else {

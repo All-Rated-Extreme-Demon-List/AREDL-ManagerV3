@@ -57,5 +57,7 @@
     "pointsBiweeklyMissed": 6,
     "sendWeeklyUpdates": true,
     "weeklyUpdatesChannelId": "",
-    "filterByGuildMembers": true
+    "filterByGuildMembers": true,
+    "defaultPoints": 25,
+    "maxPoints": 30
 }

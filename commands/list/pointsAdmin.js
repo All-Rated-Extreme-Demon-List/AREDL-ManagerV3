@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChatInputCommandInteraction, ContainerBuilder, SeparatorSpacingSize, TextDisplayBuilder, MessageFlags } = require('discord.js');
-const { enableStaffPoints } = require('../../config.json');
+const { enableStaffPoints, defaultPoints, maxPoints } = require('../../config.json');
 
 module.exports = {
     enabled: enableStaffPoints,
@@ -106,7 +106,10 @@ module.exports = {
             });
         } else if (subcommand === "find") {
             const user = interaction.options.getUser("user");
-            const [points, _] = await db.staff_points.findOrCreate({ where: { user: user.id } });
+            const [points, _] = await db.staff_points.findOrCreate({ 
+                where: { user: user.id },
+                defaults: { points: defaultPoints },
+            });
             return await interaction.editReply(
                 `<@${user.id}> has ${Math.round(points.points * 100) / 100} points.`
             )
@@ -147,7 +150,7 @@ module.exports = {
             
             transferToPoints.points = overwrite 
                 ? transferFromPoints.points 
-                : Math.min(transferToPoints.points + transferFromPoints.points, 30);
+                : Math.min(transferToPoints.points + transferFromPoints.points, maxPoints);
             
             transferToPoints.save();
             transferFromPoints.destroy();

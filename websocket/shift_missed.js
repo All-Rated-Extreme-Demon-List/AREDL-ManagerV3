@@ -4,7 +4,8 @@ const {
     staffGuildId,
     missedShiftsID,
     enableSeparateStaffServer,
-    maxPointsOnShiftMiss
+    maxPointsOnShiftMiss,
+    defaultPoints
 } = require('../config.json');
 const { api } = require('../api');
 const { EmbedBuilder } = require('discord.js');
@@ -46,7 +47,8 @@ module.exports = {
             let newPoints = null;
             if (reviewer.discord_id) {
                 const [points, _] = await db.staff_points.findOrCreate({
-                    where: { user: reviewer.id },
+                    where: { user: reviewer.discord_id },
+                    defaults: { points: defaultPoints },
                 })
                 const recordsDone = shift.completed_count / shift.target_count;
 

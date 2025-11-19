@@ -83,7 +83,9 @@ jobs:
                     "pointsBiweeklyMissed": 6,
                     "sendWeeklyUpdates": true,
                     "weeklyUpdatesChannelId": "${{ secrets.WEEKLY_UPDATES_CHANNEL_ID }}",
-                    "filterByGuildMembers": true
+                    "filterByGuildMembers": true,
+                    "defaultPoints": 25,
+                    "maxPoints": 30
                   }
                   EOF
 

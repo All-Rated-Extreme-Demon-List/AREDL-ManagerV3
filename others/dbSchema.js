@@ -1,4 +1,6 @@
 const Sequelize = require('sequelize');
+const { defaultPoints } = require('../config.json');
+
 module.exports = {
     createDbSchema(sequelize) {
         const db = {};
@@ -67,7 +69,7 @@ module.exports = {
             },
             points: {
                 type: Sequelize.NUMBER,
-                defaultValue: 25
+                defaultValue: defaultPoints
             },
         });
 

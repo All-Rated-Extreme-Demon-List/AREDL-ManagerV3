@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } = require('discord.js');
-const { enableStaffPoints } = require('../../config.json');
+const { enableStaffPoints, defaultPoints } = require('../../config.json');
 
 module.exports = {
     enabled: enableStaffPoints,
@@ -13,7 +13,8 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const { db } = require('../../index.js');
         const [user, _] = await db.staff_points.findOrCreate({ 
-            where: { user: interaction.user.id }
+            where: { user: interaction.user.id },
+            defaults: { points: defaultPoints },
         });
         return await interaction.editReply(`You have **${Math.round(user.points * 100) / 100}** Pukeko Points.`);
     },
