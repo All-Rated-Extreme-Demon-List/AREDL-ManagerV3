@@ -44,7 +44,7 @@ const getShifts = async (cutoff) => {
 
 module.exports = {
     name: 'weeklyPointsGain',
-    cron: "0 0 * * 1", // weekly
+    cron: "0 0 * * 0", // weekly, on sunday at midnight
     enabled: enableStaffPoints && enableWeeklyStaffPoints,
     async execute() {
         logger.log('Scheduled - Calculating weekly points');
