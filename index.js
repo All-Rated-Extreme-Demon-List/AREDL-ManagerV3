@@ -86,12 +86,6 @@ async function start() {
     } catch (error) {
         logger.error('Unable to resume pending shift notifications: \n', error);
     }
-    await db.staff_points.destroy({
-        where: { user: "4775e8c2-2f66-4d95-90c8-e11fa9d74c28" }
-    })
-    await db.staff_points.destroy({
-        where: { user: "d0470518-03cf-4980-a3a8-22fcad9eb15b" }
-    })
 }
 
 start();
