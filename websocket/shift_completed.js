@@ -35,7 +35,6 @@ module.exports = {
                 defaults: { points: defaultPoints },
             });
             points.points = Math.min(points.points + pointsOnShiftComplete, maxPoints);
-            console.log(JSON.stringify(points, null, 2));
             newPoints = points.points;
             points.save();
         } else {
