@@ -29,7 +29,7 @@ module.exports = {
             );
         }
 
-        const shifts = shiftsResponse.data;
+        const shifts = shiftsResponse.data.data;
         let now = new Date();
 
         for (const shift of shifts) {
