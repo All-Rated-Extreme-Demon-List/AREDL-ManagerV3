@@ -61,8 +61,6 @@ module.exports = {
                 }
                 newPoints = points.points;
                 points.save();
-                logger.log(newPoints);
-                logger.log(JSON.stringify(points));
             } else {
                 logger.warn(`Shift Missed - Reviewer ${data.user_id} has no Discord ID, skipping points decrement.`);
             }

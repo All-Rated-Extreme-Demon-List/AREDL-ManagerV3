@@ -37,8 +37,6 @@ module.exports = {
             points.points = Math.min(points.points + pointsOnShiftComplete, maxPoints);
             newPoints = points.points;
             points.save();
-            logger.log(newPoints);
-            logger.log(JSON.stringify(points));
         } else {
             logger.warn(`Shift completed - no Discord ID found for ${reviewerResponse.data.global_name}`);
         }
