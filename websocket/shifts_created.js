@@ -29,14 +29,10 @@ module.exports = {
             });
             const currentTime = new Date().getTime();
             const startAt = new Date(shift.start_at);
-
-            if (startAt.getTime() <= currentTime) {
+        
+            setTimeout(() => {
                 sendShiftNotif(channel, shift, db, dbShift.id);
-            } else {
-                setTimeout(() => {
-                    sendShiftNotif(channel, shift, db, dbShift.id);
-                }, startAt.getTime() - currentTime);
-            }
+            }, Math.max(startAt.getTime() - currentTime, 0));
         }
     },
 };

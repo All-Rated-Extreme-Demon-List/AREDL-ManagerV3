@@ -24,7 +24,6 @@ module.exports = {
         const embeds = [];
 
         // AREDL
-
         for (const shift of data.aredl) {
             let reviewer = foundReviewers.find(
                 (rev) => rev.id == shift.user_id,
@@ -38,7 +37,7 @@ module.exports = {
                     logger.error(
                         `Error fetching reviewer data: ${reviewerResponse.data.message}`,
                     );
-                    return;
+                    continue;
                 }
                 reviewer = reviewerResponse.data;
                 foundReviewers.push(reviewer);
