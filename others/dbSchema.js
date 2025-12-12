@@ -46,8 +46,10 @@ module.exports = {
 
         db.shiftNotifs = sequelize.define('shiftReminders', {
             id: {
-                type: Sequelize.STRING,
+                type: Sequelize.INTEGER,
+                autoIncrement: true,
                 primaryKey: true,
+                allowNull: false,
             },
             user_id: Sequelize.STRING,
             start_at: Sequelize.DATE,
