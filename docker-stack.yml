@@ -17,7 +17,6 @@ services:
             - aredl_manager_v3_net
     restarter:
         image: docker:cli
-        restart: unless-stopped
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         command:
@@ -26,6 +25,8 @@ services:
                 '-c',
                 'while :; do sleep 86400; docker service update --force aredl_manager_v3_stack_bot || true; done',
             ]
+        networks:
+            - aredl_manager_v3_net
 
 configs:
     bot_config:

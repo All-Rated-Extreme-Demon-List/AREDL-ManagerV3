@@ -104,7 +104,7 @@ jobs:
               uses: appleboy/ssh-action@v1.0.0
               env:
                   GHCR_USERNAME: ${{ github.actor }}
-                  GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
                   IMAGE_REPO: ghcr.io/${{ env.OWNER_LC }}/aredl-manager-v3
                   BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -115,6 +115,7 @@ jobs:
                   key: ${{ secrets.DEPLOY_KEY }}
                   envs: GHCR_USERNAME,GHCR_TOKEN,DEPLOY_PATH,IMAGE_REPO,BOT_TOKEN,API_TOKEN
                   script: |
+                      set -euo pipefail
                       cd $DEPLOY_PATH
                       docker stack rm aredl_manager_v3_stack 2>/dev/null || true
                       echo "Waiting for bot service to stop…"
