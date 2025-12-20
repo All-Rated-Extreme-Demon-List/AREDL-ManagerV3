@@ -87,7 +87,8 @@ jobs:
                     "weeklyUpdatesChannelId": "${{ secrets.WEEKLY_UPDATES_CHANNEL_ID }}",
                     "filterByGuildMembers": true,
                     "defaultPoints": 25,
-                    "maxPoints": 30
+                    "maxPoints": 30,
+                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}"
                   }
                   EOF
 

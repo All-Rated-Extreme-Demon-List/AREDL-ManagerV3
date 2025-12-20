@@ -13,6 +13,7 @@ const {
     opinionPermsRoleID,
     extremeGrinderRoleID,
     guildId,
+    noPingListRoleID,
 } = require('../../config.json');
 
 const processLevelName = (name) => {
@@ -151,12 +152,11 @@ module.exports = {
                     .addTextDisplayComponents(
                         new TextDisplayBuilder().setContent(`## :x: Error!`),
                         new TextDisplayBuilder().setContent(
-                            `Error fetching ${
-                                lvl1res.error && lvl2res.error
-                                    ? 'both levels'
-                                    : lvl1res.error
-                                      ? 'level 1'
-                                      : lvl2res.error
+                            `Error fetching ${lvl1res.error && lvl2res.error
+                                ? 'both levels'
+                                : lvl1res.error
+                                    ? 'level 1'
+                                    : lvl2res.error
                                         ? 'level 2'
                                         : 'one of the levels'
                             }!`,
@@ -192,12 +192,11 @@ module.exports = {
                             `**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? ' (High Extremes)' : ''}`,
                         ),
                         new TextDisplayBuilder().setContent(
-                            `Error fetching records for ${
-                                lvl1RecordsRes.error && lvl2RecordsRes.error
-                                    ? 'both levels'
-                                    : lvl1RecordsRes.error
-                                      ? 'level 1'
-                                      : lvl2RecordsRes.error
+                            `Error fetching records for ${lvl1RecordsRes.error && lvl2RecordsRes.error
+                                ? 'both levels'
+                                : lvl1RecordsRes.error
+                                    ? 'level 1'
+                                    : lvl2RecordsRes.error
                                         ? 'level 2'
                                         : 'one of the levels'
                             }!`,
@@ -275,31 +274,37 @@ module.exports = {
                         inServer: member ? true : false,
                         hasPerms: member
                             ? member.roles.cache.hasAny(
-                                  opinionPermsRoleID,
-                                  extremeGrinderRoleID,
-                              )
+                                opinionPermsRoleID,
+                                extremeGrinderRoleID,
+                            )
                             : undefined,
+                        noPingList: member ? member.roles.cache.hasAny(noPingListRoleID) : undefined,
                     };
                 })
                 .sort((a, b) => {
                     const sortOrder = [
                         { type: 'no_linked_discord', order: 1 },
                         { type: 'not_in_server', order: 2 },
-                        { type: 'no_opinion_perms', order: 3 },
-                        { type: 'has_opinion_perms', order: 4 },
+                        { type: "no_ping_list", order: 3 },
+                        { type: 'no_opinion_perms', order: 4 },
+                        { type: 'has_opinion_perms', order: 5 },
                     ];
                     const aType = a.discordTag
                         ? a.inServer
-                            ? a.hasPerms
-                                ? 'has_opinion_perms'
-                                : 'no_opinion_perms'
+                            ? a.noPingList
+                                ? "no_ping_list"
+                                : a.hasPerms
+                                    ? 'has_opinion_perms'
+                                    : 'no_opinion_perms'
                             : 'not_in_server'
                         : 'no_linked_discord';
                     const bType = b.discordTag
                         ? b.inServer
-                            ? b.hasPerms
-                                ? 'has_opinion_perms'
-                                : 'no_opinion_perms'
+                            ? a.noPingList
+                                ? "no_ping_list"
+                                : b.hasPerms
+                                    ? 'has_opinion_perms'
+                                    : 'no_opinion_perms'
                             : 'not_in_server'
                         : 'no_linked_discord';
 
@@ -319,7 +324,7 @@ module.exports = {
             const str = victors
                 .map(
                     (v) =>
-                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag !== undefined && !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`,
+                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag ===  undefined ? "" : v.noPingList ? `\t(No Ping List)` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`,
                 )
                 .join('\n');
 
@@ -334,10 +339,9 @@ module.exports = {
                         `**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? ' (High Extremes)' : ''}`,
                     ),
                     new TextDisplayBuilder().setContent(
-                        `*There ${
-                            filteredRecords.length === 1
-                                ? 'is 1 mutual victor'
-                                : `are ${filteredRecords.length} mutual victors`
+                        `*There ${filteredRecords.length === 1
+                            ? 'is 1 mutual victor'
+                            : `are ${filteredRecords.length} mutual victors`
                         } on these levels.*`,
                     ),
                 )
@@ -475,31 +479,37 @@ module.exports = {
                         inServer: member ? true : false,
                         hasPerms: member
                             ? member.roles.cache.hasAny(
-                                  opinionPermsRoleID,
-                                  extremeGrinderRoleID,
-                              )
+                                opinionPermsRoleID,
+                                extremeGrinderRoleID,
+                            )
                             : undefined,
+                        noPingList: member ? member.roles.cache.hasAny(noPingListRoleID) : undefined,
                     };
                 })
                 .sort((a, b) => {
                     const sortOrder = [
                         { type: 'no_linked_discord', order: 1 },
                         { type: 'not_in_server', order: 2 },
-                        { type: 'no_opinion_perms', order: 3 },
-                        { type: 'has_opinion_perms', order: 4 },
+                        { type: "no_ping_list", order: 3 },
+                        { type: 'no_opinion_perms', order: 4 },
+                        { type: 'has_opinion_perms', order: 5 },
                     ];
                     const aType = a.discordTag
                         ? a.inServer
-                            ? a.hasPerms
-                                ? 'has_opinion_perms'
-                                : 'no_opinion_perms'
+                            ? a.noPingList
+                                ? "no_ping_list"
+                                : a.hasPerms
+                                    ? 'has_opinion_perms'
+                                    : 'no_opinion_perms'
                             : 'not_in_server'
                         : 'no_linked_discord';
                     const bType = b.discordTag
                         ? b.inServer
-                            ? b.hasPerms
-                                ? 'has_opinion_perms'
-                                : 'no_opinion_perms'
+                            ? a.noPingList
+                                ? "no_ping_list"
+                                : b.hasPerms
+                                    ? 'has_opinion_perms'
+                                    : 'no_opinion_perms'
                             : 'not_in_server'
                         : 'no_linked_discord';
 
@@ -519,7 +529,7 @@ module.exports = {
             const str = victors
                 .map(
                     (v) =>
-                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag !== undefined && !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`,
+                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag ===  undefined ? "" : v.noPingList ? `\t(No Ping List)` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`,
                 )
                 .join('\n');
 
@@ -531,10 +541,9 @@ module.exports = {
                 .addTextDisplayComponents(
                     new TextDisplayBuilder().setContent(`## ${level.name}`),
                     new TextDisplayBuilder().setContent(
-                        `*There ${
-                            records.length === 1
-                                ? `is 1 victor${highExtremes ? ' with 50+ extremes' : ''}`
-                                : `are ${records.length} victors${highExtremes ? ' with 50+ extremes' : ''}`
+                        `*There ${records.length === 1
+                            ? `is 1 victor${highExtremes ? ' with 50+ extremes' : ''}`
+                            : `are ${records.length} victors${highExtremes ? ' with 50+ extremes' : ''}`
                         } on **[${level.name}](https://aredl.net/list/${ID})**.*`,
                     ),
                 )
