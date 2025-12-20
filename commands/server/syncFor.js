@@ -8,7 +8,7 @@ const {
 
 module.exports = {
     enabled: true,
-    cooldown: 5,
+    cooldown: 2,
     data: new SlashCommandBuilder()
         .setName('syncfor')
         .setDescription("Sync roles for another user")
