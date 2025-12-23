@@ -340,7 +340,7 @@ module.exports = {
             const str = victors
                 .map(
                     (v) =>
-                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag === undefined ? '' : v.noPingList ? `\t(${v.noPingList.banned ? 'Banned' : 'No Ping List'})\t${v.noPingList.notes || ''}` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`
+                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag === undefined ? '' : v.noPingList ? `\t(${v.noPingList.banned ? 'Opinion Banned' : 'No Ping List'})\t${v.noPingList.notes || ''}` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`
                 )
                 .join('\n');
 
@@ -557,7 +557,7 @@ module.exports = {
             const str = victors
                 .map(
                     (v) =>
-                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag === undefined ? '' : v.noPingList ? `\t(${v.noPingList.banned ? 'Banned' : 'No Ping List'})\t${v.noPingList.notes || ''}` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`
+                        `${v.username}${v.discordTag ? `\t${v.discordTag}` : ''}${v.discordTag === undefined ? '' : v.noPingList ? `\t(${v.noPingList.banned ? 'Opinion Banned' : 'No Ping List'})\t${v.noPingList.notes || ''}` : !v.hasPerms ? `\t${v.inServer ? '(No opinion perms)' : '(Not in server)'}` : ''}`
                 )
                 .join('\n');
 
