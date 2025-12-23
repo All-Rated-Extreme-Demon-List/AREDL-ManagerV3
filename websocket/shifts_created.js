@@ -19,6 +19,7 @@ module.exports = {
             ? await client.guilds.fetch(staffGuildId)
             : guild;
         const channel = staffGuild.channels.cache.get(shiftsStartedID);
+        const currentTime = new Date().getTime();
 
         for (const shift of data) {
             const dbShift = await db.shiftNotifs.create({
@@ -27,12 +28,11 @@ module.exports = {
                 end_at: shift.end_at,
                 target_count: shift.target_count,
             });
-            const currentTime = new Date().getTime();
-            const startAt = new Date(shift.start_at);
-        
+            
+            const startAt = new Date(shift.start_at).getTime();
             setTimeout(() => {
                 sendShiftNotif(channel, shift, db, dbShift.id);
-            }, Math.max(startAt.getTime() - currentTime, 0));
+            }, Math.max(startAt - currentTime, 0));
         }
     },
 };

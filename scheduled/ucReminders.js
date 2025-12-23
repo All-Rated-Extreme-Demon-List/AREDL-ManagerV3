@@ -82,13 +82,11 @@ module.exports = {
 
         for (const submission of submissions) {
             const alreadyReminded = await db.sentUcReminders.findAll();
-            console.log(alreadyReminded.length);
             if (
                 alreadyReminded.find(
                     (reminded) => reminded.id === submission.id,
                 )
             ) {
-                console.log('This reminder was already sent!');
                 continue;
             }
             const updatedAt = new Date(submission.updated_at);
@@ -97,7 +95,6 @@ module.exports = {
                 Date.now() - ucReminderThreshold * 24 * 60 * 60 * 1000,
             );
             if (updatedAt > threshold) {
-                console.log('This submission is not old enough!');
                 continue;
             }
 

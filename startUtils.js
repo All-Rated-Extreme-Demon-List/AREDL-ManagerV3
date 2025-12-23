@@ -229,9 +229,10 @@ module.exports = {
             );
         });
     },
+    /// Called on bot startup
     async resumeShiftTimers(client, db) {
         if (!shiftsStartedID) {
-            logger.warn("Shifts started channel not configured. Skipping...");
+            logger.warn('Shifts started channel not configured. Skipping...');
             return 0;
         }
         const guild = await client.guilds.fetch(guildId);
@@ -240,23 +241,18 @@ module.exports = {
             : guild;
         const channel = await staffGuild.channels.fetch(shiftsStartedID);
         const shifts = await db.shiftNotifs.findAll();
-        const now = new Date().getTime() / 1000;
+        const currentTime = new Date().getTime();
         for (const dbShift of shifts) {
-            const startTime = new Date(dbShift.start_at).getTime() / 1000;
+            const startTime = new Date(dbShift.start_at).getTime();
             const shift = {
                 user_id: dbShift.user_id,
                 start_at: dbShift.start_at,
                 end_at: dbShift.end_at,
                 target_count: dbShift.target_count,
             };
-            if (startTime < now) {
+            setTimeout(async () => {
                 await sendShiftNotif(channel, shift, db, dbShift.id);
-            } else {
-                const waitTime = startTime - now;
-                setTimeout(async () => {
-                    await sendShiftNotif(channel, shift, db, dbShift.id);
-                }, waitTime * 1000);
-            }
+            }, Math.max(startTime - currentTime, 0));
         }
         return shifts.length;
     },
