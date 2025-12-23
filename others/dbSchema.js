@@ -81,7 +81,23 @@ module.exports = {
                 primaryKey: true
             },
             missed_all: Sequelize.BOOLEAN
-        })
+        }),
+
+        db.noPingList = sequelize.define('noPingList', {
+			userId: {
+				type: Sequelize.STRING,
+				primaryKey: true,
+			},
+			notes: {
+                type: Sequelize.STRING,
+                required: false
+            },
+            banned: {
+                type: Sequelize.BOOLEAN,
+                required: true,
+                defaultValue: false,
+            },
+		});
 
         return db;
     },
