@@ -80,7 +80,16 @@ module.exports = {
                         .setDescription('The user to remove')
                         .setRequired(true)
                 )
-        ),
+        )
+        .addSubcommand((subcommand) => 
+            subcommand
+                .setName("find")
+                .setDescription("Check to see if a user is on the No Ping List")
+                .addUserOption((option) => 
+                    option.setName("user")
+                        .setDescription("The user to search for")
+                        .setRequired(true)
+                )),
     /**
      * @param {ChatInputCommandInteraction} interaction The interaction object
      */
@@ -165,6 +174,16 @@ module.exports = {
             await interaction.editReply(
                 `:white_check_mark: ${user} has been removed from the No Ping List!`
             );
+        } else if (subcommand === "find") {
+            const user = interaction.options.getUser("user", true);
+            const entry = await db.noPingList.findOne({
+                where: { userId: user.id }
+            });
+            if (!entry) {
+                return await interaction.editReply(`:x: ${user} is not on the No Ping List.`)
+            }
+
+            return await interaction.editReply(`:white_check_mark: ${user} is ${entry.banned ? 'opinion banned' : 'on the No Ping List'}.`)
         }
     },
 };
