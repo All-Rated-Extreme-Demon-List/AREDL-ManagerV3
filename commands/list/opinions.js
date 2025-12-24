@@ -139,9 +139,10 @@ module.exports = {
                 entry.save();
             }
 
-            await interaction.guild.members.cache
-                .get(user.id)
-                .roles.add(noPingListRoleID);
+            // do not add role if banning 
+            if (!banned) {
+                interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.add(noPingList)
+            }
 
             await interaction.editReply(
                 `:white_check_mark: ${user} has been ${banned ? 'opinion banned' : 'added to the No Ping List'}!`
@@ -159,9 +160,7 @@ module.exports = {
             }
 
             await entry.destroy();
-            await interaction.guild.members.cache
-                .get(user.id)
-                .roles.remove(noPingListRoleID);
+            await interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.remove(noPingList)
 
             await interaction.editReply(
                 `:white_check_mark: ${user} has been removed from the No Ping List!`
