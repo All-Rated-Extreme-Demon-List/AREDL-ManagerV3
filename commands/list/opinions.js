@@ -141,7 +141,7 @@ module.exports = {
 
             // do not add role if banning 
             if (!banned) {
-                interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.add(noPingList)
+                interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.add(noPingListRoleID)
             }
 
             await interaction.editReply(
@@ -160,7 +160,7 @@ module.exports = {
             }
 
             await entry.destroy();
-            await interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.remove(noPingList)
+            await interaction.client.guilds.cache.get(guildId)?.members.cache.get(user.id)?.roles.remove(noPingListRoleID)
 
             await interaction.editReply(
                 `:white_check_mark: ${user} has been removed from the No Ping List!`
