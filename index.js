@@ -1,4 +1,4 @@
-const { token, apiToken } = require('./config.json');
+const { token, apiToken, maxPoints } = require('./config.json');
 const log4js = require('log4js');
 const Sequelize = require('sequelize');
 const { Client, GatewayIntentBits } = require('discord.js');
@@ -77,7 +77,11 @@ async function start() {
         process.exit(1);
     }
 
-    await db.shiftNotifs.truncate();
+    const pointEntries = await db.staff_points.findAll();
+    for (const staff of pointEntries) {
+        staff.points = Math.min(staff.points + 10, maxPoints);
+        await staff.save();
+    }
 
     try {
         logger.info('Resuming pending shift notifications...');

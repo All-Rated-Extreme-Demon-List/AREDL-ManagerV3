@@ -21,7 +21,6 @@
     "completedShiftsID": "",
     "missedShiftsID": "",
     "shiftsStartedID": "",
-    "shiftNotifsEnabled": false,
     "enableShiftReminders": true,
     "sendShiftRemindersSchedule": "0 * * * *",
     "shiftReminderExpireThreshold": 3,

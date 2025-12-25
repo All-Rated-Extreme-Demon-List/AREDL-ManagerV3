@@ -64,7 +64,7 @@ jobs:
                     "platRecordsID": "${{ secrets.PLAT_RECORDS_ID }}",
                     "guildMemberAddID": "${{ secrets.GUILD_MEMBER_ADD_ID }}",
                     "completedShiftsID": "${{ secrets.COMPLETED_SHIFTS_ID }}",
-                    "shiftsStartedID": "${{ secrets.SHIFTS_STARTED_ID }}",
+                    "shiftsStartedID": null,
                     "missedShiftsID": "${{ secrets.MISSED_SHIFTS_ID }}",
                     "enableShiftReminders": true,
                     "sendShiftRemindersSchedule": "0 * * * *",
@@ -88,8 +88,7 @@ jobs:
                     "filterByGuildMembers": true,
                     "defaultPoints": 25,
                     "maxPoints": 30,
-                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}",
-                    "shiftNotifsEnabled": false
+                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}"
                   }
                   EOF
 
