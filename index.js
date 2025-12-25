@@ -77,12 +77,6 @@ async function start() {
         process.exit(1);
     }
 
-    const pointEntries = await db.staff_points.findAll();
-    for (const staff of pointEntries) {
-        staff.points = Math.min(staff.points + 10, maxPoints);
-        await staff.save();
-    }
-
     try {
         logger.info('Resuming pending shift notifications...');
         const count = await resumeShiftTimers(client, db);
