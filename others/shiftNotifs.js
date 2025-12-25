@@ -1,9 +1,11 @@
 const { api } = require('../api.js');
 const logger = require('log4js').getLogger();
 const { EmbedBuilder } = require('discord.js');
+const { shiftNotifsEnabled } = require('../config.json');
 
 module.exports = {
     sendShiftNotif: async (channel, shift, db, shiftID) => {
+        if (!shiftNotifsEnabled) return 0;
         try {
             const reviewerResponse = await api.send(
                 `/users/${shift.user_id}`,

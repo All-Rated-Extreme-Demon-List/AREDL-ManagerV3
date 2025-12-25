@@ -77,6 +77,8 @@ async function start() {
         process.exit(1);
     }
 
+    await db.shiftNotifs.truncate();
+
     try {
         logger.info('Resuming pending shift notifications...');
         const count = await resumeShiftTimers(client, db);

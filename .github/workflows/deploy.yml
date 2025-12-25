@@ -88,7 +88,8 @@ jobs:
                     "filterByGuildMembers": true,
                     "defaultPoints": 25,
                     "maxPoints": 30,
-                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}"
+                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}",
+                    "shiftNotifsEnabled": false
                   }
                   EOF
 
