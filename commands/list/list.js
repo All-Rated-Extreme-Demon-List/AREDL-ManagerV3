@@ -387,6 +387,7 @@ module.exports = {
                     : MessageFlags.IsComponentsV2,
                 components: [container],
                 files: files,
+                allowedMentions: { parse: [] },
             });
         } else if (subcommand === 'victors') {
             const ID = interaction.options.getString('level');
@@ -478,6 +479,7 @@ module.exports = {
                         MessageFlags.Ephemeral,
                     ],
                     components: [container],
+                    allowedMentions: { parse: [] },
                 });
             }
 
