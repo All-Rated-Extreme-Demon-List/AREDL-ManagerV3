@@ -48,11 +48,17 @@ module.exports = {
 
             await channel.send({ content: pingStr, embeds: [archiveEmbed] });
             await db.shiftNotifs.destroy({ where: { id: shiftID } });
+            logger.info(`Successfully sent and deleted shift notification (ID: ${shiftID})`);
             return 0;
         } catch (e) {
             logger.error(`Shift Notification - Error sending shift notification: ${e}`);
             logger.error(shift);
-            await db.shiftNotifs.destroy({ where: { id: shiftID } });
+            try {
+                await db.shiftNotifs.destroy({ where: { id: shiftID } });
+                logger.info(`Deleted shift notification after error (ID: ${shiftID})`);
+            } catch (deleteErr) {
+                logger.error(`Failed to delete shift notification (ID: ${shiftID}) after error:`, deleteErr);
+            }
             return 1;
         }
     },

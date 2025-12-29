@@ -242,8 +242,19 @@ module.exports = {
         const channel = await staffGuild.channels.fetch(shiftsStartedID);
         const shifts = await db.shiftNotifs.findAll();
         const currentTime = new Date().getTime();
+        let resumedCount = 0;
         for (const dbShift of shifts) {
             const startTime = new Date(dbShift.start_at).getTime();
+            const timeDiff = startTime - currentTime;
+
+            if (timeDiff < -600000) {
+                logger.warn(`Removing stale shift notification (ID: ${dbShift.id}) from database`);
+                await db.shiftNotifs.destroy({ where: { id: dbShift.id } }).catch(err => {
+                    logger.error(`Failed to delete stale shift notification (ID: ${dbShift.id}):`, err);
+                });
+                continue;
+            }
+            
             const shift = {
                 user_id: dbShift.user_id,
                 start_at: dbShift.start_at,
@@ -251,9 +262,13 @@ module.exports = {
                 target_count: dbShift.target_count,
             };
             setTimeout(async () => {
-                await sendShiftNotif(channel, shift, db, dbShift.id);
-            }, Math.max(startTime - currentTime, 0));
+                await sendShiftNotif(channel, shift, db, dbShift.id).catch(err => {
+                    logger.error('Failed to send resumed shift notification:', err);
+                });
+            }, Math.max(timeDiff, 0));
+            resumedCount++;
         }
-        return shifts.length;
+        logger.info(`Resumed ${resumedCount} shift notification timers`);
+        return resumedCount;
     },
 };

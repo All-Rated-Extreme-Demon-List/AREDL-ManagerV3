@@ -22,17 +22,23 @@ module.exports = {
         const currentTime = new Date().getTime();
 
         for (const shift of data) {
-            const dbShift = await db.shiftNotifs.create({
-                user_id: shift.user_id,
-                start_at: shift.start_at,
-                end_at: shift.end_at,
-                target_count: shift.target_count,
-            });
-            
-            const startAt = new Date(shift.start_at).getTime();
-            setTimeout(() => {
-                sendShiftNotif(channel, shift, db, dbShift.id);
-            }, Math.max(startAt - currentTime, 0));
+            try {
+                const dbShift = await db.shiftNotifs.create({
+                    user_id: shift.user_id,
+                    start_at: shift.start_at,
+                    end_at: shift.end_at,
+                    target_count: shift.target_count,
+                });
+                
+                const startAt = new Date(shift.start_at).getTime();
+                setTimeout(async () => {
+                    await sendShiftNotif(channel, shift, db, dbShift.id).catch(err => {
+                        logger.error('Failed to send shift notification:', err);
+                    });
+                }, Math.max(startAt - currentTime, 0));
+            } catch (err) {
+                logger.error('Failed to create shift notification in database:', err);
+            }
         }
     },
 };
