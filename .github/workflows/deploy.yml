@@ -62,6 +62,7 @@ jobs:
                     "platArchiveRecordsID": "${{ secrets.PLAT_ARCHIVE_RECORDS_ID }}",
                     "classicRecordsID": "${{ secrets.CLASSIC_RECORDS_ID }}",
                     "platRecordsID": "${{ secrets.PLAT_RECORDS_ID }}",
+                    "ucRecordsID": "${{ secrets.UC_RECORDS_ID }}",
                     "guildMemberAddID": "${{ secrets.GUILD_MEMBER_ADD_ID }}",
                     "completedShiftsID": "${{ secrets.COMPLETED_SHIFTS_ID }}",
                     "shiftsStartedID": "${{ secrets.SHIFTS_STARTED_ID }}",

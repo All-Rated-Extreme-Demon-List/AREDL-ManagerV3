@@ -6,6 +6,7 @@ const {
     platRecordsID,
     classicArchiveRecordsID,
     classicRecordsID,
+    ucRecordsID,
     enableSeparateStaffServer,
 } = require('../config.json');
 const { api } = require('../api');
@@ -17,13 +18,27 @@ module.exports = {
     async handle(client, data) {
         logger.log('Received submission denied notification:', data);
 
+        const { db } = require('../index.js');
+
         const isPlat =
             'completion_time' in data && data.completion_time !== null;
 
-        const [submitterResponse, reviewerResponse] = await Promise.all([
-            api.send(`/users/${data.submitted_by.id}`, 'GET'),
-            api.send(`/users/${data.reviewer.id}`, 'GET'),
-        ]);
+        const [levelResponse, submitterResponse, reviewerResponse] =
+            await Promise.all([
+                api.send(
+                    `${isPlat ? '/arepl' : '/aredl'}/levels/${data.level_id}`,
+                    'GET',
+                ),
+                api.send(`/users/${data.submitted_by}`, 'GET'),
+                api.send(`/users/${data.reviewer_id}`, 'GET'),
+            ]);
+
+        if (levelResponse.error) {
+            logger.error(
+                `Error fetching level data: ${levelResponse.data.message}`,
+            );
+            return;
+        }
 
         if (submitterResponse.error) {
             logger.error(
@@ -40,7 +55,9 @@ module.exports = {
 
         const archiveEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(`:x: [#${data.level.position}] ${data.level.name}`)
+            .setTitle(
+                `:x: [#${levelResponse.data.position}] ${levelResponse.data.name}`,
+            )
             .addFields([
                 {
                     name: 'Record submitted by',
@@ -89,8 +106,16 @@ module.exports = {
                             : 'None',
                 },
                 {
+                    name: 'Private Reviewer Notes',
+                    value:
+                        data.private_reviewer_notes &&
+                        data.private_reviewer_notes !== ''
+                            ? data.private_reviewer_notes
+                            : 'None',
+                },
+                {
                     name: 'Link',
-                    value: `[Open in Staff Portal](https://staff.aredl.net/dashboard/submissions/${data.id}?list=${isPlat ? 'platformer' : 'classic'})`,
+                    value: `[Open submission](https://aredl.net/staff/submissions/${data.id}?list=${isPlat ? 'platformer' : 'classic'})`,
                 },
             ])
             .setTimestamp();
@@ -98,7 +123,9 @@ module.exports = {
         // Create embed to send in public channel
         const publicEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(`:x: [#${data.level.position}] ${data.level.name}`)
+            .setTitle(
+                `:x: [#${levelResponse.data.position}] ${levelResponse.data.name}`,
+            )
             .setDescription(
                 'Denied\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800',
             )
@@ -144,5 +171,62 @@ module.exports = {
         guild.channels.cache
             .get(isPlat ? platRecordsID : classicRecordsID)
             .send({ content: `${data.video_url}` });
+
+        // Update UC thread if exists
+
+        const ucThread = await db.ucThreads.findByPk(String(data.id));
+        if (!ucThread) return;
+
+        try {
+            const ucChannel = await staffGuild.channels.fetch(ucRecordsID);
+            const firstMessage = await ucChannel.messages.fetch(
+                ucThread.message_id,
+            );
+            await firstMessage.reactions.removeAll();
+            await firstMessage.react('❌');
+
+            const thread = await staffGuild.channels.fetch(ucThread.thread_id);
+            const baseName = `[Denied] #${levelResponse.data.position} ${levelResponse.data.name} - ${submitterResponse.data.global_name}`;
+            await thread.setName(
+                baseName.length > 100
+                    ? `${baseName.slice(0, 97)}...`
+                    : baseName,
+            );
+
+            await thread.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(0xcc0000)
+                        .setTitle(':x: Denied')
+                        .addFields([
+                            {
+                                name: 'Denied by',
+                                value: `<@${reviewerResponse.data.discord_id}>`,
+                            },
+                            {
+                                name: 'Reviewer notes',
+                                value:
+                                    data.reviewer_notes &&
+                                    data.reviewer_notes !== ''
+                                        ? data.reviewer_notes
+                                        : 'None',
+                                inline: true,
+                            },
+                            {
+                                name: 'Private reviewer notes',
+                                value:
+                                    data.private_reviewer_notes &&
+                                    data.private_reviewer_notes !== ''
+                                        ? data.private_reviewer_notes
+                                        : 'None',
+                                inline: true,
+                            },
+                        ])
+                        .setTimestamp(),
+                ],
+            });
+        } catch (err) {
+            logger.error('Failed to update UC thread after deny:', err);
+        }
     },
 };

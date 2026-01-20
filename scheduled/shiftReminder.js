@@ -13,7 +13,7 @@ module.exports = {
     cron: sendShiftRemindersSchedule,
     enabled: enableShiftReminders,
     async execute() {
-        const { client } = require('../index.js');
+        const { client, db } = require('../index.js');
         logger.log('Scheduled - Sending shift reminders');
         let shiftsResponse = await api.send(
             '/shifts',

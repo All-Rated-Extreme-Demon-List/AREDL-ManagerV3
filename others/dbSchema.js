@@ -64,40 +64,48 @@ module.exports = {
             discordid: Sequelize.STRING,
         });
 
-        db.staff_points = sequelize.define("staff_points", {
+        db.staff_points = sequelize.define('staff_points', {
             user: {
                 type: Sequelize.STRING,
-                primaryKey: true
+                primaryKey: true,
             },
             points: {
                 type: Sequelize.NUMBER,
-                defaultValue: defaultPoints
+                defaultValue: defaultPoints,
             },
         });
 
-        db.weekly_missed_shifts = sequelize.define("weekly_missed_shifts", {
+        ((db.weekly_missed_shifts = sequelize.define('weekly_missed_shifts', {
             user: {
                 type: Sequelize.STRING,
-                primaryKey: true
+                primaryKey: true,
             },
-            missed_all: Sequelize.BOOLEAN
-        }),
+            missed_all: Sequelize.BOOLEAN,
+        })),
+            (db.noPingList = sequelize.define('noPingList', {
+                userId: {
+                    type: Sequelize.STRING,
+                    primaryKey: true,
+                },
+                notes: {
+                    type: Sequelize.STRING,
+                    required: false,
+                },
+                banned: {
+                    type: Sequelize.BOOLEAN,
+                    required: true,
+                    defaultValue: false,
+                },
+            })));
 
-        db.noPingList = sequelize.define('noPingList', {
-			userId: {
-				type: Sequelize.STRING,
-				primaryKey: true,
-			},
-			notes: {
+        db.ucThreads = sequelize.define('ucThreads', {
+            submission_id: {
                 type: Sequelize.STRING,
-                required: false
+                primaryKey: true,
             },
-            banned: {
-                type: Sequelize.BOOLEAN,
-                required: true,
-                defaultValue: false,
-            },
-		});
+            message_id: Sequelize.STRING,
+            thread_id: Sequelize.STRING,
+        });
 
         return db;
     },

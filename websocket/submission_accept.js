@@ -6,6 +6,7 @@ const {
     classicArchiveRecordsID,
     platRecordsID,
     classicRecordsID,
+    ucRecordsID,
     enableSeparateStaffServer,
 } = require('../config.json');
 const { api } = require('../api');
@@ -17,10 +18,15 @@ module.exports = {
     async handle(client, data) {
         logger.log('Received submission accepted notification:', data);
 
+        const { db } = require('../index.js');
+
+        const isPlat =
+            'completion_time' in data && data.completion_time !== null;
+
         const [levelResponse, submitterResponse, reviewerResponse] =
             await Promise.all([
                 api.send(
-                    `${'completion_time' in data ? '/arepl' : '/aredl'}/levels/${data.level_id}`,
+                    `${isPlat ? '/arepl' : '/aredl'}/levels/${data.level_id}`,
                     'GET',
                 ),
                 api.send(`/users/${data.submitted_by}`, 'GET'),
@@ -98,6 +104,18 @@ module.exports = {
                             ? data.reviewer_notes
                             : 'None',
                 },
+                {
+                    name: 'Private Reviewer Notes',
+                    value:
+                        data.private_reviewer_notes &&
+                        data.private_reviewer_notes !== ''
+                            ? data.private_reviewer_notes
+                            : 'None',
+                },
+                {
+                    name: 'Link',
+                    value: `[Open submission](https://aredl.net/staff/submissions/${data.id}?list=${isPlat ? 'platformer' : 'classic'})`,
+                },
             ])
             .setTimestamp();
 
@@ -141,20 +159,73 @@ module.exports = {
             : guild;
 
         staffGuild.channels.cache
-            .get(
-                'completion_time' in data
-                    ? platArchiveRecordsID
-                    : classicArchiveRecordsID,
-            )
+            .get(isPlat ? platArchiveRecordsID : classicArchiveRecordsID)
             .send({ embeds: [archiveEmbed] });
         guild.channels.cache
-            .get('completion_time' in data ? platRecordsID : classicRecordsID)
+            .get(isPlat ? platRecordsID : classicRecordsID)
             .send({
                 content: `<@${submitterResponse.data.discord_id}>`,
                 embeds: [publicEmbed],
             });
         guild.channels.cache
-            .get('completion_time' in data ? platRecordsID : classicRecordsID)
+            .get(isPlat ? platRecordsID : classicRecordsID)
             .send({ content: `${data.video_url}` });
+
+        // Update UC thread if exists
+
+        const ucThread = await db.ucThreads.findByPk(String(data.id));
+        if (!ucThread) return;
+
+        try {
+            const ucChannel = await staffGuild.channels.fetch(ucRecordsID);
+            const firstMessage = await ucChannel.messages.fetch(
+                ucThread.message_id,
+            );
+            await firstMessage.reactions.removeAll();
+            await firstMessage.react('✅');
+
+            const thread = await staffGuild.channels.fetch(ucThread.thread_id);
+            const threadName = `[Accepted] #${levelResponse.data.position} ${levelResponse.data.name} - ${submitterResponse.data.global_name}`;
+            await thread.setName(
+                threadName.length > 100
+                    ? `${threadName.slice(0, 97)}...`
+                    : threadName,
+            );
+
+            await thread.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(0x8fce00)
+                        .setTitle(':white_check_mark: Accepted')
+                        .addFields([
+                            {
+                                name: 'Accepted by',
+                                value: `<@${reviewerResponse.data.discord_id}>`,
+                            },
+                            {
+                                name: 'Reviewer notes',
+                                value:
+                                    data.reviewer_notes &&
+                                    data.reviewer_notes !== ''
+                                        ? data.reviewer_notes
+                                        : 'None',
+                                inline: true,
+                            },
+                            {
+                                name: 'Private reviewer notes',
+                                value:
+                                    data.private_reviewer_notes &&
+                                    data.private_reviewer_notes !== ''
+                                        ? data.private_reviewer_notes
+                                        : 'None',
+                                inline: true,
+                            },
+                        ])
+                        .setTimestamp(),
+                ],
+            });
+        } catch (err) {
+            logger.error('Failed to update UC thread after accept:', err);
+        }
     },
 };

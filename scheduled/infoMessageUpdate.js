@@ -338,28 +338,28 @@ module.exports = {
             queue_arepl,
         ] = await Promise.all([
             api.send(
-                '/aredl/submissions/statistics',
+                '/aredl/statistics/submissions/daily',
                 'GET',
                 { per_page: 31, page: 1 },
                 undefined,
                 apiToken,
             ),
             api.send(
-                '/arepl/submissions/statistics',
+                '/arepl/statistics/submissions/daily',
                 'GET',
                 { per_page: 31, page: 1 },
                 undefined,
                 apiToken,
             ),
             api.send(
-                '/aredl/records/statistics',
+                '/aredl/statistics/records',
                 'GET',
                 undefined,
                 undefined,
                 apiToken,
             ),
             api.send(
-                '/arepl/records/statistics',
+                '/arepl/statistics/records',
                 'GET',
                 undefined,
                 undefined,
