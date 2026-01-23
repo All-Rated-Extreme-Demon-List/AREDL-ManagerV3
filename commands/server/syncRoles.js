@@ -23,54 +23,50 @@ const {
 const logger = require('log4js').getLogger();
 
 /**
- * @param {ChatInputCommandInteraction} interaction 
+ * @param {ChatInputCommandInteraction} interaction
  * @param {GuildMember} member
  */
 const syncRoles = async (interaction, member) => {
     // do not stack if stack is explicitly set to "off", otherwise stack
     const shouldStack = interaction.options.getNumber('stack') !== 0;
 
-    const profileReq = await api.send(
-        `/aredl/profile/${member.user.id}`,
-    );
+    const profileReq = await api.send(`/aredl/profile/${member.user.id}`);
     if (profileReq.error) {
         if (profileReq.data.status === 404) {
             logger.error(
                 'Sync roles - User not found:',
-                profileReq.data.message,
+                profileReq.data.message
             );
             return interaction.editReply(
-                `:x: Could not find this user's profile on the leaderboard!`,
+                `:x: Could not find this user's profile on the leaderboard!`
             );
         }
         logger.error(
             'Sync roles - Error fetching profile:',
-            profileReq.data.message,
+            profileReq.data.message
         );
         return interaction.editReply(
-            `Error fetching profile: ${profileReq.data.message}`,
+            `Error fetching profile: ${profileReq.data.message}`
         );
     }
     const profile = profileReq.data;
-    const areplReq = await api.send(
-        `/arepl/profile/${member.user.id}`,
-    );
+    const areplReq = await api.send(`/arepl/profile/${member.user.id}`);
     if (areplReq.error) {
         if (areplReq.data.status === 404) {
             logger.error(
                 'Sync roles - User not found (Platformer):',
-                areplReq.data.message,
+                areplReq.data.message
             );
             return interaction.editReply(
-                `:x: Could not find this user's platformer profile on the leaderboard!`,
+                `:x: Could not find this user's platformer profile on the leaderboard!`
             );
         }
         logger.error(
             'Sync roles - Error fetching platformer profile:',
-            areplReq.data.message,
+            areplReq.data.message
         );
         return interaction.editReply(
-            `Error fetching platformer profile: ${areplReq.data.message}`,
+            `Error fetching platformer profile: ${areplReq.data.message}`
         );
     }
     const arepl = areplReq.data;
@@ -89,14 +85,15 @@ const syncRoles = async (interaction, member) => {
         creatorRoleID,
         verifierRoleID,
     ];
-    await member.roles.remove(rolesToRemove, "Sync Roles: Removing all automated roles");
+    await member.roles.remove(
+        rolesToRemove,
+        'Sync Roles: Removing all automated roles'
+    );
 
     const addRoles = (roleIds) => {
         for (const roleId of roleIds) {
             if (!member.guild.roles.cache.hasAny(roleId)) {
-                logger.warn(
-                    `Role sync - Role ${roleId} not found in server`,
-                );
+                logger.warn(`Role sync - Role ${roleId} not found in server`);
                 return;
             }
             addedRoles.push(roleId);
@@ -122,78 +119,87 @@ const syncRoles = async (interaction, member) => {
     // Points roles
     processRoleType(
         pointsRoleIDs,
-        (req) => Math.round(profile.rank.total_points / 10) >= req,
+        (req) => Math.round((profile?.rank?.total_points ?? 0) / 10) >= req
     );
     // Pack roles
-    processRoleType(packRoleIDs, (req) => profile.packs.length >= req);
+    processRoleType(packRoleIDs, (req) => (profile?.packs?.length ?? 0) >= req);
     // Top level roles
-    const records = [...profile.records, ...profile.verified];
     processRoleType(topLevelRoleIDs, (req) =>
-        records.some((record) => record.level.position <= req),
+        profile?.records?.some((record) => record.level.position <= req)
     );
     // Opinion perms
-    if (profile.rank.extremes >= 10) {
+    if ((profile?.rank?.extremes ?? 0) >= 10) {
         addRoles([opinionPermsRoleID]);
     }
     // Creator role
-    if (profile.created.length > 0 || arepl.created.length > 0) {
+    if (
+        (profile?.created?.length ?? 0) > 0 ||
+        (arepl?.created?.length ?? 0) > 0
+    ) {
         addRoles([creatorRoleID]);
     }
     // Verifier role
-    if (profile.verified.length > 0 || arepl.verified.length > 0) {
+    if (
+        [...(profile?.records ?? []), ...(arepl?.records ?? [])].some(
+            (record) => record.is_verification
+        )
+    ) {
         addRoles([verifierRoleID]);
     }
     // Extreme Grinder role
-    if (profile.rank.extremes >= 50) {
+    if ((profile?.rank?.extremes ?? 0) >= 50) {
         addRoles([extremeGrinderRoleID]);
     }
 
     try {
-        await member.roles.add(addedRoles, "Sync Roles: Automatically adding profile roles");
+        await member.roles.add(
+            addedRoles,
+            'Sync Roles: Automatically adding profile roles'
+        );
     } catch (e) {
         logger.error('Sync roles - Error adding roles:');
         logger.error(e);
         return interaction.editReply(
-            `:x: Error adding roles, please try again later`,
+            `:x: Error adding roles, please try again later`
         );
     }
 
     const container = new ContainerBuilder().setAccentColor(0x00ff00);
     container.addTextDisplayComponents(
         new TextDisplayBuilder().setContent(
-            `## :white_check_mark: Roles synced!`,
-        ),
+            `## :white_check_mark: Roles synced!`
+        )
     );
     container.addSeparatorComponents((separator) =>
-        separator.setSpacing(SeparatorSpacingSize.Small),
+        separator.setSpacing(SeparatorSpacingSize.Small)
     );
 
-    const hardestRank = records.reduce((prev, curr) =>
-        prev.level.position < curr.level.position ? prev : curr,
+    const hardestRank = profile?.records?.reduce((prev, curr) =>
+        prev.level.position < curr.level.position ? prev : curr
     )?.level.position;
     container.addTextDisplayComponents(
         new TextDisplayBuilder().setContent(`## **Stats:**`),
         new TextDisplayBuilder().setContent(
-            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${(profile.verified.length > 0 || arepl.verified.length > 0) ? ':white_check_mark:' : ':x:'}\nCreator: ${(profile.created.length > 0 || arepl.created.length > 0) ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`,
-        ),
+            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 || arepl.verified.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${profile.created.length > 0 || arepl.created.length > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`
+        )
     );
     container.addSeparatorComponents((separator) =>
-        separator.setSpacing(SeparatorSpacingSize.Small),
+        separator.setSpacing(SeparatorSpacingSize.Small)
     );
     container.addTextDisplayComponents(
         new TextDisplayBuilder().setContent(`## **Added roles:**`),
         new TextDisplayBuilder().setContent(
             addedRoles.length === 0
                 ? 'No new roles!'
-                : addedRoles.map((r) => `<@&${r}>`).join('\n'),
-        ),
+                : addedRoles.map((r) => `<@&${r}>`).join('\n')
+        )
     );
 
     return await interaction.editReply({
         flags: MessageFlags.IsComponentsV2,
         components: [container],
     });
-}
+};
 
 module.exports = {
     syncRoles,
@@ -205,14 +211,16 @@ module.exports = {
         .addNumberOption((option) =>
             option
                 .setName('stack')
-                .setDescription('Whether to stack points, pack, and top level roles')
+                .setDescription(
+                    'Whether to stack points, pack, and top level roles'
+                )
                 .setChoices([
                     { name: 'On', value: 1 },
                     { name: 'Off', value: 0 },
-                ]),
+                ])
         ),
     /**
-     * @param {ChatInputCommandInteraction} interaction 
+     * @param {ChatInputCommandInteraction} interaction
      */
     async execute(interaction) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
