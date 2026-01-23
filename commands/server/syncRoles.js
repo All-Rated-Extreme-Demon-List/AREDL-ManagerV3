@@ -71,6 +71,11 @@ const syncRoles = async (interaction, member) => {
     }
     const arepl = areplReq.data;
 
+    const verifications = [
+        ...(profile?.records ?? []),
+        ...(arepl?.records ?? []),
+    ].filter((record) => record.is_verification);
+
     const addedRoles = [];
 
     // remove all roles to account for different stacking preferences
@@ -139,11 +144,7 @@ const syncRoles = async (interaction, member) => {
         addRoles([creatorRoleID]);
     }
     // Verifier role
-    if (
-        [...(profile?.records ?? []), ...(arepl?.records ?? [])].some(
-            (record) => record.is_verification
-        )
-    ) {
+    if (verifications.length > 0) {
         addRoles([verifierRoleID]);
     }
     // Extreme Grinder role
@@ -180,7 +181,7 @@ const syncRoles = async (interaction, member) => {
     container.addTextDisplayComponents(
         new TextDisplayBuilder().setContent(`## **Stats:**`),
         new TextDisplayBuilder().setContent(
-            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round(profile.rank.total_points / 10)}\nPacks: ${profile.packs.length === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile.rank.extremes}\nVerifier: ${profile.verified.length > 0 || arepl.verified.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${profile.created.length > 0 || arepl.created.length > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`
+            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`
         )
     );
     container.addSeparatorComponents((separator) =>
