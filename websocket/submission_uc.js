@@ -25,7 +25,7 @@ module.exports = {
             await Promise.all([
                 api.send(
                     `${isPlat ? '/arepl' : '/aredl'}/levels/${data.level_id}`,
-                    'GET',
+                    'GET'
                 ),
                 api.send(`/users/${data.submitted_by}`, 'GET'),
                 data.reviewer_id
@@ -35,20 +35,20 @@ module.exports = {
 
         if (levelResponse.error) {
             logger.error(
-                `Error fetching level data: ${levelResponse.data.message}`,
+                `Error fetching level data: ${levelResponse.data.message}`
             );
             return;
         }
 
         if (submitterResponse.error) {
             logger.error(
-                `Error fetching user data: ${submitterResponse.data.message}`,
+                `Error fetching user data: ${submitterResponse.data.message}`
             );
             return;
         }
         if (reviewerResponse?.error) {
             logger.error(
-                `Error fetching reviewer data: ${reviewerResponse.data.message}`,
+                `Error fetching reviewer data: ${reviewerResponse.data.message}`
             );
             return;
         }
@@ -142,6 +142,7 @@ module.exports = {
         const ucChannel = await staffGuild.channels.fetch(ucRecordsID);
 
         const sentUCMessage = await ucChannel.send({
+            content: `<@${reviewer?.discord_id}>`,
             embeds: [
                 new EmbedBuilder()
                     .setColor(0xffff00)
