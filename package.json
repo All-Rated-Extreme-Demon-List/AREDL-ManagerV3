@@ -1,0 +1,44 @@
+{
+    "name": "aredl-manager-v4",
+    "description": "The AREDL Discord bot written in TypeScript using CommandKit.",
+    "version": "0.1.0",
+    "type": "module",
+    "private": true,
+    "main": "dist/index.js",
+    "packageManager": "yarn@4.12.0",
+    "scripts": {
+        "dev": "commandkit dev",
+        "build": "commandkit build",
+        "start": "commandkit start",
+        "format": "npx prettier --write .",
+        "lint": "npx eslint . --fix"
+    },
+    "devDependencies": {
+        "@eslint/compat": "2.0.2",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/node": "^24.0.10",
+        "drizzle-kit": "^0.31.8",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "prettier": "3.8.1",
+        "tsx": "^4.21.0",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.55.0"
+    },
+    "dependencies": {
+        "@commandkit/tasks": "^1.2.0-rc.13",
+        "@libsql/client": "^0.17.0",
+        "@napi-rs/canvas": "^0.1.89",
+        "better-sqlite3": "^12.6.2",
+        "chart.js": "^4.5.1",
+        "chartjs-node-canvas": "^5.0.0",
+        "commandkit": "^1.2.0-rc.12",
+        "discord.js": "^14.24.0",
+        "dotenv": "^17.2.3",
+        "drizzle-orm": "^0.45.1",
+        "iso-3166-1": "^2.1.1",
+        "log4js": "^6.9.1",
+        "ts-node": "^10.9.2",
+        "ws": "^8.14.0"
+    }
+}
