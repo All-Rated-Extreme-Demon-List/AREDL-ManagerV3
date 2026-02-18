@@ -8,7 +8,7 @@ export default defineConfig({
             sqliteDriverDatabasePath: "./data/tasks.sqlite",
         }),
         logging({
-            log4jsConfigPath: './log4js.json',
-        })
+            log4jsConfigPath: "./log4js.json",
+        }),
     ],
 });

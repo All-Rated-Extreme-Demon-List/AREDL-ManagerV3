@@ -30,7 +30,7 @@ jobs:
             - name: Set owner name to lowercase
               run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
               env:
-                  OWNER: '${{ github.repository_owner }}'
+                  OWNER: "${{ github.repository_owner }}"
 
             - name: Build and push image
               uses: docker/build-push-action@v5
@@ -99,7 +99,7 @@ jobs:
                   host: ${{ secrets.DEPLOY_HOST }}
                   username: ${{ secrets.DEPLOY_USER }}
                   key: ${{ secrets.DEPLOY_KEY }}
-                  source: 'docker-stack.yml,config.template.json'
+                  source: "docker-stack.yml,config.template.json"
                   target: ${{ secrets.DEPLOY_PATH }}
 
             - name: Deploy container

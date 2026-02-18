@@ -3,9 +3,9 @@ import {
     RuntimePlugin,
     Logger,
     type ILogger,
-} from 'commandkit';
-import { type Configuration } from 'log4js';
-import log4js from 'log4js';
+} from "commandkit";
+import { type Configuration } from "log4js";
+import log4js from "log4js";
 
 export interface LoggingPluginOptions {
     log4jsConfig?: Configuration;
@@ -51,7 +51,7 @@ export class Log4jsAdapter implements ILogger {
 }
 
 export class LoggingPlugin extends RuntimePlugin<LoggingPluginOptions> {
-    name = 'logging';
+    name = "logging";
 
     private logger!: log4js.Logger;
     private errorLogger!: log4js.Logger;
@@ -63,17 +63,17 @@ export class LoggingPlugin extends RuntimePlugin<LoggingPluginOptions> {
         else if (this.options.log4jsConfig)
             log4js.configure(this.options.log4jsConfig);
 
-        this.logger = log4js.getLogger('default');
-        this.errorLogger = log4js.getLogger('error');
-        this.sqlLogger = log4js.getLogger('sql');
+        this.logger = log4js.getLogger("default");
+        this.errorLogger = log4js.getLogger("error");
+        this.sqlLogger = log4js.getLogger("sql");
 
         Logger.configure({
             provider: new Log4jsAdapter(this.logger),
         });
 
-        ctx.commandkit.store.set('logger', this.logger);
-        ctx.commandkit.store.set('errorLogger', this.errorLogger);
-        ctx.commandkit.store.set('sqlLogger', this.sqlLogger);
+        ctx.commandkit.store.set("logger", this.logger);
+        ctx.commandkit.store.set("errorLogger", this.errorLogger);
+        ctx.commandkit.store.set("sqlLogger", this.sqlLogger);
     }
 }
 

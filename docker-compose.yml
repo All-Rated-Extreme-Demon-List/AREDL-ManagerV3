@@ -7,7 +7,7 @@ services:
             - ./data:/app/data
         environment:
             - NODE_ENV=production
-        env_file: 
+        env_file:
             - .env
         restart: unless-stopped
     restarter:
@@ -23,4 +23,3 @@ services:
                 "-c",
                 "while :; do sleep 86400; docker restart aredl-manager-v3 || true; done",
             ]
-
