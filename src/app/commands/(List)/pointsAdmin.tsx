@@ -154,7 +154,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const user = interaction.options.getUser("user", true);
         const points = interaction.options.getNumber("points", true);
         await db.staff_points.upsert({
-            create: { user: user.id },
+            create: { user: user.id, points: points },
             update: { user: user.id, points: points },
             where: { user: user.id },
         })
