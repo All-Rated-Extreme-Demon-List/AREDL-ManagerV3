@@ -1,7 +1,6 @@
-import { settingsTable } from "@/db/schema";
+import { db } from "@/db/prisma";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType } from "discord.js";
-import { db } from "@/app";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -25,20 +24,16 @@ export const command: CommandData = {
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
     await interaction.deferReply({ ephemeral: true });
-    const shiftPings = interaction.options.getString("shift-pings");
+    const shiftPings = interaction.options.getString("shift-pings") === "on";
 
-    await db
-        .insert(settingsTable)
-        .values({
+    await db.settings.upsert({
+        where: { user: interaction.user.id },
+        create: {
             user: interaction.user.id,
-            shiftPings: shiftPings === "on" ? true : false,
-        })
-        .onConflictDoUpdate({
-            target: settingsTable.user,
-            set: {
-                shiftPings: shiftPings === "on" ? true : false,
-            },
-        });
+            shiftPings,
+        },
+        update: { shiftPings }
+    });
 
     await interaction.editReply(`:white_check_mark: Updated!`);
 };

@@ -10,7 +10,6 @@ import {
     filterByGuildMembers,
     enableStaffPoints,
     enableWeeklyStaffPoints,
-    defaultPoints,
     maxPoints,
 } from "@/../config.json";
 import { EmbedBuilder } from "discord.js";
@@ -18,9 +17,7 @@ import { Logger } from "commandkit";
 import { task } from "@commandkit/tasks";
 import { PaginatedResponse } from "@/types/api";
 import { Shift } from "@/types/shift";
-import { db } from "@/app";
-import { staffPointsTable, weeklyMissedShiftsTable } from "@/db/schema";
-import { count, eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 
 const getShifts = async (cutoff: Date) => {
     const shifts = [];
@@ -98,11 +95,7 @@ export default task({
         );
 
         const isOddWeek =
-            (
-                await db
-                    .select({ count: count() })
-                    .from(weeklyMissedShiftsTable)
-            )[0]?.count === 0;
+            (await db.weekly_missed_shifts.count()) === 0;
 
         const changes = [];
 
@@ -116,29 +109,34 @@ export default task({
                 (shift) => shift.status === "Expired"
             );
 
-            const user = await db
-                .insert(staffPointsTable)
-                .values({
+            const user = await db.staff_points.upsert({
+                where: { user: staffId },
+                create: {
                     user: staffId,
-                    points: defaultPoints,
-                })
-                .onConflictDoNothing()
-                .returning()
-                .get();
+                },
+                update: {},
+            });
 
             // track whether this staff member has missed all shifts for next week
             if (isOddWeek) {
-                await db.insert(weeklyMissedShiftsTable).values({
-                    user: staffId,
-                    missed_all: allMissed,
+                await db.weekly_missed_shifts.create({
+                    data: {
+                        user: staffId,
+                        missed_all: allMissed ? 1 : 0,
+                    },
                 });
             }
 
             if (allCompleted) {
-                user.points = Math.min(
-                    user.points + pointsWeeklyCompleted,
-                    maxPoints
-                );
+                await db.staff_points.update({
+                    where: { user: staffId },
+                    data: {
+                        points: Math.min(
+                            user.points + pointsWeeklyCompleted,
+                            maxPoints
+                        ),
+                    },
+                });
                 changes.push({
                     user: staffId,
                     completed: true,
@@ -146,23 +144,23 @@ export default task({
                 });
             } else {
                 if (!isOddWeek) {
-                    const missedLastShift = await db
-                        .select()
-                        .from(weeklyMissedShiftsTable)
-                        .where(eq(weeklyMissedShiftsTable.user, staffId))
-                        .limit(1)
-                        .get();
+                    const missedLastShift = await db.weekly_missed_shifts.findUnique({
+                        where: { user: staffId },
+                    });
 
                     if (
                         missedLastShift &&
-                        missedLastShift.missed_all && // if last week's shifts were missed
+                        missedLastShift.missed_all !== 0 && // if last week's shifts were missed
                         allMissed // and this week's shifts were missed
                     ) {
-                        await db.update(staffPointsTable).set({
-                            points: Math.max(
-                                user.points - pointsBiweeklyMissed,
-                                0
-                            ),
+                        await db.staff_points.update({
+                            where: { user: staffId },
+                            data: {
+                                points: Math.max(
+                                    user.points - pointsBiweeklyMissed,
+                                    0
+                                ),
+                            },
                         });
                         changes.push({
                             user: staffId,
@@ -176,7 +174,7 @@ export default task({
 
         // reset missed shifts for next week
         if (!isOddWeek) {
-            await db.delete(weeklyMissedShiftsTable);
+            await db.weekly_missed_shifts.deleteMany({});
         }
 
         if (sendWeeklyUpdates) {

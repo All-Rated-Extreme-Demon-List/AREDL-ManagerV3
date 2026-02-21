@@ -17,9 +17,7 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from "discord.js";
-import { db } from "@/app";
-import { messagesTable } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -80,23 +78,18 @@ export const command: CommandData = {
 };
 export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
     const focused = interaction.options.getFocused();
+    const messages = await db.messages.findMany({
+        where: { guild: interaction.guild?.id ?? "1" },
+    });
     return await interaction.respond(
-        await db
-            .select()
-            .from(messagesTable)
-            .where(eq(messagesTable.guild, interaction.guild?.id ?? "1"))
-            .then((messages) =>
-                messages
-                    .filter((message) =>
-                        message.name
-                            .toLowerCase()
-                            .includes(focused.toLowerCase())
-                    )
-                    .map((message) => ({
-                        name: message.name,
-                        value: message.name,
-                    }))
+        messages
+            .filter((message) =>
+                message.name.toLowerCase().includes(focused.toLowerCase())
             )
+            .map((message) => ({
+                name: message.name,
+                value: message.name,
+            }))
     );
 };
 
@@ -107,16 +100,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const channel = interaction.options.getChannel("channel", true);
 
         if (
-            await db
-                .select()
-                .from(messagesTable)
-                .where(
-                    and(
-                        eq(messagesTable.name, name),
-                        eq(messagesTable.guild, interaction.guild?.id ?? "1")
-                    )
-                )
-                .get()
+            (await db.messages.count({
+                where: {
+                    name,
+                    guild: interaction.guild?.id ?? "1",
+                },
+            })) !== 0
         ) {
             return await interaction.reply({
                 content:
@@ -210,11 +199,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                     });
                 }
 
-                await db.insert(messagesTable).values({
-                    name: name,
-                    guild: submittedModal.guild?.id ?? "1",
-                    channel: channel.id,
-                    discordid: sent.id,
+                await db.messages.create({
+                    data: {
+                        name: name,
+                        guild: submittedModal.guild?.id ?? "1",
+                        channel: channel.id,
+                        discordid: sent.id,
+                    },
                 });
 
                 await confirmation.update({
@@ -237,16 +228,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "edit") {
         const name = interaction.options.getString("name", true);
 
-        const messageEntry = await db
-            .select()
-            .from(messagesTable)
-            .where(
-                and(
-                    eq(messagesTable.name, name),
-                    eq(messagesTable.guild, interaction.guild?.id ?? "1")
-                )
-            )
-            .get();
+        const messageEntry = await db.messages.findFirst({
+            where: {
+                name,
+                guild: interaction.guild?.id ?? "1",
+            },
+        });
         if (!messageEntry) {
             return await interaction.reply({
                 content: `:x: No message found with the name "${name}"`,
@@ -366,16 +353,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "delete") {
         const name = interaction.options.getString("name", true);
 
-        const messageEntry = await db
-            .select()
-            .from(messagesTable)
-            .where(
-                and(
-                    eq(messagesTable.name, name),
-                    eq(messagesTable.guild, interaction.guild?.id ?? "1")
-                )
-            )
-            .get();
+        const messageEntry = await db.messages.findFirst({
+            where: {
+                name,
+                guild: interaction.guild?.id ?? "1",
+            },
+        });
         if (!messageEntry) {
             return await interaction.reply({
                 content: `:x: No message found with the name "${name}"`,
@@ -397,14 +380,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             .catch(() => null);
 
         try {
-            await db
-                .delete(messagesTable)
-                .where(
-                    and(
-                        eq(messagesTable.name, name),
-                        eq(messagesTable.guild, interaction.guild?.id ?? "1")
-                    )
-                );
+            await db.messages.delete({
+                where: { name },
+            });
         } catch (error) {
             Logger.error(`Failed to delete the message: ${error}`);
             return await interaction.reply({

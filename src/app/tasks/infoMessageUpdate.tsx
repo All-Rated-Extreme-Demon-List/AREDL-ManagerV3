@@ -12,16 +12,13 @@ import {
     DiscordAPIError,
     Client,
 } from "discord.js";
-import { db } from "@/app";
-import { infoMessagesTable } from "@/db/schema";
+import { db } from "@/db/prisma";
 import { ApiResponse, PaginatedResponse } from "@/types/api";
 import {
     DailyStatistics,
     LevelStatistics,
     SubmissionQueue,
 } from "@/types/stats";
-import { eq } from "drizzle-orm";
-
 interface Totals {
     totalSubmitted: number;
     totalReviewed: number;
@@ -319,9 +316,11 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
         return container;
     };
 
-    const fetchMessage = async (
-        entry: typeof infoMessagesTable.$inferSelect
-    ) => {
+    const fetchMessage = async (entry: {
+        id: number;
+        channel: string;
+        discordid: string;
+    }) => {
         try {
             const channel = await client.channels.fetch(entry.channel);
             if (!channel || !channel.isTextBased?.())
@@ -348,9 +347,9 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
                 );
             }
 
-            await db
-                .delete(infoMessagesTable)
-                .where(eq(infoMessagesTable.id, entry.id));
+            await db.info_messages.delete({
+                where: { id: entry.id },
+            });
             return null;
         }
     };
@@ -360,12 +359,9 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
         components: ContainerBuilder[],
         files: AttachmentBuilder[]
     ) => {
-        const entry = await db
-            .select()
-            .from(infoMessagesTable)
-            .where(eq(infoMessagesTable.name, dbName))
-            .limit(1)
-            .get();
+        const entry = await db.info_messages.findFirst({
+            where: { name: dbName },
+        });
         if (!entry) {
             Logger.info(
                 `Scheduled - No DB entry for '${dbName}' (nothing to update yet).`

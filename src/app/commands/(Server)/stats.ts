@@ -6,9 +6,7 @@ import {
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import { updateInfoMessage } from "@/app/tasks/infoMessageUpdate";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { dailyStatsTable, infoMessagesTable } from "@/db/schema";
-import { db } from "@/app";
-import { asc, eq, gte } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -45,11 +43,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             new Date().getTime() - 30 * 24 * 60 * 60 * 1000
         );
 
-        const statsData = await db
-            .select()
-            .from(dailyStatsTable)
-            .where(gte(dailyStatsTable.date, minDate))
-            .orderBy(asc(dailyStatsTable.date));
+        const statsData = await db.dailyStats.findMany({
+            where: {
+                date: { gte: minDate.getTime() },
+            },
+            orderBy: { date: "asc" },
+        });
 
         const labels = [];
         const datasJoined = [];
@@ -127,13 +126,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     }
 
     if (sub === "send-list-stats-message") {
-        const existing = await db
-            .select()
-            .from(infoMessagesTable)
-            .where(eq(infoMessagesTable.name, "list_stats"))
-            .limit(1)
-            .get();
-        if (existing) {
+        if (
+            (await db.info_messages.count({
+                where: { name: "list_stats" },
+            })) !== 0
+        ) {
             return interaction.editReply(
                 `A \`list_stats\` message already exists. Delete it from the DB if you want to create a new one.`
             );
@@ -149,11 +146,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             content: `List stats panel will appear here soon…`,
         });
 
-        await db.insert(infoMessagesTable).values({
-            name: "list_stats",
-            guild: interaction.guild?.id ?? "1",
-            channel: interaction.channel.id,
-            discordid: msg.id,
+        await db.info_messages.create({
+            data: {
+                name: "list_stats",
+                guild: interaction.guild?.id ?? "1",
+                channel: interaction.channel.id,
+                discordid: msg.id,
+            },
         });
 
         updateInfoMessage(interaction.client);
@@ -164,13 +163,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     }
 
     if (sub === "send-list-stats-message-public") {
-        const existing = await db
-            .select()
-            .from(infoMessagesTable)
-            .where(eq(infoMessagesTable.name, "list_stats_public"))
-            .limit(1)
-            .get();
-        if (existing) {
+        if (
+            (await db.info_messages.count({
+                where: { name: "list_stats_public" },
+            })) !== 0
+        ) {
             return interaction.editReply(
                 `A \`list_stats_public\` message already exists. Delete it from the DB if you want to create a new one.`
             );
@@ -186,11 +183,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             content: `List stats panel will appear here soon…`,
         });
 
-        await db.insert(infoMessagesTable).values({
-            name: "list_stats_public",
-            guild: interaction.guild?.id ?? "1",
-            channel: interaction.channel.id,
-            discordid: msg.id,
+        await db.info_messages.create({
+            data: {
+                name: "list_stats_public",
+                guild: interaction.guild?.id ?? "1",
+                channel: interaction.channel.id,
+                discordid: msg.id,
+            },
         });
 
         updateInfoMessage(interaction.client);

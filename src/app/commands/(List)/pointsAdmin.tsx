@@ -3,7 +3,7 @@ import {
     MessageFlags,
     ApplicationCommandOptionType,
 } from "discord.js";
-import { defaultPoints, maxPoints } from "@/../config.json";
+import { maxPoints } from "@/../config.json";
 import {
     CommandData,
     ChatInputCommand,
@@ -11,9 +11,7 @@ import {
     TextDisplay,
     Separator,
 } from "commandkit";
-import { db } from "@/app";
-import { staffPointsTable } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -112,10 +110,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     const subcommand = interaction.options.getSubcommand();
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     if (subcommand === "all") {
-        const allStats = await db
-            .select()
-            .from(staffPointsTable)
-            .orderBy(desc(staffPointsTable.points));
+        const allStats = await db.staff_points.findMany({
+            orderBy: { points: "desc" },
+        });
 
         const container = (
             <Container accentColor={0x75c8ff}>
@@ -140,26 +137,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         });
     } else if (subcommand === "find") {
         const user = interaction.options.getUser("user", true);
-        const existingPoints = await db
-            .select()
-            .from(staffPointsTable)
-            .where(eq(staffPointsTable.user, user.id))
-            .limit(1)
-            .get();
-
-        const points = existingPoints
-            ? existingPoints
-            : await db
-                  .insert(staffPointsTable)
-                  .values({
-                      user: user.id,
-                      points: defaultPoints,
-                  })
-                  .onConflictDoNothing({
-                      target: [staffPointsTable.user],
-                  })
-                  .returning()
-                  .get();
+        const points = await db.staff_points.upsert({
+            create: {
+                user: user.id
+            },
+            where: {
+                user: user.id
+            },
+            update: {}
+        })
 
         return await interaction.editReply(
             `<@${user.id}> has ${Math.round(points.points * 100) / 100} points.`
@@ -167,20 +153,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "set") {
         const user = interaction.options.getUser("user", true);
         const points = interaction.options.getNumber("points", true);
-        await db
-            .insert(staffPointsTable)
-            .values({
-                user: user.id,
-                points: points,
-            })
-            .onConflictDoUpdate({
-                target: [staffPointsTable.user],
-                set: {
-                    points: points,
-                },
-            })
-            .returning()
-            .get();
+        await db.staff_points.upsert({
+            create: { user: user.id },
+            update: { user: user.id, points: points },
+            where: { user: user.id },
+        })
 
         return await interaction.editReply(
             `:white_check_mark: Set points for <@${user.id}> to ${Math.round(points * 100) / 100}.`
@@ -189,38 +166,20 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const transferFrom = interaction.options.getUser("transfer-from", true);
         const transferTo = interaction.options.getUser("transfer-to", true);
         const overwrite = interaction.options.getInteger("overwrite") === 1;
-        const transferFromPoints = await db
-            .select()
-            .from(staffPointsTable)
-            .where(eq(staffPointsTable.user, transferFrom.id))
-            .limit(1)
-            .get();
+        const transferFromPoints = await db.staff_points.findUnique({
+            where: { user: transferFrom.id }
+        })
         if (!transferFromPoints) {
             return await interaction.editReply(
                 `:x: <@${transferFrom.id}> does not have any points.`
             );
         }
 
-        const existingTransferToPoints = await db
-            .select()
-            .from(staffPointsTable)
-            .where(eq(staffPointsTable.user, transferTo.id))
-            .limit(1)
-            .get();
-
-        const transferToPoints = existingTransferToPoints
-            ? existingTransferToPoints
-            : await db
-                  .insert(staffPointsTable)
-                  .values({
-                      user: transferTo.id,
-                      points: defaultPoints,
-                  })
-                  .onConflictDoNothing({
-                      target: [staffPointsTable.user],
-                  })
-                  .returning()
-                  .get();
+        const transferToPoints = await db.staff_points.upsert({
+            create: { user: transferTo.id },
+            update: {},
+            where: { user: transferTo.id }
+        })
 
         const newPoints = Math.min(
             overwrite
@@ -229,35 +188,23 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             maxPoints
         );
 
-        await db
-            .insert(staffPointsTable)
-            .values({
-                user: transferTo.id,
-                points: newPoints,
-            })
-            .onConflictDoUpdate({
-                target: [staffPointsTable.user],
-                set: {
-                    points: newPoints,
-                },
-            })
-            .returning()
-            .get();
+        await db.staff_points.upsert({
+            create: { user: transferTo.id, points: newPoints },
+            update: { points: newPoints },
+            where: { user: transferTo.id }
+        })
 
-        await db
-            .delete(staffPointsTable)
-            .where(eq(staffPointsTable.user, transferFrom.id));
+        await db.staff_points.delete({ where: { user: transferFrom.id }});
 
         return await interaction.editReply(
             `:white_check_mark: Transferred points from <@${transferFrom.id}> to <@${transferTo.id}>. <@${transferTo.id}> now has ${Math.round(newPoints * 100) / 100} points.`
         );
     } else if (subcommand === "clear") {
         const user = interaction.options.getUser("user", true);
-        const points = await db
-            .delete(staffPointsTable)
-            .where(eq(staffPointsTable.user, user.id))
-            .returning()
-            .get();
+        const points = !!(await db.staff_points.delete({
+            where: {user: user.id }
+        }).catch(() => false))
+        
         if (!points) {
             return await interaction.editReply(
                 `:x: <@${user.id}> does not have any points.`

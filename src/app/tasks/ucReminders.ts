@@ -11,9 +11,7 @@ import { api } from "@/api.js";
 import { Logger } from "commandkit";
 import { task } from "@commandkit/tasks";
 import { PaginatedResponse } from "@/types/api";
-import { db } from "@/app";
-import { sentUcRemindersTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { Submission } from "@/types/record";
 
 export default task({
@@ -74,29 +72,25 @@ export default task({
             (a, b) => b.updated_at.getTime() - a.updated_at.getTime()
         );
 
-        const alreadyReminded = await db.select().from(sentUcRemindersTable);
+        const alreadyReminded = await db.sentUcReminders.findMany();
 
-        alreadyReminded.forEach((reminded) => {
+        for (const reminded of alreadyReminded) {
             const submissionExists = submissions.find(
                 (submission) => submission.id === reminded.id
             );
             if (!submissionExists) {
-                db.delete(sentUcRemindersTable).where(
-                    eq(sentUcRemindersTable.id, reminded.id)
-                );
-                return false;
+                await db.sentUcReminders.delete({
+                    where: { id: reminded.id },
+                });
             }
-            return true;
-        });
+        }
 
         const messageLines = [];
 
         for (const submission of submissions) {
-            const alreadyReminded = await db
-                .select()
-                .from(sentUcRemindersTable);
+            const alreadyRemindedList = await db.sentUcReminders.findMany();
             if (
-                alreadyReminded.find(
+                alreadyRemindedList.find(
                     (reminded) => reminded.id === submission.id
                 )
             ) {
@@ -127,8 +121,8 @@ export default task({
                 )}).`
             );
 
-            await db.insert(sentUcRemindersTable).values({
-                id: submission.id,
+            await db.sentUcReminders.create({
+                data: { id: submission.id },
             });
         }
 

@@ -9,10 +9,8 @@ import { Logger } from "commandkit";
 import { task } from "@commandkit/tasks";
 import { Shift } from "@/types/shift";
 import { PaginatedResponse } from "@/types/api";
-import { db } from "@/app";
+import { db } from "@/db/prisma";
 import { User } from "@/types/user";
-import { settingsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export default task({
     name: "sendShiftReminders",
@@ -56,13 +54,10 @@ export default task({
                     return;
                 }
 
-                const settings = await db
-                    .select()
-                    .from(settingsTable)
-                    .where(eq(settingsTable.user, userResponse.data.discord_id))
-                    .limit(1)
-                    .get();
-                if (settings && settings.shiftPings === false) {
+                const settings = await db.settings.findUnique({
+                    where: { user: userResponse.data.discord_id },
+                });
+                if (settings?.shiftPings === false) {
                     continue;
                 }
                 // unix epochs

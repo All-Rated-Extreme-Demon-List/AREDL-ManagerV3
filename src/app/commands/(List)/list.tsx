@@ -21,9 +21,7 @@ import {
 } from "commandkit";
 import { ExtendedLevel, Level } from "@/types/level";
 import { ProfileRecordExtended } from "@/types/record";
-import { db } from "@/app";
-import { noPingListTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
 const processLevelName = (name: string) => {
@@ -269,17 +267,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         const victorsData = await Promise.all(
             filteredRecords.map(async (rec) => {
-                const nplEntry = await db
-                    .select()
-                    .from(noPingListTable)
-                    .where(
-                        eq(
-                            noPingListTable.userId,
-                            rec.submitted_by.discord_id ?? "0"
-                        )
-                    )
-                    .limit(1)
-                    .get();
+                const nplEntry = await db.noPingLists.findUnique({
+                    where: { userId: rec.submitted_by.discord_id },
+                });
 
                 const member = !rec.submitted_by.discord_id
                     ? undefined
@@ -470,17 +460,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         const victorsData = await Promise.all(
             records.map(async (rec) => {
-                const nplEntry = await db
-                    .select()
-                    .from(noPingListTable)
-                    .where(
-                        eq(
-                            noPingListTable.userId,
-                            rec.submitted_by.discord_id ?? "0"
-                        )
-                    )
-                    .limit(1)
-                    .get();
+                const nplEntry = await db.noPingLists.findUnique({
+                    where: { userId: rec.submitted_by.discord_id ?? "0" },
+                });
                 const member = !rec.submitted_by.discord_id
                     ? undefined
                     : guild.members.cache.get(rec.submitted_by.discord_id);

@@ -4,16 +4,13 @@ import {
     maxPointsOnShiftMiss,
     enableSeparateStaffServer,
     missedShiftsID,
-    defaultPoints,
 } from "@/../config.json";
 import { api } from "@/api";
 import { WebsocketFinishedShift } from "@/types/shift";
 import { User } from "@/types/user";
 import { Logger } from "commandkit";
 import { Client, EmbedBuilder } from "discord.js";
-import { db } from "@/app";
-import { eq } from "drizzle-orm";
-import { staffPointsTable } from "@/db/schema";
+import { db } from "@/db/prisma";
 
 interface ShiftMissedData {
     aredl: WebsocketFinishedShift[];
@@ -51,22 +48,13 @@ export default {
 
             let newPoints = null;
             if (reviewer.discord_id) {
-                const pointsResult = await db
-                    .select()
-                    .from(staffPointsTable)
-                    .where(eq(staffPointsTable.user, reviewer.discord_id))
-                    .get();
-                const points =
-                    pointsResult ??
-                    (await db
-                        .insert(staffPointsTable)
-                        .values({
-                            user: reviewer.discord_id,
-                            points: defaultPoints,
-                        })
-                        .onConflictDoNothing()
-                        .returning()
-                        .get());
+                const points = await db.staff_points.upsert({
+                    where: { user: reviewer.discord_id },
+                    create: {
+                        user: reviewer.discord_id,
+                    },
+                    update: {},
+                });
 
                 const recordsDone = shift.completed_count / shift.target_count;
 
@@ -87,12 +75,10 @@ export default {
                     );
                 }
                 if (newPoints) {
-                    await db
-                        .update(staffPointsTable)
-                        .set({
-                            points: newPoints,
-                        })
-                        .where(eq(staffPointsTable.user, reviewer.discord_id));
+                    await db.staff_points.update({
+                        where: { user: reviewer.discord_id },
+                        data: { points: newPoints },
+                    });
                 }
             } else {
                 Logger.warn(

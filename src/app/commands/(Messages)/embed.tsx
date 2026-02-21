@@ -18,9 +18,7 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from "discord.js";
-import { db } from "@/app";
-import { embedsTable } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -116,10 +114,11 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
     const focused = interaction.options.getFocused();
     return await interaction.respond(
         (
-            await db
-                .select()
-                .from(embedsTable)
-                .where(eq(embedsTable.guild, interaction.guild?.id ?? "1"))
+            await db.embeds.findMany({
+                where: {
+                    guild: interaction.guild?.id ?? "1",
+                },
+            })
         )
             .filter((embed) =>
                 embed.name.toLowerCase().includes(focused.toLowerCase())
@@ -143,16 +142,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const image = interaction.options.getAttachment("image");
 
         if (
-            await db
-                .select()
-                .from(embedsTable)
-                .where(
-                    and(
-                        eq(embedsTable.name, name),
-                        eq(embedsTable.guild, interaction.guild?.id ?? "1")
-                    )
-                )
-                .get()
+            (await db.embeds.count({
+                where: {
+                    name,
+                    guild: interaction.guild!.id,
+                },
+            })) !== 0
         ) {
             return await interaction.reply({
                 content:
@@ -286,15 +281,19 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                         });
                     }
 
-                    await db.insert(embedsTable).values({
-                        name: name,
-                        guild: submittedModalInteraction.guild?.id ?? "1",
-                        channel: channel.id,
-                        discordid: sent.id,
-                        title: title ?? null,
-                        description: description ?? null,
-                        color: colorResolved ? colorResolved.toString() : null,
-                        image: image ? image.url : null,
+                    await db.embeds.create({
+                        data: {
+                            name,
+                            guild: submittedModalInteraction.guild!.id,
+                            channel: channel.id,
+                            discordid: sent.id,
+                            title,
+                            description: description ?? null,
+                            color: colorResolved
+                                ? colorResolved.toString()
+                                : null,
+                            image: image ? image.url : null,
+                        },
                     });
 
                     await confirmation.update({
@@ -323,16 +322,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const color = interaction.options.getString("color");
         const newImage = interaction.options.getAttachment("image");
 
-        const embedEntry = await db
-            .select()
-            .from(embedsTable)
-            .where(
-                and(
-                    eq(embedsTable.name, name),
-                    eq(embedsTable.guild, interaction.guild?.id ?? "1")
-                )
-            )
-            .get();
+        const embedEntry = await db.embeds.findFirst({
+            where: {
+                name,
+                guild: interaction.guild!.id
+            }
+        })
         if (!embedEntry) {
             return await interaction.reply({
                 content: `:x: No embed found with the name "${name}"`,
@@ -497,16 +492,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "delete") {
         const name = interaction.options.getString("name", true);
 
-        const embedEntry = await db
-            .select()
-            .from(embedsTable)
-            .where(
-                and(
-                    eq(embedsTable.name, name),
-                    eq(embedsTable.guild, interaction.guild?.id ?? "1")
-                )
-            )
-            .get();
+
+        const embedEntry = await db.embeds.findFirst({
+            where: {
+                name,
+                guild: interaction.guild!.id
+            }
+        })
         if (!embedEntry) {
             return await interaction.reply({
                 content: `:x: No embed found with the name "${name}"`,
@@ -528,14 +520,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             .catch(() => null);
 
         try {
-            await db
-                .delete(embedsTable)
-                .where(
-                    and(
-                        eq(embedsTable.name, name),
-                        eq(embedsTable.guild, interaction.guild?.id ?? "1")
-                    )
-                );
+            await db.embeds.delete({
+                where: {
+                    name,
+                    guild: interaction.guild!.id
+                }
+            })
         } catch (error) {
             Logger.error(`Failed to delete the embed: ${error}`);
             return await interaction.reply({

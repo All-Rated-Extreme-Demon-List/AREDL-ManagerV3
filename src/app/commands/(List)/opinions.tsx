@@ -6,12 +6,16 @@ import {
 import { Container, Separator, TextDisplay } from "commandkit";
 import { guildId, noPingListRoleID } from "@/../config.json";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { db } from "@/app";
-import { noPingListTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
 
-const mapToStr = (data: (typeof noPingListTable.$inferSelect)[]) => {
+interface noPingListData {
+    userId: string;
+    notes: string | null;
+    banned: boolean;
+}
+
+const mapToStr = (data: noPingListData[]) => {
     if (data.length === 0) {
         return "*None!*";
     } else {
@@ -113,7 +117,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "view") {
-        const allUsers = await db.select().from(noPingListTable);
+        const allUsers = await db.noPingLists.findMany();
         const banned = [];
         const noPingListEntries = [];
         for (const user of allUsers) {
@@ -143,20 +147,18 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const banned = interaction.options.getNumber("banned") === 1;
         const notes = interaction.options.getString("notes");
 
-        await db
-            .insert(noPingListTable)
-            .values({
+        await db.noPingLists.upsert({
+            create: {
                 userId: user.id,
-                banned: banned,
+                banned,
                 notes: notes ?? undefined,
-            })
-            .onConflictDoUpdate({
-                target: noPingListTable.userId,
-                set: {
-                    banned: banned,
-                    notes: notes ?? null,
-                },
-            });
+            },
+            update: {
+                banned: banned,
+                notes: notes ?? null
+            },
+            where: { userId: user.id }
+        })
 
         // do not add role if banning
         if (!banned) {
@@ -172,22 +174,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "remove") {
         const user = interaction.options.getUser("user", true);
 
-        const entry = await db
-            .select()
-            .from(noPingListTable)
-            .where(eq(noPingListTable.userId, user.id))
-            .limit(1)
-            .get();
-        if (!entry) {
+        const deleted = !!(await db.noPingLists.delete({ where: { userId: user.id }}).catch(() => false))
+        if (!deleted) {
             return await interaction.editReply(
                 `:x: ${user} is not on the No Ping List.`
             );
         }
-
-        await db
-            .delete(noPingListTable)
-            .where(eq(noPingListTable.userId, user.id))
-            .execute();
         await interaction.client.guilds.cache
             .get(guildId)
             ?.members.cache.get(user.id)
@@ -198,12 +190,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         );
     } else if (subcommand === "find") {
         const user = interaction.options.getUser("user", true);
-        const entry = await db
-            .select()
-            .from(noPingListTable)
-            .where(eq(noPingListTable.userId, user.id))
-            .limit(1)
-            .then((res) => res[0]);
+        const entry = await db.noPingLists.findUnique({ where: { userId: user.id }});
         if (!entry) {
             return await interaction.editReply(
                 `:x: ${user} is not on the No Ping List.`

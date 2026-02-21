@@ -1,25 +1,21 @@
 import { guildId } from "@/../config.json";
 import { EventHandler } from "commandkit";
-import { dailyStatsTable } from "@/db/schema";
-import { db } from "@/app";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 
 const handler: EventHandler<"guildMemberRemove"> = async (member) => {
     if (member.guild.id != guildId) return;
 
-    const entry = await db
-        .insert(dailyStatsTable)
-        .values({
-            date: new Date(),
-        })
-        .onConflictDoNothing()
-        .returning()
-        .get();
-
-    await db
-        .update(dailyStatsTable)
-        .set({ nbMembersLeft: entry.nbMembersLeft + 1 })
-        .where(eq(dailyStatsTable.date, entry.date));
+    const todayMs = new Date().setHours(0, 0, 0, 0);
+    await db.dailyStats.upsert({
+        create: {
+            id: todayMs,
+            date: todayMs,
+            nbMembersJoined: 0,
+            nbMembersLeft: 1,
+        },
+        update: { nbMembersLeft: { increment: 1 }},
+        where: { id: todayMs }
+    })
 };
 
 export default handler;

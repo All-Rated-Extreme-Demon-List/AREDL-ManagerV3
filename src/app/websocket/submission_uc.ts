@@ -13,9 +13,7 @@ import { UnresolvedSubmission } from "@/types/record";
 import { Logger } from "commandkit";
 import { ExtendedLevel } from "@/types/level";
 import { User } from "@/types/user";
-import { db } from "@/app";
-import { ucThreadsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 
 export default {
     notification_type: "SUBMISSION_UNDER_CONSIDERATION",
@@ -145,12 +143,9 @@ export default {
         }
 
         const submissionId = String(data.id);
-        const existing = await db
-            .select()
-            .from(ucThreadsTable)
-            .where(eq(ucThreadsTable.submission_id, submissionId))
-            .limit(1)
-            .get();
+        const existing = await db.uc_threads.findFirst({
+            where: { submission_id: submissionId },
+        });
         if (existing) return;
 
         const ucChannel = await staffGuild.channels.fetch(ucRecordsID);
@@ -211,10 +206,12 @@ export default {
             autoArchiveDuration: 10080,
         });
 
-        await db.insert(ucThreadsTable).values({
-            submission_id: submissionId,
-            message_id: sentUCMessage.id,
-            thread_id: thread.id,
+        await db.uc_threads.create({
+            data: {
+                submission_id: submissionId,
+                message_id: sentUCMessage.id,
+                thread_id: thread.id,
+            },
         });
     },
 };

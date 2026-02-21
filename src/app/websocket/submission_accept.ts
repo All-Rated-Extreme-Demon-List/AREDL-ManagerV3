@@ -16,9 +16,7 @@ import { getCompletionTime } from "@/util/completionTime";
 import { Logger } from "commandkit";
 import { ExtendedLevel } from "@/types/level";
 import { User } from "@/types/user";
-import { db } from "@/app";
-import { ucThreadsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 
 export default {
     notification_type: "SUBMISSION_ACCEPTED",
@@ -180,12 +178,9 @@ export default {
 
         // Update UC thread if exists
 
-        const ucThread = await db
-            .select()
-            .from(ucThreadsTable)
-            .where(eq(ucThreadsTable.submission_id, data.id))
-            .limit(1)
-            .get();
+        const ucThread = await db.uc_threads.findUnique({
+            where: { submission_id: String(data.id) },
+        });
         if (!ucThread) return;
 
         try {

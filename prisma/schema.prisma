@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model dailyStats {
+  date            Int @id
+  nbMembersJoined Int @default(0)
+  nbMembersLeft   Int @default(0)
+}
+
+model embeds {
+  name        String  @id
+  guild       String
+  channel     String
+  discordid   String
+  title       String?
+  description String?
+  color       String?
+  image       String?
+}
+
+model info_messages {
+  id        Int    @id @default(autoincrement())
+  name      String @unique(map: "info_messages_name_unique")
+  guild     String
+  channel   String
+  discordid String
+}
+
+model messages {
+  name      String @id
+  guild     String
+  channel   String
+  discordid String
+}
+
+model noPingLists {
+  userId String  @id
+  notes  String?
+  banned Boolean @default(false)
+}
+
+model sentUcReminders {
+  id String @id
+}
+
+model settings {
+  user       String  @id
+  shiftPings Boolean @default(true)
+}
+
+model staff_points {
+  user   String @id
+  points Int    @default(25)
+}
+
+model uc_threads {
+  submission_id String @id
+  message_id    String
+  thread_id     String
+}
+
+model weekly_missed_shifts {
+  user       String @id
+  missed_all Int
+}

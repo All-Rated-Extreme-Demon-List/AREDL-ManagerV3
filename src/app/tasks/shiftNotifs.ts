@@ -8,9 +8,7 @@ import {
 import { Logger } from "commandkit";
 import { User } from "@/types/user";
 import { api } from "@/api";
-import { db } from "@/app";
-import { settingsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { db } from "@/db/prisma";
 import { task } from "@commandkit/tasks";
 import { WebsocketShift } from "@/types/shift";
 
@@ -31,12 +29,9 @@ export const sendShiftNotif = async (
         }
         let pingStr;
         if (reviewerResponse.data.discord_id) {
-            const settings = await db
-                .select()
-                .from(settingsTable)
-                .where(eq(settingsTable.user, reviewerResponse.data.discord_id))
-                .limit(1)
-                .get();
+            const settings = await db.settings.findUnique({
+                where: { user: reviewerResponse.data.discord_id },
+            });
             if (!settings || settings.shiftPings === true) {
                 pingStr = `<@${reviewerResponse.data.discord_id}>`;
             }
