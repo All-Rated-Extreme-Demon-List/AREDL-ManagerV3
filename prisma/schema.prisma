@@ -8,13 +8,17 @@ datasource db {
 }
 
 model dailyStats {
-  date            Int @id
+  id              Int                    @id @default(autoincrement())
+  date            DateTime
   nbMembersJoined Int @default(0)
   nbMembersLeft   Int @default(0)
+  createdAt       DateTime
+  updatedAt       DateTime
 }
 
 model embeds {
-  name        String  @id
+  id          Int                        @id @default(autoincrement())
+  name        String
   guild       String
   channel     String
   discordid   String
@@ -22,50 +26,92 @@ model embeds {
   description String?
   color       String?
   image       String?
+  sent        Boolean @default(false)
+  createdAt   DateTime
+  updatedAt   DateTime
 }
 
 model info_messages {
-  id        Int    @id @default(autoincrement())
-  name      String @unique(map: "info_messages_name_unique")
+  id        Int      @id @default(autoincrement())
+  name      String
   guild     String
   channel   String
   discordid String
+  createdAt DateTime
+  updatedAt DateTime
 }
 
 model messages {
-  name      String @id
+  id        Int                        @id @default(autoincrement())
+  name      String
   guild     String
   channel   String
   discordid String
+  content   String
+  sent      Boolean @default(false)
+  createdAt DateTime
+  updatedAt DateTime
 }
 
 model noPingLists {
-  userId String  @id
-  notes  String?
-  banned Boolean @default(false)
+  userId    String                    @id
+  notes     String?
+  banned    Boolean @default(false)
+  createdAt DateTime
+  updatedAt DateTime
+
 }
 
 model sentUcReminders {
-  id String @id
+  id        String  @id
+  createdAt DateTime
+  updatedAt DateTime
+
+  
 }
 
 model settings {
-  user       String  @id
+  id         Int                        @id @default(autoincrement())
+  user       String
   shiftPings Boolean @default(true)
+  createdAt  DateTime
+  updatedAt  DateTime
 }
 
 model staff_points {
-  user   String @id
-  points Int    @default(25)
-}
+  user      String                @id
+  points    Int
+  createdAt DateTime
+  updatedAt DateTime
 
-model uc_threads {
-  submission_id String @id
-  message_id    String
-  thread_id     String
+  
 }
 
 model weekly_missed_shifts {
-  user       String @id
-  missed_all Int
+  user       String                    @id
+  missed_all Boolean
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  
+}
+
+model shiftReminders {
+  id           Int       @id @default(autoincrement())
+  user_id      String
+  start_at     DateTime
+  end_at       DateTime
+  target_count Int
+  createdAt    DateTime
+  updatedAt    DateTime
+}
+
+model ucThreads {
+  submission_id String  @id
+  message_id    String
+  thread_id     String
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  
 }
