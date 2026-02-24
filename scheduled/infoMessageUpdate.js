@@ -80,7 +80,7 @@ module.exports = {
                 (d) =>
                     safeNumber(d.accepted) +
                     safeNumber(d.denied) +
-                    safeNumber(d.under_consideration),
+                    safeNumber(d.under_consideration)
             );
             const totalSubmitted = submitted.reduce((a, b) => a + b, 0);
             const totalReviewed = reviewed.reduce((a, b) => a + b, 0);
@@ -186,7 +186,7 @@ module.exports = {
             totals,
             queue,
             totalRecords,
-            chartName,
+            chartName
         ) => {
             const oldestDate = queue?.oldest_submission
                 ? `<t:${Math.floor(new Date(queue.oldest_submission).getTime() / 1000)}:F>`
@@ -194,37 +194,37 @@ module.exports = {
 
             const blocks = [
                 new TextDisplayBuilder().setContent(
-                    `## ${name} List Statistics`,
+                    `## ${name} List Statistics`
                 ),
                 new TextDisplayBuilder().setContent(
                     '**Total records count:** ' +
                         totalRecords +
                         '\n### Current Queue\n' +
-                        `**:blue_square: Pending submissions:** ${queue?.submissions_in_queue ?? 0}\t` +
+                        `**:blue_square: Pending submissions:** ${(queue?.regular_submissions_in_queue ?? 0) + (queue?.priority_submissions_in_queue ?? 0)}\t` +
                         `**:hourglass: Under Consideration submissions:** ${queue?.uc_submissions ?? 0}\n\n` +
-                        `**:clock1: Oldest submission date:** ${oldestDate}`,
+                        `**:clock1: Oldest submission date:** ${oldestDate}`
                 ),
                 new TextDisplayBuilder().setContent(
                     '### Last 31 Days\n' +
                         `**:blue_square: New submissions:** ${totals.totalSubmitted}\n\n` +
                         `**:white_check_mark: Accepted:** ${totals.totalAccepted}\t` +
                         `**:x: Denied:** ${totals.totalDenied}\t` +
-                        `**:hourglass: Under Consideration:** ${totals.totalUnderConsideration}`,
+                        `**:hourglass: Under Consideration:** ${totals.totalUnderConsideration}`
                 ),
                 new TextDisplayBuilder().setContent(
                     `**Average new submissions per day:** ${totals.avgSubmittedPerDay}\n` +
-                        `**Average checked submissions per day:** ${totals.avgCheckedPerDay}`,
+                        `**Average checked submissions per day:** ${totals.avgCheckedPerDay}`
                 ),
             ];
 
             const gallery = new MediaGalleryBuilder().addItems((item) =>
                 item
                     .setDescription(`${name} submissions (last 31 days)`)
-                    .setURL(`attachment://${chartName}`),
+                    .setURL(`attachment://${chartName}`)
             );
 
             const container = new ContainerBuilder().setAccentColor(
-                accentColor,
+                accentColor
             );
             for (const b of blocks) {
                 container
@@ -241,38 +241,38 @@ module.exports = {
             totals,
             queue,
             totalRecords,
-            chartName,
+            chartName
         ) => {
             const blocks = [
                 new TextDisplayBuilder().setContent(
-                    `## ${name} List Statistics`,
+                    `## ${name} List Statistics`
                 ),
                 new TextDisplayBuilder().setContent(
                     '**Total records count:** ' +
                         totalRecords +
                         '\n### Current Queue\n' +
-                        `**:blue_square: Pending submissions:** ${queue?.submissions_in_queue ?? 0}\t` +
-                        `**:hourglass: Under Consideration submissions:** ${queue?.uc_submissions ?? 0}\n\n`,
+                        `**:blue_square: Pending submissions:** ${(queue?.regular_submissions_in_queue ?? 0) + (queue?.priority_submissions_in_queue ?? 0)}\t` +
+                        `**:hourglass: Under Consideration submissions:** ${queue?.uc_submissions ?? 0}\n\n`
                 ),
                 new TextDisplayBuilder().setContent(
                     '### Last 31 Days\n' +
                         `**:blue_square: New submissions:** ${totals.totalSubmitted}\n\n` +
-                        `**:white_check_mark: Reviewed:** ${totals.totalReviewed}`,
+                        `**:white_check_mark: Reviewed:** ${totals.totalReviewed}`
                 ),
                 new TextDisplayBuilder().setContent(
                     `**Average new submissions per day:** ${totals.avgSubmittedPerDay}\n` +
-                        `**Average reviewed submissions per day:** ${totals.avgReviewedPerDay}`,
+                        `**Average reviewed submissions per day:** ${totals.avgReviewedPerDay}`
                 ),
             ];
 
             const gallery = new MediaGalleryBuilder().addItems((item) =>
                 item
                     .setDescription(`${name} submissions (last 31 days)`)
-                    .setURL(`attachment://${chartName}`),
+                    .setURL(`attachment://${chartName}`)
             );
 
             const container = new ContainerBuilder().setAccentColor(
-                accentColor,
+                accentColor
             );
             for (const b of blocks) {
                 container
@@ -296,7 +296,7 @@ module.exports = {
                     logger.warn('Scheduled - Info message no longer exists.');
                 } else {
                     logger.warn(
-                        `Scheduled - Could not fetch message to update. Error: ${err?.message || err}`,
+                        `Scheduled - Could not fetch message to update. Error: ${err?.message || err}`
                     );
                 }
                 await db.info_messages.destroy({ where: { id: entry.id } });
@@ -310,7 +310,7 @@ module.exports = {
             });
             if (!entry) {
                 logger.info(
-                    `Scheduled - No DB entry for '${dbName}' (nothing to update yet).`,
+                    `Scheduled - No DB entry for '${dbName}' (nothing to update yet).`
                 );
                 return;
             }
@@ -324,7 +324,7 @@ module.exports = {
                 files,
             });
             logger.info(
-                `Scheduled - Updated statistics panel successfully (${dbName}).`,
+                `Scheduled - Updated statistics panel successfully (${dbName}).`
             );
         };
 
@@ -342,42 +342,42 @@ module.exports = {
                 'GET',
                 { per_page: 31, page: 1 },
                 undefined,
-                apiToken,
+                apiToken
             ),
             api.send(
                 '/arepl/statistics/submissions/daily',
                 'GET',
                 { per_page: 31, page: 1 },
                 undefined,
-                apiToken,
+                apiToken
             ),
             api.send(
                 '/aredl/statistics/records',
                 'GET',
                 undefined,
                 undefined,
-                apiToken,
+                apiToken
             ),
             api.send(
                 '/arepl/statistics/records',
                 'GET',
                 undefined,
                 undefined,
-                apiToken,
+                apiToken
             ),
             api.send(
                 '/aredl/submissions/queue',
                 'GET',
                 undefined,
                 undefined,
-                apiToken,
+                apiToken
             ),
             api.send(
                 '/arepl/submissions/queue',
                 'GET',
                 undefined,
                 undefined,
-                apiToken,
+                apiToken
             ),
         ]);
 
@@ -394,7 +394,7 @@ module.exports = {
 
         if (!aredl_daily.length && !arepl_daily.length) {
             logger.warn(
-                'Scheduled - No stats returned for either list; nothing to update.',
+                'Scheduled - No stats returned for either list; nothing to update.'
             );
             return;
         }
@@ -426,11 +426,11 @@ module.exports = {
                 const chart = await renderStaffChart(
                     'Classic — Submission Statistics (last 30 days)',
                     aredlStaff.labels,
-                    aredlStaff.series,
+                    aredlStaff.series
                 );
                 const fileName = 'aredl-stats.png';
                 staffFiles.push(
-                    new AttachmentBuilder(chart, { name: fileName }),
+                    new AttachmentBuilder(chart, { name: fileName })
                 );
                 mainAredlContainer = buildStaffContainer(
                     0xff6f00,
@@ -438,7 +438,7 @@ module.exports = {
                     aredlStaff.totals,
                     aredl_queue,
                     aredl_total_records,
-                    fileName,
+                    fileName
                 );
             }
 
@@ -446,11 +446,11 @@ module.exports = {
                 const chart = await renderStaffChart(
                     'Platformer — Submission Statistics (last 30 days)',
                     areplStaff.labels,
-                    areplStaff.series,
+                    areplStaff.series
                 );
                 const fileName = 'arepl-stats.png';
                 staffFiles.push(
-                    new AttachmentBuilder(chart, { name: fileName }),
+                    new AttachmentBuilder(chart, { name: fileName })
                 );
                 mainAreplContainer = buildStaffContainer(
                     223,
@@ -458,12 +458,12 @@ module.exports = {
                     areplStaff.totals,
                     arepl_queue,
                     arepl_total_records,
-                    fileName,
+                    fileName
                 );
             }
 
             staffComponents = [mainAredlContainer, mainAreplContainer].filter(
-                Boolean,
+                Boolean
             );
         }
 
@@ -487,11 +487,11 @@ module.exports = {
                 const chart = await renderPublicChart(
                     'Classic — Submissions vs Reviewed (last 30 days)',
                     aredlPublic.labels,
-                    aredlPublic.series,
+                    aredlPublic.series
                 );
                 const fileName = 'aredl-stats-public.png';
                 publicFiles.push(
-                    new AttachmentBuilder(chart, { name: fileName }),
+                    new AttachmentBuilder(chart, { name: fileName })
                 );
                 mainAredlContainerPub = buildPublicContainer(
                     0xff6f00,
@@ -499,7 +499,7 @@ module.exports = {
                     aredlPublic.totals,
                     aredl_queue,
                     aredl_total_records,
-                    fileName,
+                    fileName
                 );
             }
 
@@ -507,11 +507,11 @@ module.exports = {
                 const chart = await renderPublicChart(
                     'Platformer — Submissions vs Reviewed (last 30 days)',
                     areplPublic.labels,
-                    areplPublic.series,
+                    areplPublic.series
                 );
                 const fileName = 'arepl-stats-public.png';
                 publicFiles.push(
-                    new AttachmentBuilder(chart, { name: fileName }),
+                    new AttachmentBuilder(chart, { name: fileName })
                 );
                 mainAreplContainerPub = buildPublicContainer(
                     223,
@@ -519,7 +519,7 @@ module.exports = {
                     areplPublic.totals,
                     arepl_queue,
                     arepl_total_records,
-                    fileName,
+                    fileName
                 );
             }
 
@@ -535,7 +535,7 @@ module.exports = {
         await updateIfExists(
             'list_stats_public',
             publicComponents,
-            publicFiles,
+            publicFiles
         );
 
         logger.info('Scheduled - Completed statistics updates.');
