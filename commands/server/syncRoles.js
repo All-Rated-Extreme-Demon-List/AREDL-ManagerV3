@@ -175,13 +175,18 @@ const syncRoles = async (interaction, member) => {
         separator.setSpacing(SeparatorSpacingSize.Small)
     );
 
-    const hardestRank = profile?.records?.reduce((prev, curr) =>
-        prev.level.position < curr.level.position ? prev : curr
-    )?.level.position;
+    const hardestRank =
+        (profile?.records?.length ?? 0) > 0
+            ? profile.records
+                  .reduce((prev, curr) =>
+                      prev.level.position < curr.level.position ? prev : curr
+                  )
+                  .level.position
+            : null;
     container.addTextDisplayComponents(
         new TextDisplayBuilder().setContent(`## **Stats:**`),
         new TextDisplayBuilder().setContent(
-            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ':white_check_mark:' : ':x:'}\nHardest: #${hardestRank}`
+            `Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? 'None' : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ':white_check_mark:' : ':x:'}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ':white_check_mark:' : ':x:'}\nHardest: ${hardestRank === null ? 'None' : `#${hardestRank}`}`
         )
     );
     container.addSeparatorComponents((separator) =>
