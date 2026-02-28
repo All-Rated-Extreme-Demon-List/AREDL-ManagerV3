@@ -6,7 +6,7 @@ const handler: EventHandler<"guildMemberRemove"> = async (member) => {
     if (member.guild.id != guildId) return;
 
     const todayMs = new Date().setHours(0, 0, 0, 0);
-    await db.dailyStats.upsert({
+    await db.dailystats.upsert({
         create: {
             id: todayMs,
             date: todayMs,

@@ -7,13 +7,13 @@ datasource db {
   provider = "sqlite"
 }
 
-model dailyStats {
-  id              Int                    @id @default(autoincrement())
-  date            DateTime
-  nbMembersJoined Int @default(0)
-  nbMembersLeft   Int @default(0)
-  createdAt       DateTime
-  updatedAt       DateTime
+model dailystats {
+  id                 Int                    @id @default(autoincrement())
+  date               DateTime?
+  nbMembersJoined    Int @default(0)
+  nbMembersLeft      Int @default(0)
+  createdAt          DateTime
+  updatedAt          DateTime
 }
 
 model embeds {
@@ -26,29 +26,29 @@ model embeds {
   description String?
   color       String?
   image       String?
-  sent        Boolean @default(false)
+  sent        Boolean @default(true)
   createdAt   DateTime
   updatedAt   DateTime
 }
 
 model info_messages {
   id        Int      @id @default(autoincrement())
-  name      String
-  guild     String
-  channel   String
-  discordid String
+  name      String?
+  guild     String?
+  channel   String?
+  discordid String?
   createdAt DateTime
   updatedAt DateTime
 }
 
 model messages {
   id        Int                        @id @default(autoincrement())
-  name      String
-  guild     String
-  channel   String
-  discordid String
-  content   String
-  sent      Boolean @default(false)
+  name      String?
+  guild     String?
+  channel   String?
+  discordid String?
+  content   String?
+  sent      Boolean @default(true)
   createdAt DateTime
   updatedAt DateTime
 }
@@ -59,52 +59,29 @@ model noPingLists {
   banned    Boolean @default(false)
   createdAt DateTime
   updatedAt DateTime
-
 }
 
 model sentUcReminders {
   id        String  @id
   createdAt DateTime
   updatedAt DateTime
-
-  
 }
 
 model settings {
   id         Int                        @id @default(autoincrement())
-  user       String
-  shiftPings Boolean @default(true)
   createdAt  DateTime
   updatedAt  DateTime
+  user       String
+  shiftPings Boolean @default(true)
 }
 
 model staff_points {
   user      String                @id
-  points    Int
+  points    Int @default(25)
   createdAt DateTime
   updatedAt DateTime
-
-  
 }
 
-model weekly_missed_shifts {
-  user       String                    @id
-  missed_all Boolean
-  createdAt  DateTime
-  updatedAt  DateTime
-
-  
-}
-
-model shiftReminders {
-  id           Int       @id @default(autoincrement())
-  user_id      String
-  start_at     DateTime
-  end_at       DateTime
-  target_count Int
-  createdAt    DateTime
-  updatedAt    DateTime
-}
 
 model ucThreads {
   submission_id String  @id
@@ -113,5 +90,11 @@ model ucThreads {
   createdAt     DateTime
   updatedAt     DateTime
 
-  
+}
+
+model weekly_missed_shifts {
+  user       String                    @id
+  missed_all Boolean
+  createdAt  DateTime
+  updatedAt  DateTime
 }

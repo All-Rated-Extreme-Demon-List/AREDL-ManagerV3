@@ -20,7 +20,7 @@
         "eslint": "^9.39.2",
         "eslint-config-prettier": "^10.1.8",
         "prettier": "3.8.1",
-        "prisma": "^7.4.1",
+        "prisma": "^7.4.2",
         "tsx": "^4.21.0",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.55.0"
@@ -30,7 +30,7 @@
         "@libsql/client": "^0.17.0",
         "@napi-rs/canvas": "^0.1.89",
         "@prisma/adapter-better-sqlite3": "^7.4.1",
-        "@prisma/client": "^7.4.1",
+        "@prisma/client": "^7.4.2",
         "better-sqlite3": "^12.6.2",
         "chart.js": "^4.5.1",
         "chartjs-node-canvas": "^5.0.0",

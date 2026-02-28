@@ -31,4 +31,5 @@ lerna-debug.log*
 
 **/*.DS_Store
 .temp-example
+
 /generated/prisma

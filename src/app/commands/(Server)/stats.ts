@@ -43,9 +43,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             new Date().getTime() - 30 * 24 * 60 * 60 * 1000
         );
 
-        const statsData = await db.dailyStats.findMany({
+        const statsData = await db.dailystats.findMany({
             where: {
-                date: { gte: minDate.getTime() },
+                date: { gte: minDate },
             },
             orderBy: { date: "asc" },
         });
