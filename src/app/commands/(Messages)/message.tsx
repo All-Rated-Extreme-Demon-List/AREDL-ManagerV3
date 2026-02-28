@@ -380,7 +380,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             .catch(() => null);
 
         try {
-            await db.messages.delete({
+            await db.messages.deleteMany({
                 where: { name },
             });
         } catch (error) {

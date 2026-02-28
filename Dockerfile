@@ -42,4 +42,6 @@ RUN mkdir -p /app/data ./app/logs \
 USER node
 
 ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["npx", "prisma", "migrate", "deploy"]
+CMD ["npx", "prisma", "generate"]
 CMD ["yarn", "start"]

@@ -14,13 +14,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const user = await db.staff_points.upsert({
         create: {
-            user: interaction.user.id
+            user: interaction.user.id,
         },
         where: {
-            user: interaction.user.id
+            user: interaction.user.id,
         },
-        update: {}
-    })
+        update: {},
+    });
 
     return await interaction.editReply(
         `You have **${Math.round(user.points * 100) / 100}** Pukeko Points.`

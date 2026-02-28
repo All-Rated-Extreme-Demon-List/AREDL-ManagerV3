@@ -32,7 +32,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             user: interaction.user.id,
             shiftPings,
         },
-        update: { shiftPings }
+        update: { shiftPings },
     });
 
     await interaction.editReply(`:white_check_mark: Updated!`);

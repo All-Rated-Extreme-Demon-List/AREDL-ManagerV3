@@ -5,17 +5,17 @@ import { db } from "@/db/prisma";
 const handler: EventHandler<"guildMemberAdd"> = async (member) => {
     if (member.guild.id != guildId) return;
 
-    const todayMs = new Date().setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     await db.dailystats.upsert({
         create: {
-            id: todayMs,
-            date: todayMs,
+            date: today,
             nbMembersJoined: 1,
             nbMembersLeft: 0,
         },
-        update: { nbMembersJoined: { increment: 1 }},
-        where: { id: todayMs }
-    })
+        update: { nbMembersJoined: { increment: 1 } },
+        where: { date: today },
+    });
 };
 
 export default handler;

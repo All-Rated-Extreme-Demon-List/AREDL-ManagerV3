@@ -8,93 +8,86 @@ datasource db {
 }
 
 model dailystats {
-  id                 Int                    @id @default(autoincrement())
-  date               DateTime?
-  nbMembersJoined    Int @default(0)
-  nbMembersLeft      Int @default(0)
-  createdAt          DateTime
-  updatedAt          DateTime
+  date            DateTime  @id
+  nbMembersJoined Int       @default(0)
+  nbMembersLeft   Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt()
 }
 
 model embeds {
-  id          Int                        @id @default(autoincrement())
   name        String
   guild       String
   channel     String
-  discordid   String
+  discordid   String @id
   title       String?
   description String?
   color       String?
   image       String?
-  sent        Boolean @default(true)
-  createdAt   DateTime
-  updatedAt   DateTime
+  sent        Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
 }
 
 model info_messages {
-  id        Int      @id @default(autoincrement())
-  name      String?
-  guild     String?
-  channel   String?
-  discordid String?
-  createdAt DateTime
-  updatedAt DateTime
+  name      String
+  guild     String
+  channel   String
+  discordid String @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
 model messages {
-  id        Int                        @id @default(autoincrement())
-  name      String?
-  guild     String?
-  channel   String?
-  discordid String?
+  name      String
+  guild     String
+  channel   String
+  discordid String @id
   content   String?
-  sent      Boolean @default(true)
-  createdAt DateTime
-  updatedAt DateTime
+  sent      Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
 model noPingLists {
-  userId    String                    @id
+  userId    String   @id
   notes     String?
-  banned    Boolean @default(false)
-  createdAt DateTime
-  updatedAt DateTime
+  banned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
 model sentUcReminders {
-  id        String  @id
-  createdAt DateTime
-  updatedAt DateTime
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
 model settings {
-  id         Int                        @id @default(autoincrement())
-  createdAt  DateTime
-  updatedAt  DateTime
-  user       String
-  shiftPings Boolean @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+  user       String   @id
+  shiftPings Boolean  @default(true)
 }
 
 model staff_points {
-  user      String                @id
-  points    Int @default(25)
-  createdAt DateTime
-  updatedAt DateTime
+  user      String   @id
+  points    Int      @default(25)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
-
 model ucThreads {
-  submission_id String  @id
+  submission_id String   @id
   message_id    String
   thread_id     String
-  createdAt     DateTime
-  updatedAt     DateTime
-
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt()
 }
 
 model weekly_missed_shifts {
-  user       String                    @id
+  user       String   @id
   missed_all Boolean
-  createdAt  DateTime
-  updatedAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
 }

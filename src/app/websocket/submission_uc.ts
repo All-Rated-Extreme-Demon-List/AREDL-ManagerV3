@@ -143,7 +143,7 @@ export default {
         }
 
         const submissionId = String(data.id);
-        const existing = await db.uc_threads.findFirst({
+        const existing = await db.ucThreads.findFirst({
             where: { submission_id: submissionId },
         });
         if (existing) return;
@@ -206,7 +206,7 @@ export default {
             autoArchiveDuration: 10080,
         });
 
-        await db.uc_threads.create({
+        await db.ucThreads.create({
             data: {
                 submission_id: submissionId,
                 message_id: sentUCMessage.id,

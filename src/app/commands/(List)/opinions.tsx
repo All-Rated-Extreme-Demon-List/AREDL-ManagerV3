@@ -155,10 +155,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             },
             update: {
                 banned: banned,
-                notes: notes ?? null
+                notes: notes ?? null,
             },
-            where: { userId: user.id }
-        })
+            where: { userId: user.id },
+        });
 
         // do not add role if banning
         if (!banned) {
@@ -174,7 +174,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "remove") {
         const user = interaction.options.getUser("user", true);
 
-        const deleted = !!(await db.noPingLists.delete({ where: { userId: user.id }}).catch(() => false))
+        const deleted = !!(await db.noPingLists
+            .delete({ where: { userId: user.id } })
+            .catch(() => false));
         if (!deleted) {
             return await interaction.editReply(
                 `:x: ${user} is not on the No Ping List.`
@@ -190,7 +192,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         );
     } else if (subcommand === "find") {
         const user = interaction.options.getUser("user", true);
-        const entry = await db.noPingLists.findUnique({ where: { userId: user.id }});
+        const entry = await db.noPingLists.findUnique({
+            where: { userId: user.id },
+        });
         if (!entry) {
             return await interaction.editReply(
                 `:x: ${user} is not on the No Ping List.`

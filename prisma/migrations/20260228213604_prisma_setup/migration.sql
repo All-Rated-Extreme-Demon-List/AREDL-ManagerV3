@@ -1,18 +1,56 @@
 /*
   Warnings:
-  
+
+  - You are about to drop the `acceptedRecords` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `changelogs` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `deniedRecords` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `fishes` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `infos` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `levelsFromLegacies` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `levelsToLegacies` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `levelsToMoves` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `levelsToPlaces` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `messageLocks` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `pendingRecords` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `recordsToCommits` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `shiftReminders` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `shifts` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `staffs` table. If the table is not empty, all the data it contains will be lost.
+  - The primary key for the `dailystats` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `id` on the `dailystats` table. All the data in the column will be lost.
+  - You are about to drop the column `nbRecordsAccepted` on the `dailystats` table. All the data in the column will be lost.
+  - You are about to drop the column `nbRecordsDenied` on the `dailystats` table. All the data in the column will be lost.
+  - You are about to drop the column `nbRecordsPending` on the `dailystats` table. All the data in the column will be lost.
+  - You are about to drop the column `nbRecordsSubmitted` on the `dailystats` table. All the data in the column will be lost.
   - You are about to alter the column `nbMembersJoined` on the `dailystats` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("number")` to `Int`.
   - You are about to alter the column `nbMembersLeft` on the `dailystats` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("number")` to `Int`.
+  - The primary key for the `embeds` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `id` on the `embeds` table. All the data in the column will be lost.
   - You are about to alter the column `sent` on the `embeds` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("tinyint(1)")` to `Boolean`.
+  - The primary key for the `info_messages` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `id` on the `info_messages` table. All the data in the column will be lost.
+  - The primary key for the `messages` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `id` on the `messages` table. All the data in the column will be lost.
   - You are about to alter the column `sent` on the `messages` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("tinyint(1)")` to `Boolean`.
   - You are about to alter the column `banned` on the `noPingLists` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("tinyint(1)")` to `Boolean`.
+  - The primary key for the `settings` table will be changed. If it partially fails, the table could be left without primary key constraint.
+  - You are about to drop the column `id` on the `settings` table. All the data in the column will be lost.
   - You are about to alter the column `shiftPings` on the `settings` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("tinyint(1)")` to `Boolean`.
   - You are about to alter the column `points` on the `staff_points` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("number")` to `Int`.
   - You are about to alter the column `missed_all` on the `weekly_missed_shifts` table. The data in that column could be lost. The data in that column will be cast from `Unsupported("tinyint(1)")` to `Boolean`.
+  - Made the column `date` on table `dailystats` required. This step will fail if there are existing NULL values in that column.
   - Made the column `channel` on table `embeds` required. This step will fail if there are existing NULL values in that column.
   - Made the column `discordid` on table `embeds` required. This step will fail if there are existing NULL values in that column.
   - Made the column `guild` on table `embeds` required. This step will fail if there are existing NULL values in that column.
   - Made the column `name` on table `embeds` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `channel` on table `info_messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `discordid` on table `info_messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `guild` on table `info_messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `name` on table `info_messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `channel` on table `messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `discordid` on table `messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `guild` on table `messages` required. This step will fail if there are existing NULL values in that column.
+  - Made the column `name` on table `messages` required. This step will fail if there are existing NULL values in that column.
   - Made the column `userId` on table `noPingLists` required. This step will fail if there are existing NULL values in that column.
   - Made the column `id` on table `sentUcReminders` required. This step will fail if there are existing NULL values in that column.
   - Made the column `user` on table `settings` required. This step will fail if there are existing NULL values in that column.
@@ -106,52 +144,60 @@ PRAGMA foreign_keys=on;
 PRAGMA defer_foreign_keys=ON;
 PRAGMA foreign_keys=OFF;
 CREATE TABLE "new_dailystats" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "date" DATETIME,
+    "date" DATETIME NOT NULL PRIMARY KEY,
     "nbMembersJoined" INTEGER NOT NULL DEFAULT 0,
     "nbMembersLeft" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-INSERT INTO "new_dailystats" ("createdAt", "date", "id", "nbMembersJoined", "nbMembersLeft", "updatedAt") SELECT "createdAt", "date", "id", coalesce("nbMembersJoined", 0) AS "nbMembersJoined", coalesce("nbMembersLeft", 0) AS "nbMembersLeft", "updatedAt" FROM "dailystats";
+INSERT INTO "new_dailystats" ("createdAt", "date", "nbMembersJoined", "nbMembersLeft", "updatedAt") SELECT "createdAt", "date", coalesce("nbMembersJoined", 0) AS "nbMembersJoined", coalesce("nbMembersLeft", 0) AS "nbMembersLeft", "updatedAt" FROM "dailystats";
 DROP TABLE "dailystats";
 ALTER TABLE "new_dailystats" RENAME TO "dailystats";
 CREATE TABLE "new_embeds" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "guild" TEXT NOT NULL,
     "channel" TEXT NOT NULL,
-    "discordid" TEXT NOT NULL,
+    "discordid" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT,
     "description" TEXT,
     "color" TEXT,
     "image" TEXT,
     "sent" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-INSERT INTO "new_embeds" ("channel", "color", "createdAt", "description", "discordid", "guild", "id", "image", "name", "sent", "title", "updatedAt") SELECT "channel", "color", "createdAt", "description", "discordid", "guild", "id", "image", "name", coalesce("sent", true) AS "sent", "title", "updatedAt" FROM "embeds";
+INSERT INTO "new_embeds" ("channel", "color", "createdAt", "description", "discordid", "guild", "image", "name", "sent", "title", "updatedAt") SELECT "channel", "color", "createdAt", "description", "discordid", "guild", "image", "name", coalesce("sent", true) AS "sent", "title", "updatedAt" FROM "embeds";
 DROP TABLE "embeds";
 ALTER TABLE "new_embeds" RENAME TO "embeds";
-CREATE TABLE "new_messages" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "name" TEXT,
-    "guild" TEXT,
-    "channel" TEXT,
-    "discordid" TEXT,
-    "content" TEXT,
-    "sent" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL,
+CREATE TABLE "new_info_messages" (
+    "name" TEXT NOT NULL,
+    "guild" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "discordid" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
-INSERT INTO "new_messages" ("channel", "content", "createdAt", "discordid", "guild", "id", "name", "sent", "updatedAt") SELECT "channel", "content", "createdAt", "discordid", "guild", "id", "name", coalesce("sent", true) AS "sent", "updatedAt" FROM "messages";
+INSERT INTO "new_info_messages" ("channel", "createdAt", "discordid", "guild", "name", "updatedAt") SELECT "channel", "createdAt", "discordid", "guild", "name", "updatedAt" FROM "info_messages";
+DROP TABLE "info_messages";
+ALTER TABLE "new_info_messages" RENAME TO "info_messages";
+CREATE TABLE "new_messages" (
+    "name" TEXT NOT NULL,
+    "guild" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "discordid" TEXT NOT NULL PRIMARY KEY,
+    "content" TEXT,
+    "sent" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+INSERT INTO "new_messages" ("channel", "content", "createdAt", "discordid", "guild", "name", "sent", "updatedAt") SELECT "channel", "content", "createdAt", "discordid", "guild", "name", coalesce("sent", true) AS "sent", "updatedAt" FROM "messages";
 DROP TABLE "messages";
 ALTER TABLE "new_messages" RENAME TO "messages";
 CREATE TABLE "new_noPingLists" (
     "userId" TEXT NOT NULL PRIMARY KEY,
     "notes" TEXT,
     "banned" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 INSERT INTO "new_noPingLists" ("banned", "createdAt", "notes", "updatedAt", "userId") SELECT coalesce("banned", false) AS "banned", "createdAt", "notes", "updatedAt", "userId" FROM "noPingLists";
@@ -159,26 +205,25 @@ DROP TABLE "noPingLists";
 ALTER TABLE "new_noPingLists" RENAME TO "noPingLists";
 CREATE TABLE "new_sentUcReminders" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 INSERT INTO "new_sentUcReminders" ("createdAt", "id", "updatedAt") SELECT "createdAt", "id", "updatedAt" FROM "sentUcReminders";
 DROP TABLE "sentUcReminders";
 ALTER TABLE "new_sentUcReminders" RENAME TO "sentUcReminders";
 CREATE TABLE "new_settings" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "user" TEXT NOT NULL,
+    "user" TEXT NOT NULL PRIMARY KEY,
     "shiftPings" BOOLEAN NOT NULL DEFAULT true
 );
-INSERT INTO "new_settings" ("createdAt", "id", "shiftPings", "updatedAt", "user") SELECT "createdAt", "id", coalesce("shiftPings", true) AS "shiftPings", "updatedAt", "user" FROM "settings";
+INSERT INTO "new_settings" ("createdAt", "shiftPings", "updatedAt", "user") SELECT "createdAt", coalesce("shiftPings", true) AS "shiftPings", "updatedAt", "user" FROM "settings";
 DROP TABLE "settings";
 ALTER TABLE "new_settings" RENAME TO "settings";
 CREATE TABLE "new_staff_points" (
     "user" TEXT NOT NULL PRIMARY KEY,
     "points" INTEGER NOT NULL DEFAULT 25,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 INSERT INTO "new_staff_points" ("createdAt", "points", "updatedAt", "user") SELECT "createdAt", coalesce("points", 25) AS "points", "updatedAt", "user" FROM "staff_points";
@@ -188,7 +233,7 @@ CREATE TABLE "new_ucThreads" (
     "submission_id" TEXT NOT NULL PRIMARY KEY,
     "message_id" TEXT NOT NULL,
     "thread_id" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 INSERT INTO "new_ucThreads" ("createdAt", "message_id", "submission_id", "thread_id", "updatedAt") SELECT "createdAt", "message_id", "submission_id", "thread_id", "updatedAt" FROM "ucThreads";
@@ -197,7 +242,7 @@ ALTER TABLE "new_ucThreads" RENAME TO "ucThreads";
 CREATE TABLE "new_weekly_missed_shifts" (
     "user" TEXT NOT NULL PRIMARY KEY,
     "missed_all" BOOLEAN NOT NULL,
-    "createdAt" DATETIME NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
 INSERT INTO "new_weekly_missed_shifts" ("createdAt", "missed_all", "updatedAt", "user") SELECT "createdAt", "missed_all", "updatedAt", "user" FROM "weekly_missed_shifts";

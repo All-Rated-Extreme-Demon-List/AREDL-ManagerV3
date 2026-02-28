@@ -325,9 +325,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const embedEntry = await db.embeds.findFirst({
             where: {
                 name,
-                guild: interaction.guild!.id
-            }
-        })
+                guild: interaction.guild!.id,
+            },
+        });
         if (!embedEntry) {
             return await interaction.reply({
                 content: `:x: No embed found with the name "${name}"`,
@@ -492,13 +492,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "delete") {
         const name = interaction.options.getString("name", true);
 
-
         const embedEntry = await db.embeds.findFirst({
             where: {
                 name,
-                guild: interaction.guild!.id
-            }
-        })
+                guild: interaction.guild!.id,
+            },
+        });
         if (!embedEntry) {
             return await interaction.reply({
                 content: `:x: No embed found with the name "${name}"`,
@@ -520,12 +519,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             .catch(() => null);
 
         try {
-            await db.embeds.delete({
+            await db.embeds.deleteMany({
                 where: {
                     name,
-                    guild: interaction.guild!.id
-                }
-            })
+                    guild: interaction.guild!.id,
+                },
+            });
         } catch (error) {
             Logger.error(`Failed to delete the embed: ${error}`);
             return await interaction.reply({

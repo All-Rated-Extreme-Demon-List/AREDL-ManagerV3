@@ -317,7 +317,6 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
     };
 
     const fetchMessage = async (entry: {
-        id: number;
         channel: string;
         discordid: string;
     }) => {
@@ -348,7 +347,7 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
             }
 
             await db.info_messages.delete({
-                where: { id: entry.id },
+                where: { discordid: entry.discordid },
             });
             return null;
         }

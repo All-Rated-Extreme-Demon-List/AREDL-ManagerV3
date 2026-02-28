@@ -139,13 +139,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const user = interaction.options.getUser("user", true);
         const points = await db.staff_points.upsert({
             create: {
-                user: user.id
+                user: user.id,
             },
             where: {
-                user: user.id
+                user: user.id,
             },
-            update: {}
-        })
+            update: {},
+        });
 
         return await interaction.editReply(
             `<@${user.id}> has ${Math.round(points.points * 100) / 100} points.`
@@ -157,7 +157,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             create: { user: user.id, points: points },
             update: { user: user.id, points: points },
             where: { user: user.id },
-        })
+        });
 
         return await interaction.editReply(
             `:white_check_mark: Set points for <@${user.id}> to ${Math.round(points * 100) / 100}.`
@@ -167,8 +167,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const transferTo = interaction.options.getUser("transfer-to", true);
         const overwrite = interaction.options.getInteger("overwrite") === 1;
         const transferFromPoints = await db.staff_points.findUnique({
-            where: { user: transferFrom.id }
-        })
+            where: { user: transferFrom.id },
+        });
         if (!transferFromPoints) {
             return await interaction.editReply(
                 `:x: <@${transferFrom.id}> does not have any points.`
@@ -178,8 +178,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const transferToPoints = await db.staff_points.upsert({
             create: { user: transferTo.id },
             update: {},
-            where: { user: transferTo.id }
-        })
+            where: { user: transferTo.id },
+        });
 
         const newPoints = Math.min(
             overwrite
@@ -191,20 +191,22 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         await db.staff_points.upsert({
             create: { user: transferTo.id, points: newPoints },
             update: { points: newPoints },
-            where: { user: transferTo.id }
-        })
+            where: { user: transferTo.id },
+        });
 
-        await db.staff_points.delete({ where: { user: transferFrom.id }});
+        await db.staff_points.delete({ where: { user: transferFrom.id } });
 
         return await interaction.editReply(
             `:white_check_mark: Transferred points from <@${transferFrom.id}> to <@${transferTo.id}>. <@${transferTo.id}> now has ${Math.round(newPoints * 100) / 100} points.`
         );
     } else if (subcommand === "clear") {
         const user = interaction.options.getUser("user", true);
-        const points = !!(await db.staff_points.delete({
-            where: {user: user.id }
-        }).catch(() => false))
-        
+        const points = !!(await db.staff_points
+            .delete({
+                where: { user: user.id },
+            })
+            .catch(() => false));
+
         if (!points) {
             return await interaction.editReply(
                 `:x: <@${user.id}> does not have any points.`

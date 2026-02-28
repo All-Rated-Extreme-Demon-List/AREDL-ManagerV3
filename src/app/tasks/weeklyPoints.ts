@@ -94,8 +94,7 @@ export default task({
             {} as Record<string, Shift[]>
         );
 
-        const isOddWeek =
-            (await db.weekly_missed_shifts.count()) === 0;
+        const isOddWeek = (await db.weekly_missed_shifts.count()) === 0;
 
         const changes = [];
 
@@ -122,7 +121,7 @@ export default task({
                 await db.weekly_missed_shifts.create({
                     data: {
                         user: staffId,
-                        missed_all: allMissed ? 1 : 0,
+                        missed_all: allMissed,
                     },
                 });
             }
@@ -144,13 +143,14 @@ export default task({
                 });
             } else {
                 if (!isOddWeek) {
-                    const missedLastShift = await db.weekly_missed_shifts.findUnique({
-                        where: { user: staffId },
-                    });
+                    const missedLastShift =
+                        await db.weekly_missed_shifts.findUnique({
+                            where: { user: staffId },
+                        });
 
                     if (
                         missedLastShift &&
-                        missedLastShift.missed_all !== 0 && // if last week's shifts were missed
+                        missedLastShift.missed_all && // if last week's shifts were missed
                         allMissed // and this week's shifts were missed
                     ) {
                         await db.staff_points.update({

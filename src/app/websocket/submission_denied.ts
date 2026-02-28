@@ -178,7 +178,7 @@ export default {
 
         // Update UC thread if exists
 
-        const ucThread = await db.uc_threads.findUnique({
+        const ucThread = await db.ucThreads.findUnique({
             where: { submission_id: String(data.id) },
         });
         if (!ucThread) return;
