@@ -112,7 +112,7 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
     return await interaction.respond(
         await levels
             .filter((level) =>
-                level.name.toLowerCase().includes(focused.toLowerCase())
+                level.name.toLowerCase().includes(focused.toLowerCase()) || level.position == Number(focused.toLowerCase())
             )
             .slice(0, 25)
             .map((level) => ({
