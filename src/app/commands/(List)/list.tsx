@@ -114,6 +114,7 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
             .filter((level) =>
                 level.name.toLowerCase().includes(focused.toLowerCase()) || level.position == Number(focused.toLowerCase())
             )
+            .sort((a, b) => (a.name.toLowerCase() === focused.toLowerCase() ? -1 : b.name.toLowerCase() === focused.toLowerCase() ? 1 : 0))
             .slice(0, 25)
             .map((level) => ({
                 name: `#${level.position} - ${level.name}`,
