@@ -268,9 +268,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         const victorsData = await Promise.all(
             filteredRecords.map(async (rec) => {
-                const nplEntry = await db.noPingLists.findUnique({
-                    where: { userId: rec.submitted_by.discord_id },
-                });
+                const nplEntry = rec.submitted_by.discord_id
+                    ? await db.noPingLists.findFirst({
+                          where: { userId: rec.submitted_by.discord_id },
+                      })
+                    : null;
 
                 const member = !rec.submitted_by.discord_id
                     ? undefined
@@ -461,9 +463,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         const victorsData = await Promise.all(
             records.map(async (rec) => {
-                const nplEntry = await db.noPingLists.findUnique({
-                    where: { userId: rec.submitted_by.discord_id ?? "0" },
-                });
+                const nplEntry = rec.submitted_by.discord_id
+                    ? await db.noPingLists.findUnique({
+                          where: { userId: rec.submitted_by.discord_id },
+                      })
+                    : null;
                 const member = !rec.submitted_by.discord_id
                     ? undefined
                     : guild.members.cache.get(rec.submitted_by.discord_id);
