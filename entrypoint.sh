@@ -18,8 +18,10 @@ load_secret_env() {
     fi
 }
 
-load_secret_env TOKEN TOKEN
-load_secret_env API_TOKEN API_TOKEN
-load_secret_env DB_FILE_NAME DB_FILE_NAME
+load_secret_env TOKEN aredl_manager_v3_bot_token
+load_secret_env API_TOKEN aredl_manager_v3_api_token
+
+npx prisma migrate deploy
+npx prisma generate
 
 exec "$@"

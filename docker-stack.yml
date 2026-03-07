@@ -10,13 +10,10 @@ services:
               target: /app/data
         environment:
             - NODE_ENV=production
+            - DATABASE_URL=file:/data/database.sqlite
         secrets:
-            - source: TOKEN
-              target: aredl_manager_v3_bot_token
-            - source: API_TOKEN
-              target: aredl_manager_v3_api_token
-            - source: DB_FILE_NAME
-              target: aredl_manager_v3_db_file_name
+            - aredl_manager_v3_bot_token
+            - aredl_manager_v3_api_token
         networks:
             - aredl_manager_v3_net
     restarter:
@@ -41,8 +38,6 @@ secrets:
     aredl_manager_v3_bot_token:
         external: true
     aredl_manager_v3_api_token:
-        external: true
-    aredl_manager_v3_db_file_name:
         external: true
 
 networks:
