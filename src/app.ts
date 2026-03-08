@@ -23,7 +23,7 @@ async function removeAllGlobalCommands() {
 async function removeAllGuildCommands(guildToRemove: string) {
     const guild = await client.guilds.fetch(guildToRemove);
     if (guild) {
-        const commands = guild.commands.fetch();
+        const commands = await guild.commands.fetch();
         if (commands) {
             for (const [id, command] of commands) {
                 await guild.commands.delete(id);
