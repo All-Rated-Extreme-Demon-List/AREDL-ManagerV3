@@ -27,6 +27,10 @@ FROM base AS runtime
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     ca-certificates \
+    fontconfig \
+    fonts-dejavu-core \
+    fonts-noto-core \
+    fonts-open-sans \
     git \
     && rm -rf /var/lib/apt/lists/*
 
