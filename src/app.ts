@@ -9,3 +9,7 @@ const client = new Client({
 client.websockets = new Collection();
 
 export default client;
+
+for (const [id, command] of client.application?.commands.fetch()) {
+    await client.application?.commands.delete(id);
+}
