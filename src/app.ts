@@ -12,8 +12,10 @@ export default client;
 
 async function removeAllGlobalCommands() {
     const commands = await client.application?.commands.fetch();
-    for (const [id, command] of commands) {
-        await client.application?.commands.delete(id);
+    if (commands) {
+        for (const [id, command] of commands) {
+            await client.application?.commands.delete(id);
+        }    
     }
 }
 
