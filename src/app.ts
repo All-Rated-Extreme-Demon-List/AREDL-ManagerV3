@@ -1,5 +1,6 @@
 import { Client, Collection } from "discord.js";
 import "dotenv/config";
+import { guildId, staffGuildId } from "@/config"
 
 const client = new Client({
     intents: ["Guilds", "GuildMembers", "GuildMessages",],
@@ -19,4 +20,18 @@ async function removeAllGlobalCommands() {
     }
 }
 
+async function removeAllGuildCommands(guildToRemove) {
+    const guild = await client.guilds.fetch(guildToRemove);
+    if (guild) {
+        const commands = guild.commands.fetch();
+        if (commands) {
+            for (const [id, command] of commands) {
+                await guild.commands.delete(id);
+            }
+        }
+    }
+}
+
 removeAllGlobalCommands();
+removeAllGuildCommands(guildId);
+removeAllGuildCommands(staffGuildId);
