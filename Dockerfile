@@ -16,7 +16,12 @@ COPY package.json yarn.lock .yarnrc.yml ./
 
 RUN yarn
 
+COPY prisma ./prisma
+RUN npx prisma generate
+
 COPY . .
+
+RUN if [ ! -f config.json ]; then cp config.example.json config.json; fi
 
 RUN yarn build
 
@@ -35,7 +40,7 @@ COPY entrypoint.sh /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh
 
-RUN mkdir -p /app/data ./app/logs \
+RUN mkdir -p /app/data /app/logs \
     && chown -R node:node /app
 
 USER node

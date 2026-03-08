@@ -10,7 +10,7 @@ services:
               target: /app/data
         environment:
             - NODE_ENV=production
-            - DATABASE_URL=file:/data/database.sqlite
+            - DATABASE_URL=file:/app/data/database.sqlite
         secrets:
             - aredl_manager_v3_bot_token
             - aredl_manager_v3_api_token

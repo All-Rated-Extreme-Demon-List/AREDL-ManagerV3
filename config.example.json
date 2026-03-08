@@ -13,6 +13,7 @@
     "platArchiveRecordsID": "",
     "classicRecordsID": "",
     "platRecordsID": "",
+    "ucRecordsID": "",
 
     "guildMemberAddID": "",
 
@@ -41,6 +42,7 @@
     "opinionPermsRoleID": "",
     "creatorRoleID": "",
     "verifierRoleID": "",
+    "noPingListRoleID": "",
 
     "infoMessageUpdateSchedule": "0 * * * *",
 
