@@ -1,6 +1,4 @@
 {
-    "token": "",
-    "apiToken": "",
     "websocketURL": "wss://127.0.0.1:5000/api/notifications/websocket",
     "baseURL": "http://127.0.0.1:5000/api/",
 
@@ -47,7 +45,7 @@
     "infoMessageUpdateSchedule": "0 * * * *",
 
     "timeoutLogsChannelID": "",
-    
+
     "pointsOnShiftComplete": 1,
     "maxPointsOnShiftMiss": 6,
 

@@ -2,9 +2,9 @@ name: Deploy Bot
 
 on:
     workflow_dispatch:
-    push:
-        branches:
-            - 'main'
+    # push:
+    #    branches:
+    #        - 'main'
 
 jobs:
     build-and-deploy:
@@ -30,7 +30,7 @@ jobs:
             - name: Set owner name to lowercase
               run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
               env:
-                  OWNER: '${{ github.repository_owner }}'
+                  OWNER: "${{ github.repository_owner }}"
 
             - name: Build and push image
               uses: docker/build-push-action@v5
@@ -48,8 +48,6 @@ jobs:
               run: |
                   cat > config.template.json <<'EOF'
                   {
-                    "token": "{{ secret `aredl_manager_v3_bot_token` }}",
-                    "apiToken": "{{ secret `aredl_manager_v3_api_token` }}",
                     "websocketURL": "${{ secrets.WEBSOCKET_URL }}",
                     "baseURL": "${{ secrets.BASE_URL }}",
                     "enableSeparateStaffServer": true,
@@ -99,7 +97,7 @@ jobs:
                   host: ${{ secrets.DEPLOY_HOST }}
                   username: ${{ secrets.DEPLOY_USER }}
                   key: ${{ secrets.DEPLOY_KEY }}
-                  source: 'docker-stack.yml,config.template.json'
+                  source: "docker-stack.yml,config.template.json"
                   target: ${{ secrets.DEPLOY_PATH }}
 
             - name: Deploy container

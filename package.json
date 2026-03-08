@@ -1,33 +1,45 @@
 {
-    "name": "aredl-bot",
-    "version": "3.0.0",
-    "description": "Discord bot for managing the All Rated Extreme Demons List",
-    "main": "index.js",
+    "name": "aredl-manager-v3",
+    "description": "The AREDL Discord bot written in TypeScript using CommandKit.",
+    "version": "0.1.0",
+    "type": "module",
+    "private": true,
+    "main": "dist/index.js",
+    "packageManager": "yarn@4.12.0",
     "scripts": {
-        "deploy": "node ./deploy-commands.js",
-        "start": "node ./index.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Minebox260",
-    "license": "ISC",
-    "dependencies": {
-        "@napi-rs/canvas": "^0.1.77",
-        "chart.js": "^4.5.0",
-        "chartjs-node-canvas": "^5.0.0",
-        "discord.js": "^14.21.0",
-        "exceljs": "^4.4.0",
-        "is-url-http": "^2.3.10",
-        "iso-3166-1": "^2.1.1",
-        "log-timestamp": "^0.3.0",
-        "log4js": "^6.9.1",
-        "node-cron": "^4.2.1",
-        "sequelize": "^6.37.7",
-        "sqlite3": "^5.1.7"
+        "dev": "commandkit dev",
+        "build": "commandkit build",
+        "start": "commandkit start",
+        "format": "npx prettier --write .",
+        "lint": "npx eslint . --fix"
     },
     "devDependencies": {
-        "@eslint/js": "^9.33",
-        "eslint": "^9.33",
-        "globals": "^16.3.0",
-        "prettier": "^3.6.2"
+        "@eslint/compat": "2.0.2",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/node": "^25.3.0",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "prettier": "3.8.1",
+        "prisma": "^7.4.2",
+        "tsx": "^4.21.0",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.55.0"
+    },
+    "dependencies": {
+        "@commandkit/tasks": "^1.2.0-rc.13",
+        "@libsql/client": "^0.17.0",
+        "@napi-rs/canvas": "^0.1.89",
+        "@prisma/adapter-better-sqlite3": "^7.4.1",
+        "@prisma/client": "^7.4.2",
+        "better-sqlite3": "^12.6.2",
+        "chart.js": "^4.5.1",
+        "chartjs-node-canvas": "^5.0.0",
+        "commandkit": "^1.2.0-rc.12",
+        "discord.js": "^14.24.0",
+        "dotenv": "^17.3.1",
+        "iso-3166-1": "^2.1.1",
+        "log4js": "^6.9.1",
+        "ts-node": "^10.9.2",
+        "ws": "^8.14.0"
     }
 }

@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model dailystats {
+  date            DateTime  @id
+  nbMembersJoined Int       @default(0)
+  nbMembersLeft   Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt()
+}
+
+model embeds {
+  name        String
+  guild       String
+  channel     String
+  discordid   String @id
+  title       String?
+  description String?
+  color       String?
+  image       String?
+  sent        Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+}
+
+model info_messages {
+  name      String
+  guild     String
+  channel   String
+  discordid String @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model messages {
+  name      String
+  guild     String
+  channel   String
+  discordid String @id
+  content   String?
+  sent      Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model noPingLists {
+  userId    String   @id
+  notes     String?
+  banned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model sentUcReminders {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model settings {
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+  user       String   @id
+  shiftPings Boolean  @default(true)
+}
+
+model staff_points {
+  user      String   @id
+  points    Int      @default(25)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model ucThreads {
+  submission_id String   @id
+  message_id    String
+  thread_id     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt()
+}
+
+model weekly_missed_shifts {
+  user       String   @id
+  missed_all Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+}

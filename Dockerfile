@@ -1,20 +1,45 @@
-FROM node:24-slim AS build
-
+FROM node:24-bookworm-slim AS base
 WORKDIR /app
 
+FROM base AS build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        python3 python-is-python3 make g++ pkg-config \
-        libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev 
+    ca-certificates \
+    git \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY package*.json ./
+RUN corepack enable
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn/ .yarn/
 
-RUN npm install --omit=dev
+RUN yarn
 
 COPY . .
 
-RUN chmod +x entrypoint.sh
+RUN yarn build
 
-ENTRYPOINT ["./entrypoint.sh"]
+FROM base AS runtime
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-CMD ["node", "index.js"]
+RUN corepack enable
+
+COPY --from=build /app /app
+
+COPY entrypoint.sh /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
+
+RUN mkdir -p /app/data ./app/logs \
+    && chown -R node:node /app
+
+USER node
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["yarn", "start"]

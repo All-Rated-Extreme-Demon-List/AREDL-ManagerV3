@@ -7,6 +7,9 @@ services:
             - ./data:/app/data
         environment:
             - NODE_ENV=production
+            - DATABASE_URL=file:/data/database.sqlite
+        env_file:
+            - .env
         restart: unless-stopped
     restarter:
         image: docker:cli
@@ -17,7 +20,7 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         command:
             [
-                'sh',
-                '-c',
-                'while :; do sleep 86400; docker restart aredl-manager-v3 || true; done',
+                "sh",
+                "-c",
+                "while :; do sleep 86400; docker restart aredl-manager-v3 || true; done",
             ]
