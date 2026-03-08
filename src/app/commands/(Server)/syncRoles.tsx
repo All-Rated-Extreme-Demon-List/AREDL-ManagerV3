@@ -173,16 +173,22 @@ export const syncRoles = async (
         );
     }
 
-    const hardestRank = profile?.records?.reduce((prev, curr) =>
-        prev.level.position < curr.level.position ? prev : curr
-    )?.level.position;
+    const hardestRank =
+        (profile?.records?.length ?? 0) > 0
+            ? profile.records
+                  .reduce((prev, curr) =>
+                      prev.level.position < curr.level.position ? prev : curr
+                  )
+                  .level.position
+            : null;
+
     const container = (
         <Container accentColor={0x00ff00}>
             <TextDisplay>## :white_check_mark: Roles synced!</TextDisplay>
             <Separator spacing={SeparatorSpacingSize.Small} />
             <TextDisplay>## **Stats:**</TextDisplay>
             <TextDisplay>
-                {`Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? "None" : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ":white_check_mark:" : ":x:"}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ":white_check_mark:" : ":x:"}\nHardest: #${hardestRank}`}
+                {`Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? "None" : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ":white_check_mark:" : ":x:"}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ":white_check_mark:" : ":x:"}\nHardest: ${hardestRank === null ? 'None' : `#${hardestRank}`}`}
             </TextDisplay>
             <Separator spacing={SeparatorSpacingSize.Small} />
             <TextDisplay>## **Added roles:**</TextDisplay>

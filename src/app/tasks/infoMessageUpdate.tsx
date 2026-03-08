@@ -239,7 +239,7 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
                 "**Total records count:** " +
                     totalRecords +
                     "\n### Current Queue\n" +
-                    `**:blue_square: Pending submissions:** ${queue?.submissions_in_queue ?? 0}\t` +
+                    `**:blue_square: Pending submissions:** ${(queue?.regular_submissions_in_queue ?? 0) + (queue?.priority_submissions_in_queue ?? 0)}\t` +
                     `**:hourglass: Under Consideration submissions:** ${queue?.uc_submissions ?? 0}\n\n` +
                     `**:clock1: Oldest submission date:** ${oldestDate}`
             ),
@@ -286,7 +286,7 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
                 "**Total records count:** " +
                     totalRecords +
                     "\n### Current Queue\n" +
-                    `**:blue_square: Pending submissions:** ${queue?.submissions_in_queue ?? 0}\t` +
+                    `**:blue_square: Pending submissions:** ${(queue?.regular_submissions_in_queue ?? 0) + (queue?.priority_submissions_in_queue ?? 0)}\t` +
                     `**:hourglass: Under Consideration submissions:** ${queue?.uc_submissions ?? 0}\n\n`
             ),
             new TextDisplayBuilder().setContent(

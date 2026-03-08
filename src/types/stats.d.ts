@@ -16,7 +16,8 @@ export interface LevelStatistics {
 }
 
 export interface SubmissionQueue {
-    submissions_in_queue: number;
+    regular_submissions_in_queue: number;
+    priority_submissions_in_queue: number;
     uc_submissions: number;
     oldest_submission?: Date;
 }
