@@ -1,9 +1,5 @@
 import { EventHandler, Logger } from "commandkit";
-import {
-    guildId,
-    enableWelcomeMessage,
-    guildMemberAddID,
-} from "@/../config.json";
+import { guildId, enableWelcomeMessage, guildMemberAddID } from "@/config";
 import Canvas from "@napi-rs/canvas";
 import { AttachmentBuilder } from "discord.js";
 

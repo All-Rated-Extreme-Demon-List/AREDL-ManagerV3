@@ -2,7 +2,7 @@ import {
     ApplicationCommandOptionType,
     GuildMemberRoleManager,
 } from "discord.js";
-import { timeoutLogsChannelID } from "@/../config.json";
+import { timeoutLogsChannelID } from "@/config";
 import { ChatInputCommand, CommandData, Logger } from "commandkit";
 import { commandGuilds } from "@/util/commandGuilds";
 

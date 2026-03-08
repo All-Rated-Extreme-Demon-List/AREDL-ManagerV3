@@ -1,5 +1,5 @@
 import { EventHandler } from "commandkit";
-import { guildId } from "@/../config.json";
+import { guildId } from "@/config";
 import { db } from "@/db/prisma";
 
 const handler: EventHandler<"guildMemberAdd"> = async (member) => {

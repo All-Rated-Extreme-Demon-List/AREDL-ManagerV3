@@ -3,7 +3,7 @@ import {
     staffGuildId,
     enableSeparateStaffServer,
     shiftsStartedID,
-} from "@/../config.json";
+} from "@/config";
 import { WebsocketShift } from "@/types/shift";
 import { Logger } from "commandkit";
 import { Client } from "discord.js";

@@ -7,7 +7,7 @@ import {
     classicRecordsID,
     ucRecordsID,
     enableSeparateStaffServer,
-} from "@/../config.json";
+} from "@/config";
 import { api } from "@/api";
 import { Client, EmbedBuilder } from "discord.js";
 import { getCompletionTime } from "@/util/completionTime";

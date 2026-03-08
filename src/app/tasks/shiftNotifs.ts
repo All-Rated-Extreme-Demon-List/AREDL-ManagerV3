@@ -4,7 +4,7 @@ import {
     guildId,
     staffGuildId,
     enableSeparateStaffServer,
-} from "@/../config.json";
+} from "@/config";
 import { Logger } from "commandkit";
 import { User } from "@/types/user";
 import { api } from "@/api";

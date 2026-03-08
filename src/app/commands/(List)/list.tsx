@@ -9,7 +9,7 @@ import {
     opinionPermsRoleID,
     extremeGrinderRoleID,
     guildId,
-} from "@/../config.json";
+} from "@/config";
 import {
     AutocompleteCommand,
     ChatInputCommand,

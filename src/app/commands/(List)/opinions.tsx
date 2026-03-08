@@ -4,7 +4,7 @@ import {
     ApplicationCommandOptionType,
 } from "discord.js";
 import { Container, Separator, TextDisplay } from "commandkit";
-import { guildId, noPingListRoleID } from "@/../config.json";
+import { guildId, noPingListRoleID } from "@/config";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";

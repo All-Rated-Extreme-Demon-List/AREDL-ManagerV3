@@ -21,8 +21,6 @@ RUN npx prisma generate
 
 COPY . .
 
-RUN if [ ! -f config.json ]; then cp config.example.json config.json; fi
-
 RUN yarn build
 
 FROM base AS runtime

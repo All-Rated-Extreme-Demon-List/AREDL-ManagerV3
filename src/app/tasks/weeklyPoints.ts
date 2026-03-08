@@ -11,7 +11,7 @@ import {
     enableStaffPoints,
     enableWeeklyStaffPoints,
     maxPoints,
-} from "@/../config.json";
+} from "@/config";
 import { EmbedBuilder } from "discord.js";
 import { Logger } from "commandkit";
 import { task } from "@commandkit/tasks";

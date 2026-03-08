@@ -1,5 +1,5 @@
 import { task } from "@commandkit/tasks";
-import { infoMessageUpdateSchedule } from "@/../config.json";
+import { infoMessageUpdateSchedule } from "@/config";
 import { Logger } from "commandkit";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import { api } from "@/api";

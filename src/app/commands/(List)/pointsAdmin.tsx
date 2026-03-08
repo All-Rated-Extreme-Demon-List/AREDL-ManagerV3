@@ -3,7 +3,7 @@ import {
     MessageFlags,
     ApplicationCommandOptionType,
 } from "discord.js";
-import { maxPoints } from "@/../config.json";
+import { maxPoints } from "@/config";
 import {
     CommandData,
     ChatInputCommand,

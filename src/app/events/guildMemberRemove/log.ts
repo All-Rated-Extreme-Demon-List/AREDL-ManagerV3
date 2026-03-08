@@ -1,4 +1,4 @@
-import { guildId } from "@/../config.json";
+import { guildId } from "@/config";
 import { EventHandler } from "commandkit";
 import { db } from "@/db/prisma";
 

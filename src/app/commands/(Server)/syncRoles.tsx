@@ -14,7 +14,7 @@ import {
     opinionPermsRoleID,
     creatorRoleID,
     verifierRoleID,
-} from "@/../config.json";
+} from "@/config";
 import {
     ChatInputCommand,
     CommandData,

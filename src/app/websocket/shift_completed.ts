@@ -5,7 +5,7 @@ import {
     enableSeparateStaffServer,
     pointsOnShiftComplete,
     maxPoints,
-} from "@/../config.json";
+} from "@/config";
 import { api } from "@/api";
 import { WebsocketFinishedShift } from "@/types/shift";
 import { User } from "@/types/user";

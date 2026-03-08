@@ -3,7 +3,7 @@ import WebSocket from "ws";
 import { isWebsocketHandler } from "../types/websocket.d";
 import { Logger } from "commandkit";
 import { handlers } from "../app/websocket/index";
-import { websocketURL } from "@/../config.json";
+import { websocketURL } from "@/config";
 
 /**
  * Load all WebSocket handlers from the websocket index

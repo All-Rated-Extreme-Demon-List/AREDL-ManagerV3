@@ -2,7 +2,7 @@ import {
     enableShiftReminders,
     shiftReminderExpireThreshold,
     sendShiftRemindersSchedule,
-} from "@/../config.json";
+} from "@/config";
 import { api } from "@/api.js";
 import { EmbedBuilder } from "discord.js";
 import { Logger } from "commandkit";

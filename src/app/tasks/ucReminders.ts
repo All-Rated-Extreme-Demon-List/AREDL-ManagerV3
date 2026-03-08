@@ -6,7 +6,7 @@ import {
     ucReminderChannel,
     staffGuildId,
     guildId,
-} from "@/../config.json";
+} from "@/config";
 import { api } from "@/api.js";
 import { Logger } from "commandkit";
 import { task } from "@commandkit/tasks";
