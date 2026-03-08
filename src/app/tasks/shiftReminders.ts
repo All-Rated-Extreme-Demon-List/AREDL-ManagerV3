@@ -71,9 +71,15 @@ export default task({
                     )
                     .setTimestamp();
 
-                client.users.cache
-                    .get(userResponse.data.discord_id)
-                    ?.send({ embeds: [embed] });
+                const user = client.users.cache
+                    .get(userResponse.data.discord_id);
+                if (!user || !user.dmChannel?.isSendable()) {
+                    Logger.error(
+                        `Could not send shift reminder to user ${userResponse.data.discord_id} - no DM channel`
+                    );
+                    continue;
+                }
+                await user.dmChannel.send({ embeds: [embed] });
             }
         }
     },
