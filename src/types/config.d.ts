@@ -1,0 +1,48 @@
+export type RoleIdMap = Record<string, string>;
+
+export interface BotConfig {
+    websocketURL: string;
+    baseURL: string;
+    enableSeparateStaffServer: boolean;
+    enableWelcomeMessage: boolean;
+    clientId: string;
+    guildId: string;
+    staffGuildId: string;
+    classicArchiveRecordsID: string;
+    platArchiveRecordsID: string;
+    classicRecordsID: string;
+    platRecordsID: string;
+    ucRecordsID: string;
+    guildMemberAddID: string;
+    completedShiftsID: string;
+    missedShiftsID: string;
+    shiftsStartedID: string;
+    enableShiftReminders: boolean;
+    sendShiftRemindersSchedule: string;
+    shiftReminderExpireThreshold: number;
+    ucReminderSchedule: string;
+    ucReminderChannel: string;
+    ucReminderThreshold: number;
+    ucRemindersEnabled: boolean;
+    pointsRoleIDs: RoleIdMap;
+    packRoleIDs: RoleIdMap;
+    topLevelRoleIDs: RoleIdMap;
+    extremeGrinderRoleID: string;
+    opinionPermsRoleID: string;
+    creatorRoleID: string;
+    verifierRoleID: string;
+    infoMessageUpdateSchedule: string;
+    timeoutLogsChannelID: string;
+    pointsOnShiftComplete: number;
+    maxPointsOnShiftMiss: number;
+    enableStaffPoints: boolean;
+    enableWeeklyStaffPoints: boolean;
+    pointsWeeklyCompleted: number;
+    pointsBiweeklyMissed: number;
+    sendWeeklyUpdates: boolean;
+    weeklyUpdatesChannelId: string;
+    filterByGuildMembers: boolean;
+    defaultPoints: number;
+    maxPoints: number;
+    noPingListRoleID: string;
+}

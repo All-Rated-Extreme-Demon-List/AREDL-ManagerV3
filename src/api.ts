@@ -1,5 +1,5 @@
 import { Logger } from "commandkit";
-import { baseURL } from "../config.json";
+import { baseURL } from "@/config";
 import { ApiResponse } from "./types/api";
 
 class ApiError extends Error {
