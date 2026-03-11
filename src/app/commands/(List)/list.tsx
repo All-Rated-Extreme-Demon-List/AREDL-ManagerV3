@@ -263,6 +263,21 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             return await interaction.reply({
                 flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
                 components: [container],
+                allowedMentions: { parse: [] },
+            });
+        }
+        const members = await guild?.members.fetch().catch(() => undefined);
+        if (!members) {
+            const container = (
+                <Container accentColor={0xff0000}>
+                    <TextDisplay>## :x: Error</TextDisplay>
+                    <TextDisplay>Error fetching guild members!</TextDisplay>
+                </Container>
+            );
+            return await interaction.reply({
+                flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+                components: [container],
+                allowedMentions: { parse: [] },
             });
         }
 
@@ -276,7 +291,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
                 const member = !rec.submitted_by.discord_id
                     ? undefined
-                    : guild.members.cache.get(rec.submitted_by.discord_id);
+                    : members.get(rec.submitted_by.discord_id);
                 return {
                     username: `- ${rec.submitted_by.global_name}`,
                     discordTag: rec.submitted_by.discord_id
@@ -460,6 +475,20 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                 allowedMentions: { parse: [] },
             });
         }
+        const members = await guild?.members.fetch().catch(() => undefined);
+        if (!members) {
+            const container = (
+                <Container accentColor={0xff0000}>
+                    <TextDisplay>## :x: Error</TextDisplay>
+                    <TextDisplay>Error fetching guild members!</TextDisplay>
+                </Container>
+            );
+            return await interaction.reply({
+                flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+                components: [container],
+                allowedMentions: { parse: [] },
+            });
+        }
 
         const victorsData = await Promise.all(
             records.map(async (rec) => {
@@ -470,7 +499,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                     : null;
                 const member = !rec.submitted_by.discord_id
                     ? undefined
-                    : guild.members.cache.get(rec.submitted_by.discord_id);
+                    : members.get(rec.submitted_by.discord_id);
                 return {
                     username: `- ${rec.submitted_by.global_name}`,
                     discordTag: rec.submitted_by.discord_id
