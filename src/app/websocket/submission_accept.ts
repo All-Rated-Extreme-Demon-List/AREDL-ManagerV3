@@ -172,7 +172,12 @@ export default {
         }
 
         if (publicChannel && publicChannel.isSendable()) {
-            publicChannel.send({ embeds: [publicEmbed] });
+            publicChannel.send({
+                embeds: [publicEmbed],
+                content: submitterResponse.data.discord_id
+                    ? `<@${submitterResponse.data.discord_id}>`
+                    : undefined,
+            });
             publicChannel.send({ content: `${data.video_url}` });
         }
 
