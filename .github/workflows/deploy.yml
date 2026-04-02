@@ -3,8 +3,8 @@ name: Deploy Bot
 on:
     workflow_dispatch:
     push:
-       branches:
-        - 'main'
+        branches:
+            - "main"
 
 jobs:
     build-and-deploy:
@@ -76,6 +76,9 @@ jobs:
                     "creatorRoleID": "${{ secrets.CREATOR_ROLE_ID }}",
                     "verifierRoleID": "${{ secrets.VERIFIER_ROLE_ID }}",
                     "timeoutLogsChannelID": "${{ secrets.TIMEOUT_LOGS_CHANNEL_ID }}",
+                    "adminsAlertChannelID": "${{ secrets.ADMINS_ALERT_CHANNEL_ID }}",
+                    "adminsAlertRoleID": "${{ secrets.ADMINS_ALERT_ROLE_ID }}",
+                    "adminsArchiveRecordsID": "${{ secrets.ADMINS_ARCHIVE_RECORDS_ID }}",
                     "enableStaffPoints": true,
                     "enableWeeklyStaffPoints": true,
                     "pointsOnShiftComplete": 1,

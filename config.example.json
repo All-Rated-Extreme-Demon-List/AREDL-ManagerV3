@@ -14,6 +14,7 @@
     "classicRecordsID": "",
     "platRecordsID": "",
     "ucRecordsID": "",
+    "adminsArchiveRecordsID": "",
 
     "guildMemberAddID": "",
 
@@ -47,6 +48,8 @@
     "infoMessageUpdateSchedule": "0 * * * *",
 
     "timeoutLogsChannelID": "",
+    "adminsAlertChannelID": "",
+    "adminsAlertRoleID": "",
 
     "pointsOnShiftComplete": 1,
     "maxPointsOnShiftMiss": 6,

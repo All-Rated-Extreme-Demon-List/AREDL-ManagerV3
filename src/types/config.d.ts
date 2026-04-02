@@ -33,6 +33,9 @@ export interface BotConfig {
     verifierRoleID: string;
     infoMessageUpdateSchedule: string;
     timeoutLogsChannelID: string;
+    adminsAlertChannelID?: string;
+    adminsAlertRoleID?: string;
+    adminsArchiveRecordsID?: string;
     pointsOnShiftComplete: number;
     maxPointsOnShiftMiss: number;
     enableStaffPoints: boolean;

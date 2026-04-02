@@ -7,6 +7,7 @@ import {
     classicRecordsID,
     ucRecordsID,
     enableSeparateStaffServer,
+    adminsArchiveRecordsID,
 } from "@/config";
 import { api } from "@/api";
 import { Client, EmbedBuilder } from "discord.js";
@@ -16,6 +17,11 @@ import { Logger } from "commandkit";
 import { ExtendedLevel } from "@/types/level";
 import { User } from "@/types/user";
 import { db } from "@/db/prisma";
+import {
+    checkHiddenReviewerAction,
+    isHiddenReviewer,
+} from "@/util/reviewersAlert";
+import { getUserDisplayValue } from "@/util";
 
 export default {
     notification_type: "SUBMISSION_DENIED",
@@ -53,19 +59,33 @@ export default {
             return;
         }
 
+        const level = levelResponse.data;
+        const submitter = submitterResponse.data;
+        const reviewer = reviewerResponse.data;
+        const reviewerDisplayValue = getUserDisplayValue(reviewer);
+        const submitterDisplayValue = getUserDisplayValue(submitter);
+
+        const hiddenReviewer = isHiddenReviewer(reviewer);
+
+        await checkHiddenReviewerAction(client, reviewer, {
+            submissionId: String(data.id),
+            levelName: level.name,
+            levelPosition: level.position,
+            state: "Denied",
+            isPlat,
+        });
+
         const archiveEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(
-                `:x: [#${levelResponse.data.position}] ${levelResponse.data.name}`
-            )
+            .setTitle(`:x: [#${level.position}] ${level.name}`)
             .addFields([
                 {
                     name: "Record submitted by",
-                    value: `<@${submitterResponse.data.discord_id}>`,
+                    value: submitterDisplayValue,
                 },
                 {
                     name: "Record rejected by",
-                    value: `<@${reviewerResponse.data.discord_id}>`,
+                    value: reviewerDisplayValue,
                 },
                 {
                     name: "Device",
@@ -123,16 +143,14 @@ export default {
         // Create embed to send in public channel
         const publicEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(
-                `:x: [#${levelResponse.data.position}] ${levelResponse.data.name}`
-            )
+            .setTitle(`:x: [#${level.position}] ${level.name}`)
             .setDescription(
                 "Denied\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800"
             )
             .addFields([
                 {
                     name: "Record holder",
-                    value: `${submitterResponse.data.global_name}`,
+                    value: `${submitter.global_name}`,
                     inline: true,
                 },
                 {
@@ -160,7 +178,11 @@ export default {
             : guild;
 
         const staffChannel = staffGuild.channels.cache.get(
-            isPlat ? platArchiveRecordsID : classicArchiveRecordsID
+            hiddenReviewer && adminsArchiveRecordsID
+                ? adminsArchiveRecordsID
+                : isPlat
+                  ? platArchiveRecordsID
+                  : classicArchiveRecordsID
         );
 
         const publicChannel = guild.channels.cache.get(
@@ -175,7 +197,7 @@ export default {
             publicChannel.send({
                 embeds: [publicEmbed],
                 content: submitterResponse.data.discord_id
-                    ? `<@${submitterResponse.data.discord_id}>`
+                    ? `<@${submitter.discord_id}>`
                     : undefined,
             });
             publicChannel.send({ content: `${data.video_url}` });
@@ -205,7 +227,7 @@ export default {
                 Logger.error("UC thread not found or not valid.");
                 return;
             }
-            const baseName = `[Denied] #${levelResponse.data.position} ${levelResponse.data.name} - ${submitterResponse.data.global_name}`;
+            const baseName = `[Denied] #${level.position} ${level.name} - ${submitter.global_name}`;
             await thread.setName(
                 baseName.length > 100 ? `${baseName.slice(0, 97)}...` : baseName
             );
@@ -218,7 +240,7 @@ export default {
                         .addFields([
                             {
                                 name: "Denied by",
-                                value: `<@${reviewerResponse.data.discord_id}>`,
+                                value: reviewerDisplayValue,
                             },
                             {
                                 name: "Reviewer notes",

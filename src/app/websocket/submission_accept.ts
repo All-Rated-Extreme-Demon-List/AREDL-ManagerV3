@@ -9,6 +9,7 @@ import {
     classicRecordsID,
     ucRecordsID,
     enableSeparateStaffServer,
+    adminsArchiveRecordsID,
 } from "@/config";
 import { api } from "@/api";
 import { EmbedBuilder } from "discord.js";
@@ -17,6 +18,11 @@ import { Logger } from "commandkit";
 import { ExtendedLevel } from "@/types/level";
 import { User } from "@/types/user";
 import { db } from "@/db/prisma";
+import {
+    checkHiddenReviewerAction,
+    isHiddenReviewer,
+} from "@/util/reviewersAlert";
+import { getUserDisplayValue } from "@/util";
 
 export default {
     notification_type: "SUBMISSION_ACCEPTED",
@@ -53,19 +59,33 @@ export default {
             return;
         }
 
+        const level = levelResponse.data;
+        const submitter = submitterResponse.data;
+        const reviewer = reviewerResponse.data;
+        const submitterDisplayValue = getUserDisplayValue(submitter);
+        const reviewerDisplayValue = getUserDisplayValue(reviewer);
+
+        const hiddenReviewer = isHiddenReviewer(reviewer);
+
+        await checkHiddenReviewerAction(client, reviewer, {
+            submissionId: String(data.id),
+            levelName: level.name,
+            levelPosition: level.position,
+            state: "Accepted",
+            isPlat,
+        });
+
         const archiveEmbed = new EmbedBuilder()
             .setColor(0x8fce00)
-            .setTitle(
-                `:white_check_mark: [#${levelResponse.data.position}] ${levelResponse.data.name}`
-            )
+            .setTitle(`:white_check_mark: [#${level.position}] ${level.name}`)
             .addFields([
                 {
                     name: "Record submitted by",
-                    value: `<@${submitterResponse.data.discord_id}>`,
+                    value: submitterDisplayValue,
                 },
                 {
                     name: "Record accepted by",
-                    value: `<@${reviewerResponse.data.discord_id}>`,
+                    value: reviewerDisplayValue,
                 },
                 {
                     name: "Device",
@@ -123,16 +143,14 @@ export default {
         // Create embed to send in public channel
         const publicEmbed = new EmbedBuilder()
             .setColor(0x8fce00)
-            .setTitle(
-                `:white_check_mark: [#${levelResponse.data.position}] ${levelResponse.data.name}`
-            )
+            .setTitle(`:white_check_mark: [#${level.position}] ${level.name}`)
             .setDescription(
                 "Accepted\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800"
             )
             .addFields([
                 {
                     name: "Record holder",
-                    value: `${submitterResponse.data.global_name}`,
+                    value: `${submitter.global_name}`,
                     inline: true,
                 },
                 {
@@ -160,7 +178,11 @@ export default {
             : guild;
 
         const staffChannel = staffGuild.channels.cache.get(
-            isPlat ? platArchiveRecordsID : classicArchiveRecordsID
+            hiddenReviewer && adminsArchiveRecordsID
+                ? adminsArchiveRecordsID
+                : isPlat
+                  ? platArchiveRecordsID
+                  : classicArchiveRecordsID
         );
 
         const publicChannel = guild.channels.cache.get(
@@ -175,7 +197,7 @@ export default {
             publicChannel.send({
                 embeds: [publicEmbed],
                 content: submitterResponse.data.discord_id
-                    ? `<@${submitterResponse.data.discord_id}>`
+                    ? `<@${submitter.discord_id}>`
                     : undefined,
             });
             publicChannel.send({ content: `${data.video_url}` });
@@ -205,7 +227,7 @@ export default {
                 Logger.error("UC thread not found or not valid.");
                 return;
             }
-            const threadName = `[Accepted] #${levelResponse.data.position} ${levelResponse.data.name} - ${submitterResponse.data.global_name}`;
+            const threadName = `[Accepted] #${level.position} ${level.name} - ${submitter.global_name}`;
             await thread.setName(
                 threadName.length > 100
                     ? `${threadName.slice(0, 97)}...`
@@ -220,7 +242,7 @@ export default {
                         .addFields([
                             {
                                 name: "Accepted by",
-                                value: `<@${reviewerResponse.data.discord_id}>`,
+                                value: reviewerDisplayValue,
                             },
                             {
                                 name: "Reviewer notes",

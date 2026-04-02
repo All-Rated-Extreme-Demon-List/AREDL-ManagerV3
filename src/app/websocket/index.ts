@@ -4,6 +4,7 @@ import shiftMissed from "./shift_missed";
 import shiftsCreated from "./shifts_created";
 import submissionAccept from "./submission_accept";
 import submissionDenied from "./submission_denied";
+import submissionUnderReview from "./submission_under_review";
 import submissionUc from "./submission_uc";
 
 export const handlers = [
@@ -12,5 +13,6 @@ export const handlers = [
     shiftsCreated,
     submissionAccept,
     submissionDenied,
+    submissionUnderReview,
     submissionUc,
 ];

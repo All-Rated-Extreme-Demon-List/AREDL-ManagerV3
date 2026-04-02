@@ -13,6 +13,10 @@ export interface User extends BaseUser {
     discord_avatar?: string;
 }
 
+export interface UserResolved extends User {
+    scopes?: string[];
+}
+
 export interface Clan {
     id: string;
     global_name: string;
