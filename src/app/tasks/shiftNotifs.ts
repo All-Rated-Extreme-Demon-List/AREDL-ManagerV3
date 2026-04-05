@@ -11,6 +11,7 @@ import { api } from "@/api";
 import { db } from "@/db/prisma";
 import { task } from "@commandkit/tasks";
 import { WebsocketShift } from "@/types/shift";
+import { isHiddenReviewer } from "@/util/reviewersAlert";
 
 export const sendShiftNotif = async (
     channel: TextChannel,
@@ -27,6 +28,9 @@ export const sendShiftNotif = async (
             );
             return 1;
         }
+
+        if (isHiddenReviewer(reviewerResponse.data)) return;
+
         let pingStr;
         if (reviewerResponse.data.discord_id) {
             const settings = await db.settings.findUnique({
