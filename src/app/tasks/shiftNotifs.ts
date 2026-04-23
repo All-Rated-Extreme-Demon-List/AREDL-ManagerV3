@@ -4,21 +4,21 @@ import {
     guildId,
     staffGuildId,
     enableSeparateStaffServer,
+    shadowStaffServerID,
+    shadowStaffShiftsChannelID,
 } from "@/config";
 import { Logger } from "commandkit";
-import { User } from "@/types/user";
+import { UserResolved } from "@/types/user";
 import { api } from "@/api";
 import { db } from "@/db/prisma";
 import { task } from "@commandkit/tasks";
 import { WebsocketShift } from "@/types/shift";
 import { isHiddenReviewer } from "@/util/reviewersAlert";
 
-export const sendShiftNotif = async (
-    channel: TextChannel,
-    shift: WebsocketShift
-) => {
+export const sendShiftNotif = async (shift: WebsocketShift) => {
     try {
-        const reviewerResponse = await api.send<User>(
+        const { default: client } = await import("@/app");
+        const reviewerResponse = await api.send<UserResolved>(
             `/users/${shift.user_id}`,
             "GET"
         );
@@ -28,8 +28,31 @@ export const sendShiftNotif = async (
             );
             return 1;
         }
-
-        if (isHiddenReviewer(reviewerResponse.data)) return;
+        
+        const hiddenReviewer = isHiddenReviewer(reviewerResponse.data);
+        if (
+            hiddenReviewer === true &&
+            (!shadowStaffServerID || !shadowStaffShiftsChannelID)
+        ) {
+            return;
+        }
+        const guild = await client.guilds.fetch(guildId);
+        const staffGuild = hiddenReviewer === true
+            ? await client.guilds.fetch(shadowStaffServerID)
+            : enableSeparateStaffServer
+              ? await client.guilds.fetch(staffGuildId)
+              : guild;
+        const channel = staffGuild.channels.cache.get(
+            hiddenReviewer ? shadowStaffShiftsChannelID : shiftsStartedID
+        );
+        if (
+            !channel ||
+            !channel.isSendable() ||
+            !(channel instanceof TextChannel)
+        ) {
+            Logger.error("Shifts started channel not found or not sendable.");
+            return;
+        }
 
         let pingStr;
         if (reviewerResponse.data.discord_id) {
@@ -71,27 +94,13 @@ export const sendShiftNotif = async (
     }
 };
 
-// Register as a task so that notifications can wait until their start time before sending.
 export default task({
     name: "send-shift-notif",
     async prepare() {
         return !!shiftsStartedID;
     },
-    async execute({ data: shift, client }) {
-        const guild = await client.guilds.fetch(guildId);
-        const staffGuild = enableSeparateStaffServer
-            ? await client.guilds.fetch(staffGuildId)
-            : guild;
-        const channel = staffGuild.channels.cache.get(shiftsStartedID);
-        if (
-            !channel ||
-            !channel.isSendable() ||
-            !(channel instanceof TextChannel)
-        ) {
-            Logger.error("Shifts started channel not found or not sendable.");
-            return;
-        }
-        await sendShiftNotif(channel, shift as WebsocketShift).catch((e) => {
+    async execute({ data: shift }) {
+        await sendShiftNotif(shift as WebsocketShift).catch((e) => {
             Logger.error(e);
         });
     },

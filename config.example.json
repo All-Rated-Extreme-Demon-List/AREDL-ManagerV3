@@ -51,6 +51,9 @@
     "adminsAlertChannelID": "",
     "adminsAlertRoleID": "",
 
+    "shadowStaffServerID": "",
+    "shadowStaffShiftsChannelID": "",
+
     "pointsOnShiftComplete": 1,
     "maxPointsOnShiftMiss": 6,
 

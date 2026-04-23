@@ -90,7 +90,9 @@ jobs:
                     "filterByGuildMembers": true,
                     "defaultPoints": 25,
                     "maxPoints": 30,
-                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}"
+                    "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}",
+                    "shadowStaffServerID": "${{ secrets.SHADOW_STAFF_SERVER_ID }}",
+                    "shadowStaffShiftsChannelID": "${{ secrets.SHADOW_STAFF_SHIFTS_CHANNEL_ID }}"
                   }
                   EOF
 

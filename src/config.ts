@@ -78,6 +78,9 @@ export const {
     filterByGuildMembers,
     defaultPoints,
     maxPoints,
+    shadowStaffServerID,
+    shadowStaffShiftsChannelID,
+
 } = config;
 
 export default config;

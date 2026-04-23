@@ -48,4 +48,6 @@ export interface BotConfig {
     defaultPoints: number;
     maxPoints: number;
     noPingListRoleID: string;
+    shadowStaffServerID: string;
+    shadowStaffShiftsChannelID: string;
 }
