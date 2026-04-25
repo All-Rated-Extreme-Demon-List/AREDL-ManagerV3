@@ -133,7 +133,7 @@ export async function checkHiddenReviewerAction(
     if (rapidAlertTriggered && !reviewerState.rapidAlertActive) {
         await sendHiddenReviewerAlert(
             client,
-            `${getUserDisplayValue(reviewer)} checked ${rapidWindowActions.length} submissions in less than a minute.`,
+            `${getUserDisplayValue(reviewer, true)} checked ${rapidWindowActions.length} submissions in less than a minute.`,
             rapidWindowActions
         );
     }
@@ -141,7 +141,7 @@ export async function checkHiddenReviewerAction(
     if (underReviewAlertTriggered && !reviewerState.underReviewAlertActive) {
         await sendHiddenReviewerAlert(
             client,
-            `${getUserDisplayValue(reviewer)} put ${recentUnderReviewActions.length} of their last ${lastRecentActions.length} submissions into UnderReview.`,
+            `${getUserDisplayValue(reviewer, true)} put ${recentUnderReviewActions.length} of their last ${lastRecentActions.length} submissions into UnderReview.`,
             recentUnderReviewActions
         );
     }
