@@ -44,6 +44,7 @@ model messages {
   channel   String
   discordid String @id
   content   String?
+  allowMentions Boolean @default(true)
   sent      Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()

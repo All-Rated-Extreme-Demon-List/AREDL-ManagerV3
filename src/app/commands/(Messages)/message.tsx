@@ -10,6 +10,8 @@ import {
     ApplicationCommandOptionType,
     LabelBuilder,
     MessageFlags,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
 } from "discord.js";
 import {
     ButtonStyle,
@@ -135,6 +137,25 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                                 .setStyle(TextInputStyle.Paragraph)
                                 .setRequired(true)
                                 .setMaxLength(2000)
+                        ),
+                    new LabelBuilder()
+                        .setLabel("Allow Mentions")
+                        .setStringSelectMenuComponent(
+                            new StringSelectMenuBuilder()
+                                .setCustomId("allowMentionsSelect")
+                                .setMaxValues(1)
+                                .setMinValues(1)
+                                .setRequired(true)
+                                .setPlaceholder("Should this message be allowed to ping users?")
+                                .setOptions([
+                                    new StringSelectMenuOptionBuilder()
+                                        .setLabel("Yes")
+                                        .setValue("yes")
+                                        .setDefault(true),
+                                    new StringSelectMenuOptionBuilder()
+                                        .setLabel("No")
+                                        .setValue("no"),
+                                ])
                         )
                 )
         );
@@ -158,6 +179,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         const content = submittedModal.fields.getTextInputValue("contentInput");
 
+        const allowMentions = submittedModal.fields.getStringSelectValues("allowMentionsSelect")[0] === "yes";
+
         const row = (
             <ActionRow>
                 <Button customId="confirm" style={ButtonStyle.Success}>
@@ -173,6 +196,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             response = await submittedModal.reply({
                 content: content,
                 components: [row],
+                allowedMentions: { parse: [] },
             });
         } catch (error) {
             Logger.error(`Failed to create the message preview: ${error}`);
@@ -190,7 +214,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             if (confirmation.customId === "confirm") {
                 let sent;
                 try {
-                    sent = await channelResolved.send({ content });
+                    sent = await channelResolved.send({ content, allowedMentions: allowMentions ? undefined : { parse: [] } });
                 } catch (error) {
                     Logger.error(`Failed to send the message: ${error}`);
                     return await confirmation.update({
@@ -205,6 +229,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                         guild: submittedModal.guild?.id ?? "1",
                         channel: channel.id,
                         discordid: sent.id,
+                        allowMentions,
                     },
                 });
 
@@ -274,6 +299,26 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                                 .setRequired(true)
                                 .setMaxLength(2000)
                                 .setValue(targetMessage.content)
+                        ),
+                    new LabelBuilder()
+                        .setLabel("Allow Mentions")
+                        .setStringSelectMenuComponent(
+                            new StringSelectMenuBuilder()
+                                .setCustomId("allowMentionsSelect")
+                                .setMaxValues(1)
+                                .setMinValues(1)
+                                .setRequired(true)
+                                .setPlaceholder("Should this message be allowed to ping users when sent?")
+                                .setOptions([
+                                    new StringSelectMenuOptionBuilder()
+                                        .setLabel("Yes")
+                                        .setValue("yes")
+                                        .setDefault(messageEntry.allowMentions),
+                                    new StringSelectMenuOptionBuilder()
+                                        .setLabel("No")
+                                        .setValue("no")
+                                        .setDefault(!messageEntry.allowMentions),
+                                ])
                         )
                 )
         );
@@ -298,6 +343,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const newContent =
             editSubmittedModal.fields.getTextInputValue("editContentInput");
 
+        const allowMentions = editSubmittedModal.fields.getStringSelectValues("allowMentionsSelect")[0] === "yes";
+
         const editRow = (
             <ActionRow>
                 <Button customId="confirmEdit" style={ButtonStyle.Success}>
@@ -314,6 +361,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             editResponse = await editSubmittedModal.reply({
                 content: newContent,
                 components: [editRow],
+                allowedMentions: { parse: [] },
             });
         } catch (error) {
             Logger.error(
@@ -331,7 +379,16 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             });
 
             if (editConfirmation.customId === "confirmEdit") {
-                await targetMessage.edit({ content: newContent });
+                await targetMessage.edit({ content: newContent, allowedMentions: allowMentions ? undefined : { parse: [] } });
+
+                await db.messages.update({
+                    where: { discordid: targetMessage.id },
+                    data: {
+                        content: newContent,
+                        allowMentions,
+                        sent: true
+                    }
+                })
 
                 await editConfirmation.update({
                     content: `:white_check_mark: Message edited successfully`,
