@@ -596,6 +596,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                 : MessageFlags.IsComponentsV2,
             components: [container],
             files: files,
+            allowedMentions: { parse: [] },
         });
     }
 };
