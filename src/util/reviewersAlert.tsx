@@ -43,9 +43,7 @@ interface HiddenReviewerActionInput {
 const hiddenReviewerStates = new Map<string, HiddenReviewerState>();
 
 export const isHiddenReviewer = (user: UserResolved | null | undefined) =>
-    user &&
-    (user.scopes ?? []).includes("submission_review_base") &&
-    !user.scopes?.includes("submission_review_full");
+    user && !(user.scopes ?? []).includes("submission_reviewer_visible");
 
 async function sendHiddenReviewerAlert(
     client: Client,
