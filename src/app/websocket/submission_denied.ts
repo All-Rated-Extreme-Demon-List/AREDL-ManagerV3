@@ -240,7 +240,9 @@ export default {
                         .addFields([
                             {
                                 name: "Denied by",
-                                value: reviewerDisplayValue,
+                                value: hiddenReviewer
+                                    ? "Hidden User"
+                                    : reviewerDisplayValue,
                             },
                             {
                                 name: "Reviewer notes",
