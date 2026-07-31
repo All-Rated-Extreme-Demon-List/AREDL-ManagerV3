@@ -3,8 +3,8 @@ import {
     staffGuildId,
     enableSeparateStaffServer,
     shiftsStartedID,
-} from "@/config";
-import { WebsocketShift } from "@/types/shift";
+} from "@/config.ts";
+import { WebsocketShift } from "@/types/shift.ts";
 import { Logger } from "commandkit";
 import { Client } from "discord.js";
 import { createTask } from "@commandkit/tasks";

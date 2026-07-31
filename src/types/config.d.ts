@@ -50,4 +50,7 @@ export interface BotConfig {
     noPingListRoleID: string;
     shadowStaffServerID: string;
     shadowStaffShiftsChannelID: string;
+    claimUntilNotificationWaitMinutes: number | undefined;
+    claimNotificationsExpirationMinutes: number;
+    staffChangelogChannelId: string;
 }

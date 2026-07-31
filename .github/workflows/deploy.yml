@@ -92,7 +92,10 @@ jobs:
                     "maxPoints": 30,
                     "noPingListRoleID": "${{ secrets.NO_PING_LIST_ROLE_ID }}",
                     "shadowStaffServerID": "${{ secrets.SHADOW_STAFF_SERVER_ID }}",
-                    "shadowStaffShiftsChannelID": "${{ secrets.SHADOW_STAFF_SHIFTS_CHANNEL_ID }}"
+                    "shadowStaffShiftsChannelID": "${{ secrets.SHADOW_STAFF_SHIFTS_CHANNEL_ID }}",
+                    "claimUntilNotificationWaitMinutes": 0.4,
+                    "claimNotificationsExpirationMinutes": 0.4,
+                    "staffChangelogChannelId": "${{ secrets.STAFF_CHANGELOG_CHANNEL_ID }}"
                   }
                   EOF
 

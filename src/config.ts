@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { BotConfig } from "./types/config";
+import type { BotConfig } from "./types/config.d.ts";
 
 const candidatePaths = [
     resolve(process.cwd(), "config.json"),
@@ -80,6 +80,9 @@ export const {
     maxPoints,
     shadowStaffServerID,
     shadowStaffShiftsChannelID,
+    claimUntilNotificationWaitMinutes,
+    claimNotificationsExpirationMinutes,
+    staffChangelogChannelId
 
 } = config;
 
