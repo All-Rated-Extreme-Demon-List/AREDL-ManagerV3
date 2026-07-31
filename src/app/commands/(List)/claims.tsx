@@ -175,6 +175,16 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         await interaction.deferReply();
         const level = interaction.options.getString("level", true);
 
+        const userHasClaims = (await db.changelogClaims.count({
+            where: { mod: interaction.user.id },
+        })) > 0;
+        
+        if (userHasClaims) {
+            return await interaction.editReply({
+                content: ":x: You may only have one claim at a time!",
+            });
+        }
+
         await db.changelogClaims.create({
             data: {
                 id: interaction.id,
@@ -235,6 +245,18 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const claimId = interaction.options.getString("claim", true);
         const mod = interaction.options.getUser("mod");
         const newName = interaction.options.getString("new-level");
+
+        if (mod) {
+            const userHasClaims = (await db.changelogClaims.count({
+                where: { mod: mod.id },
+            })) > 0;
+            
+            if (userHasClaims) {
+                return await interaction.editReply({
+                    content: ":x: The new user already has a claim!",
+                });
+            }
+        }
 
         await db.changelogClaims.update({
             where: { id: claimId },
