@@ -96,7 +96,7 @@ model weekly_missed_shifts {
 model changelogClaims {
   id String      @id // uses interaction id
   level String
-  mod String
+  mod String @unique
   notified Boolean @default(false)
   createdAt DateTime @default(now())
 }
