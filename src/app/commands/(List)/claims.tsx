@@ -5,14 +5,39 @@ import {
     ApplicationCommandOptionType,
     SeparatorSpacingSize,
     MessageFlags,
+    GuildMember,
 } from "discord.js";
 import { commandGuilds } from "@/util/commandGuilds.ts";
 import { db } from "@/db/prisma.ts";
 import {
     claimNotificationsExpirationMinutes,
     claimUntilNotificationWaitMinutes,
+    headModRoleId,
 } from "@/config.ts";
 import { createTask } from "@commandkit/tasks";
+
+const isClaimManager = (member: GuildMember): boolean =>
+    member.roles.cache.has(headModRoleId) ||
+    member.permissions.has("Administrator");
+
+const claimIsEditable = (
+    claim: { mod: string },
+    member: GuildMember
+): boolean => claim.mod === member.id || isClaimManager(member);
+
+const checkClaimExists = async (level: string): Promise<string | null> =>
+    (
+        await db.changelogClaims.findFirst({
+            where: {
+                level: {
+                    // case insensitive
+                    startsWith: level,
+                    endsWith: level,
+                },
+            },
+            select: { mod: true },
+        })
+    )?.mod ?? null;
 
 export const metadata = commandGuilds();
 
@@ -73,8 +98,7 @@ export const command: CommandData = {
         },
         {
             name: "delete",
-            description:
-                "Remove a claim from the claims list.",
+            description: "Remove a claim from the claims list.",
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -115,19 +139,20 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
                 },
             },
             take: 25,
-            orderBy: {
-                createdAt: "desc",
-            },
         });
 
         return await interaction.respond(
-            dbClaims.map((claim) => ({
-                name: claim.level,
-                value: claim.id,
-            }))
+            dbClaims
+                .sort(
+                    (c1, c2) => c1.createdAt.getTime() - c2.createdAt.getTime()
+                )
+                .map((claim) => ({
+                    name: claim.level,
+                    value: claim.id,
+                }))
         );
     } else if (focused.name === "claim") {
-        const isAdmin = interaction.memberPermissions?.has("Administrator");
+        const isAdmin = isClaimManager(interaction.member as GuildMember);
         if (isAdmin) {
             const dbClaims = await db.changelogClaims.findMany({
                 where: {
@@ -136,16 +161,18 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
                     },
                 },
                 take: 25,
-                orderBy: {
-                    createdAt: "desc",
-                },
             });
 
             return await interaction.respond(
-                dbClaims.map((claim) => ({
-                    name: claim.level,
-                    value: claim.id,
-                }))
+                dbClaims
+                    .sort(
+                        (c1, c2) =>
+                            c1.createdAt.getTime() - c2.createdAt.getTime()
+                    )
+                    .map((claim) => ({
+                        name: claim.level,
+                        value: claim.id,
+                    }))
             );
         } else {
             const dbClaims = await db.changelogClaims.findMany({
@@ -175,13 +202,22 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         await interaction.deferReply();
         const level = interaction.options.getString("level", true);
 
-        const userHasClaims = (await db.changelogClaims.count({
-            where: { mod: interaction.user.id },
-        })) > 0;
-        
+        const userHasClaims =
+            (await db.changelogClaims.count({
+                where: { mod: interaction.user.id },
+            })) > 0;
+
         if (userHasClaims) {
             return await interaction.editReply({
                 content: ":x: You may only have one claim at a time!",
+            });
+        }
+
+        const alreadyClaimedBy = await checkClaimExists(level);
+        if (alreadyClaimedBy) {
+            return await interaction.editReply({
+                content: `:x: This level has already been claimed by <@${alreadyClaimedBy}>!`,
+                allowedMentions: { parse: [] },
             });
         }
 
@@ -246,14 +282,38 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const mod = interaction.options.getUser("mod");
         const newName = interaction.options.getString("new-level");
 
+        const dbClaim = await db.changelogClaims.findUnique({
+            where: { id: claimId },
+        });
+        if (!dbClaim) {
+            return await interaction.editReply({
+                content: ":x: Claim not found.",
+            });
+        }
+        if (!claimIsEditable(dbClaim, interaction.member as GuildMember)) {
+            return await interaction.editReply({
+                content: ":x: You can only edit your own claims.",
+            });
+        }
+
         if (mod) {
-            const userHasClaims = (await db.changelogClaims.count({
-                where: { mod: mod.id },
-            })) > 0;
-            
+            const userHasClaims =
+                (await db.changelogClaims.count({
+                    where: { mod: mod.id },
+                })) > 0;
+
             if (userHasClaims) {
                 return await interaction.editReply({
                     content: ":x: The new user already has a claim!",
+                });
+            }
+        }
+        if (newName) {
+            const alreadyClaimedBy = await checkClaimExists(newName);
+            if (alreadyClaimedBy) {
+                return await interaction.editReply({
+                    content: `:x: This level has already been claimed by <@${alreadyClaimedBy}>!`,
+                    allowedMentions: { parse: [] },
                 });
             }
         }
@@ -270,6 +330,20 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     } else if (subcommand === "delete") {
         await interaction.deferReply();
         const claimId = interaction.options.getString("claim", true);
+
+        const claim = await db.changelogClaims.findUnique({
+            where: { id: claimId },
+        });
+        if (!claim) {
+            return await interaction.editReply({
+                content: ":x: Claim not found.",
+            });
+        }
+        if (!claimIsEditable(claim, interaction.member as GuildMember)) {
+            return await interaction.editReply({
+                content: ":x: You can only edit your own claims.",
+            });
+        }
 
         await db.changelogClaims.delete({
             where: { id: claimId },

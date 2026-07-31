@@ -95,7 +95,8 @@ jobs:
                     "shadowStaffShiftsChannelID": "${{ secrets.SHADOW_STAFF_SHIFTS_CHANNEL_ID }}",
                     "claimUntilNotificationWaitMinutes": 10,
                     "claimNotificationsExpirationMinutes": 10,
-                    "staffChangelogChannelId": "${{ secrets.STAFF_CHANGELOG_CHANNEL_ID }}"
+                    "staffChangelogChannelId": "${{ secrets.STAFF_CHANGELOG_CHANNEL_ID }}",
+                    "headModRoleId": "${{ secrets.HEAD_MOD_ROLE_ID }}"
                   }
                   EOF
 

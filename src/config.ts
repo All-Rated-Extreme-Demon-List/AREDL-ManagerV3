@@ -82,7 +82,8 @@ export const {
     shadowStaffShiftsChannelID,
     claimUntilNotificationWaitMinutes,
     claimNotificationsExpirationMinutes,
-    staffChangelogChannelId
+    staffChangelogChannelId,
+    headModRoleId
 
 } = config;
 

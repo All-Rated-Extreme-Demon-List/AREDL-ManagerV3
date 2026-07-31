@@ -53,4 +53,5 @@ export interface BotConfig {
     claimUntilNotificationWaitMinutes: number | undefined;
     claimNotificationsExpirationMinutes: number;
     staffChangelogChannelId: string;
+    headModRoleId: string;
 }
