@@ -47,7 +47,7 @@ export default task({
             }
 
             await channel.send(
-                `:warning: A changelog claim by for level \`${claim.level}\` has expired and is now up for grabs!`
+                `:warning: A changelog claim for level \`${claim.level}\` has expired and is now up for grabs!`
             );
 
             await db.changelogClaims.delete({

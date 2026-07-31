@@ -223,7 +223,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                     )
                     .addTextDisplayComponents(
                         new TextDisplayBuilder().setContent(
-                            `-# Claimed on ${claim.createdAt.toLocaleString()}`
+                            `-# Claimed on <t:${Math.floor(claim.createdAt.getTime() / 1000)}:f>`
                         )
                     ),
             ],
