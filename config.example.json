@@ -65,5 +65,9 @@
     "weeklyUpdatesChannelId": "",
     "filterByGuildMembers": true,
     "defaultPoints": 25,
-    "maxPoints": 30
+    "maxPoints": 30,
+
+    "claimUntilNotificationWaitMinutes": 10,
+    "claimNotificationsExpirationMinutes": 10,
+    "staffChangelogChannelId": "12345678"
 }

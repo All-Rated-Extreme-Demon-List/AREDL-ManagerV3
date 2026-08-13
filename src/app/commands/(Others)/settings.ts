@@ -1,7 +1,7 @@
-import { db } from "@/db/prisma";
+import { db } from "@/db/prisma.ts";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType } from "discord.js";
-import { commandGuilds } from "@/util/commandGuilds";
+import { commandGuilds } from "@/util/commandGuilds.ts";
 
 export const metadata = commandGuilds();
 

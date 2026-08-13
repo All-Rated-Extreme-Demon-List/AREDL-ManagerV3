@@ -6,18 +6,18 @@ import {
     enableSeparateStaffServer,
     shadowStaffServerID,
     shadowStaffShiftsChannelID,
-} from "@/config";
+} from "@/config.ts";
 import { Logger } from "commandkit";
-import { UserResolved } from "@/types/user";
-import { api } from "@/api";
-import { db } from "@/db/prisma";
+import { UserResolved } from "@/types/user.ts";
+import { api } from "@/api.ts";
+import { db } from "@/db/prisma.ts";
 import { task } from "@commandkit/tasks";
-import { WebsocketShift } from "@/types/shift";
-import { isHiddenReviewer } from "@/util/reviewersAlert";
+import { WebsocketShift } from "@/types/shift.ts";
+import { isHiddenReviewer } from "@/util/reviewersAlert.tsx";
 
 export const sendShiftNotif = async (shift: WebsocketShift) => {
     try {
-        const { default: client } = await import("@/app");
+        const { default: client } = await import("@/app.ts");
         const reviewerResponse = await api.send<UserResolved>(
             `/users/${shift.user_id}`,
             "GET"
