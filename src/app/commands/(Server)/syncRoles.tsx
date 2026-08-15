@@ -164,7 +164,7 @@ export const syncRoles = async (
         addRoles([opinionPermsRoleID]);
     }
     // AREDL+ role
-    if ((user?.scopes ?? []).includes("submissions_priority")) {
+    if ((user?.scopes ?? []).includes("submission_priority")) {
         addRoles([aredlPlusRoleID]);
     }
     // Creator role
