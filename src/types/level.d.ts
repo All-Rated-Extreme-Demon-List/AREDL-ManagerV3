@@ -5,7 +5,7 @@ import { NamedId } from "./api";
 export interface BaseLevel extends NamedId {
     level_id: number;
     two_player: boolean;
-    position: number;
+    position: number | null;
     points: number;
     legacy: boolean;
 }

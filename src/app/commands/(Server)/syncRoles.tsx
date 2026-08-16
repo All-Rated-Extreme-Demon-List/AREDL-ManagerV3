@@ -157,7 +157,10 @@ export const syncRoles = async (
     processRoleType(packRoleIDs, (req) => (profile?.packs?.length ?? 0) >= req);
     // Top level roles
     processRoleType(topLevelRoleIDs, (req) =>
-        profile?.records?.some((record) => record.level.position <= req)
+        (profile?.records ?? []).some(
+            (record) =>
+                record.level.position !== null && record.level.position <= req
+        )
     );
     // Opinion perms
     if ((profile?.rank?.extremes ?? 0) >= 10) {
@@ -197,10 +200,16 @@ export const syncRoles = async (
     }
 
     const hardestRank =
-        (profile?.records?.length ?? 0) > 0
-            ? profile.records.reduce((prev, curr) =>
-                  prev.level.position < curr.level.position ? prev : curr
-              ).level.position
+        (profile?.records?.filter((record) => record.level.position !== null)
+            .length ?? 0) > 0
+            ? profile.records
+                  .filter((record) => record.level.position !== null)
+                  .reduce((prev, curr) =>
+                      (prev.level.position ?? Number.POSITIVE_INFINITY) <
+                      (curr.level.position ?? Number.POSITIVE_INFINITY)
+                          ? prev
+                          : curr
+                  ).level.position
             : null;
 
     const container = (
