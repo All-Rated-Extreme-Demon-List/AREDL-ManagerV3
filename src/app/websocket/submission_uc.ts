@@ -57,9 +57,12 @@ export default {
         const submitter = submitterResponse.data;
         const reviewer = reviewerResponse?.data;
 
+        const levelPositionDisplay =
+            level.position !== null ? `#${level.position}` : "Pending";
+
         const archiveEmbed = new EmbedBuilder()
             .setColor(0xffff00)
-            .setTitle(`:hourglass: [#${level.position}] ${level.name}`)
+            .setTitle(`:hourglass: [${levelPositionDisplay}] ${level.name}`)
             .addFields([
                 {
                     name: "Record submitted by",
@@ -159,7 +162,9 @@ export default {
             embeds: [
                 new EmbedBuilder()
                     .setColor(0xffff00)
-                    .setTitle(`:hourglass: [#${level.position}] ${level.name}`)
+                    .setTitle(
+                        `:hourglass: [${levelPositionDisplay}] ${level.name}`
+                    )
                     .addFields([
                         {
                             name: "Submitted by",
@@ -196,7 +201,7 @@ export default {
             ],
         });
 
-        const threadName = `[UC] #${level.position} ${level.name} - ${submitter?.global_name ?? "Unknown"}`;
+        const threadName = `[UC] ${levelPositionDisplay} ${level.name} - ${submitter?.global_name ?? "Unknown"}`;
 
         const thread = await sentUCMessage.startThread({
             name:

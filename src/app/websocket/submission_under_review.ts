@@ -64,6 +64,9 @@ export default {
 
         const hiddenReviewer = isHiddenReviewer(reviewer);
 
+        const levelPositionDisplay =
+            level.position !== null ? `#${level.position}` : "Pending";
+
         await checkHiddenReviewerAction(client, reviewer, {
             submissionId: String(data.id),
             levelName: level.name,
@@ -74,7 +77,7 @@ export default {
 
         const archiveEmbed = new EmbedBuilder()
             .setColor(0x884bfa)
-            .setTitle(`:purple_circle: [#${level.position}] ${level.name}`)
+            .setTitle(`:purple_circle: [${levelPositionDisplay}] ${level.name}`)
             .addFields([
                 {
                     name: "Record submitted by",

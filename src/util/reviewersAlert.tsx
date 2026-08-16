@@ -21,7 +21,7 @@ interface HiddenReviewerAction {
     createdAt: number;
     isPlat: boolean;
     levelName: string;
-    levelPosition: number;
+    levelPosition: number | null;
     state: SubmissionStatus;
     submissionId: string;
 }
@@ -35,7 +35,7 @@ interface HiddenReviewerState {
 interface HiddenReviewerActionInput {
     isPlat: boolean;
     levelName: string;
-    levelPosition: number;
+    levelPosition: number | null;
     state: SubmissionStatus;
     submissionId: string;
 }

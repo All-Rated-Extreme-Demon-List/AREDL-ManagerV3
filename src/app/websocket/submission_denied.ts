@@ -75,9 +75,12 @@ export default {
             isPlat,
         });
 
+        const levelPositionDisplay =
+            level.position !== null ? `#${level.position}` : "Pending";
+
         const archiveEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(`:x: [#${level.position}] ${level.name}`)
+            .setTitle(`:x: [${levelPositionDisplay}] ${level.name}`)
             .addFields([
                 {
                     name: "Record submitted by",
@@ -143,7 +146,7 @@ export default {
         // Create embed to send in public channel
         const publicEmbed = new EmbedBuilder()
             .setColor(0xcc0000)
-            .setTitle(`:x: [#${level.position}] ${level.name}`)
+            .setTitle(`:x: [${levelPositionDisplay}] ${level.name}`)
             .setDescription(
                 "Denied\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800"
             )
@@ -227,7 +230,7 @@ export default {
                 Logger.error("UC thread not found or not valid.");
                 return;
             }
-            const baseName = `[Denied] #${level.position} ${level.name} - ${submitter.global_name}`;
+            const baseName = `[Denied] ${levelPositionDisplay} ${level.name} - ${submitter.global_name}`;
             await thread.setName(
                 baseName.length > 100 ? `${baseName.slice(0, 97)}...` : baseName
             );

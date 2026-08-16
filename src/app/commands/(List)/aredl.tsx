@@ -193,7 +193,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             );
         } else levelCreators = levelCreatorsRes.data;
 
-        const color = getColor(level.position);
+        const color = getColor(level.position ?? Number.POSITIVE_INFINITY);
 
         const container = new ContainerBuilder().setAccentColor(color);
 
