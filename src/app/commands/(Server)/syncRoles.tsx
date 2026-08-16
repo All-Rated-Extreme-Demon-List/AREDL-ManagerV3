@@ -12,6 +12,7 @@ import {
     topLevelRoleIDs,
     extremeGrinderRoleID,
     opinionPermsRoleID,
+    aredlPlusRoleID,
     creatorRoleID,
     verifierRoleID,
 } from "@/config";
@@ -23,7 +24,7 @@ import {
     Separator,
     TextDisplay,
 } from "commandkit";
-import { Profile } from "@/types/user";
+import { Profile, UserResolved } from "@/types/user";
 import { commandGuilds } from "@/util/commandGuilds";
 
 export const metadata = commandGuilds();
@@ -35,9 +36,12 @@ export const syncRoles = async (
     // do not stack if stack is explicitly set to "off", otherwise stack
     const shouldStack = interaction.options.getNumber("stack") !== 0;
 
-    const profileReq = await api.send<Profile>(
-        `/aredl/profile/${member.user.id}`
-    );
+    const [profileReq, areplReq, userReq] = await Promise.all([
+        api.send<Profile>(`/aredl/profile/${member.user.id}`),
+        api.send<Profile>(`/arepl/profile/${member.user.id}`),
+        api.send<UserResolved>(`/users/${member.user.id}`),
+    ]);
+
     if (profileReq.error) {
         if (profileReq.status === 404) {
             Logger.error(
@@ -55,9 +59,6 @@ export const syncRoles = async (
         );
     }
     const profile = profileReq.data;
-    const areplReq = await api.send<Profile>(
-        `/arepl/profile/${member.user.id}`
-    );
     if (areplReq.error) {
         if (areplReq.status === 404) {
             Logger.error(
@@ -75,6 +76,23 @@ export const syncRoles = async (
         );
     }
     const arepl = areplReq.data;
+    if (userReq.error) {
+        if (userReq.status === 404) {
+            Logger.error(
+                `Sync roles - User not found: ${userReq.data.message}`
+            );
+            return interaction.editReply(
+                `:x: Could not find this user on the API!`
+            );
+        }
+        Logger.error(
+            `Sync roles - Error fetching user: ${userReq.data.message}`
+        );
+        return interaction.editReply(
+            `Error fetching user: ${userReq.data.message}`
+        );
+    }
+    const user = userReq.data;
 
     const verifications = [
         ...(profile?.records ?? []),
@@ -92,6 +110,7 @@ export const syncRoles = async (
         ...Object.values(topLevelRoleIDs),
         extremeGrinderRoleID,
         opinionPermsRoleID,
+        aredlPlusRoleID,
         creatorRoleID,
         verifierRoleID,
     ];
@@ -144,6 +163,10 @@ export const syncRoles = async (
     if ((profile?.rank?.extremes ?? 0) >= 10) {
         addRoles([opinionPermsRoleID]);
     }
+    // AREDL+ role
+    if ((user?.scopes ?? []).includes("submission_priority")) {
+        addRoles([aredlPlusRoleID]);
+    }
     // Creator role
     if (
         (profile?.created?.length ?? 0) > 0 ||
@@ -175,11 +198,9 @@ export const syncRoles = async (
 
     const hardestRank =
         (profile?.records?.length ?? 0) > 0
-            ? profile.records
-                  .reduce((prev, curr) =>
-                      prev.level.position < curr.level.position ? prev : curr
-                  )
-                  .level.position
+            ? profile.records.reduce((prev, curr) =>
+                  prev.level.position < curr.level.position ? prev : curr
+              ).level.position
             : null;
 
     const container = (
@@ -188,7 +209,7 @@ export const syncRoles = async (
             <Separator spacing={SeparatorSpacingSize.Small} />
             <TextDisplay>## **Stats:**</TextDisplay>
             <TextDisplay>
-                {`Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? "None" : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ":white_check_mark:" : ":x:"}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ":white_check_mark:" : ":x:"}\nHardest: ${hardestRank === null ? 'None' : `#${hardestRank}`}`}
+                {`Profile: [${profile.global_name}](https://aredl.net/profile/user/${profile.id}) (${member})\nPoints: ${Math.round((profile?.rank?.total_points ?? 0) / 10)}\nPacks: ${(profile?.packs?.length ?? 0) === 0 ? "None" : profile.packs.length}\nExtremes: ${profile?.rank?.extremes ?? 0}\nVerifier: ${verifications.length > 0 ? ":white_check_mark:" : ":x:"}\nCreator: ${(profile?.created?.length ?? 0) > 0 || (arepl?.created?.length ?? 0) > 0 ? ":white_check_mark:" : ":x:"}\nHardest: ${hardestRank === null ? "None" : `#${hardestRank}`}`}
             </TextDisplay>
             <Separator spacing={SeparatorSpacingSize.Small} />
             <TextDisplay>## **Added roles:**</TextDisplay>

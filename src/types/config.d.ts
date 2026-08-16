@@ -29,6 +29,7 @@ export interface BotConfig {
     topLevelRoleIDs: RoleIdMap;
     extremeGrinderRoleID: string;
     opinionPermsRoleID: string;
+    aredlPlusRoleID: string;
     creatorRoleID: string;
     verifierRoleID: string;
     infoMessageUpdateSchedule: string;

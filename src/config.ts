@@ -59,6 +59,7 @@ export const {
     topLevelRoleIDs,
     extremeGrinderRoleID,
     opinionPermsRoleID,
+    aredlPlusRoleID,
     creatorRoleID,
     verifierRoleID,
     noPingListRoleID,
@@ -83,8 +84,7 @@ export const {
     claimUntilNotificationWaitMinutes,
     claimNotificationsExpirationMinutes,
     staffChangelogChannelId,
-    headModRoleId
-
+    headModRoleId,
 } = config;
 
 export default config;
