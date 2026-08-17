@@ -153,7 +153,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         }
 
         const mutualsRes = await api.send<MutualVictors>(
-            `/aredl/records/mutual-victors?level_id=${ID1}&other_level_id=${ID2}`
+            `/aredl/records/mutual-victors?level_id=${ID1}&other_level_id=${ID2}&high_extremes=${highExtremes}`
         );
 
         if (mutualsRes.error) {
