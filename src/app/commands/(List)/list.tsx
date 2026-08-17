@@ -16,10 +16,9 @@ import {
     TextDisplay,
 } from "commandkit";
 import { ExtendedLevel, Level } from "@/types/level";
-import { ProfileRecordExtended } from "@/types/record";
+import { MutualVictors, ProfileRecordExtended } from "@/types/record";
 import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
-import { PaginatedResponse } from "@/types/api";
 
 const processLevelName = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9_]/g, "_");
@@ -153,96 +152,33 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             });
         }
 
-        // Get level data (including level name)
-        const [lvl1res, lvl2res] = await Promise.all([
-            api.send<ExtendedLevel>(`/aredl/levels/${ID1}`),
-            api.send<ExtendedLevel>(`/aredl/levels/${ID2}`),
-        ]);
-
-        if (lvl1res.error || lvl2res.error) {
-            const container = (
-                <Container accentColor={0xff0000}>
-                    <TextDisplay>## :x: Error!</TextDisplay>
-                    <TextDisplay>
-                        {`Error fetching ${
-                            lvl1res.error && lvl2res.error
-                                ? "both levels"
-                                : lvl1res.error
-                                  ? "level 1"
-                                  : lvl2res.error
-                                    ? "level 2"
-                                    : "one of the levels"
-                        }!`}
-                    </TextDisplay>
-                </Container>
-            );
-            return await interaction.reply({
-                flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-                components: [container],
-            });
-        }
-
-        const [level1, level2] = [lvl1res.data, lvl2res.data];
-
-        // Get record data
-        const [lvl1RecordsRes, lvl2RecordsRes] = await Promise.all([
-            await api.send<PaginatedResponse<ProfileRecordExtended>>(
-                `/aredl/levels/${ID1}/records`,
-                "GET",
-                {
-                    high_extremes: highExtremes,
-                }
-            ),
-            await api.send<PaginatedResponse<ProfileRecordExtended>>(
-                `/aredl/levels/${ID2}/records`,
-                "GET",
-                {
-                    high_extremes: highExtremes,
-                }
-            ),
-        ]);
-
-        if (lvl1RecordsRes.error || lvl2RecordsRes.error) {
-            const container = (
-                <Container accentColor={0xff0000}>
-                    <TextDisplay>## :x: Error!</TextDisplay>
-                    <TextDisplay>
-                        {`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`}
-                    </TextDisplay>
-                    <TextDisplay>
-                        {`Error fetching records for ${
-                            lvl1RecordsRes.error && lvl2RecordsRes.error
-                                ? "both levels"
-                                : lvl1RecordsRes.error
-                                  ? "level 1"
-                                  : lvl2RecordsRes.error
-                                    ? "level 2"
-                                    : "one of the levels"
-                        }!`}
-                    </TextDisplay>
-                </Container>
-            );
-            return await interaction.reply({
-                flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-                components: [container],
-            });
-        }
-
-        const records1 = lvl1RecordsRes.data;
-        const records2 = lvl2RecordsRes.data;
-
-        const filteredRecords = records1.data.filter((rec) =>
-            records2.data.some(
-                (rec2) => rec2.submitted_by.id === rec.submitted_by.id
-            )
+        const mutualsRes = await api.send<MutualVictors>(
+            `/aredl/records/mutual-victors?level_id=${ID1}&other_level_id=${ID2}`
         );
 
-        if (filteredRecords.length == 0) {
+        if (mutualsRes.error) {
+            const container = (
+                <Container accentColor={0xff0000}>
+                    <TextDisplay>## :x: Error!</TextDisplay>
+                    <TextDisplay>
+                        {`Error fetching mutual victors data!`}
+                    </TextDisplay>
+                </Container>
+            );
+            return await interaction.reply({
+                flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+                components: [container],
+            });
+        }
+
+        const { level, other_level, mutuals } = mutualsRes.data;
+
+        if (mutuals.length == 0) {
             const container = (
                 <Container accentColor={0xff6f00}>
                     <TextDisplay>## Mutual victors</TextDisplay>
                     <TextDisplay>
-                        {`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`}
+                        {`**[${level.name}](https://aredl.net/list/${ID1})** vs **[${other_level.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`}
                     </TextDisplay>
                     <TextDisplay>
                         *There are no mutual victors on these levels.*
@@ -287,20 +223,20 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         }
 
         const victorsData = await Promise.all(
-            filteredRecords.map(async (rec) => {
-                const nplEntry = rec.submitted_by.discord_id
+            mutuals.map(async (victor) => {
+                const nplEntry = victor.discord_id
                     ? await db.noPingLists.findFirst({
-                          where: { userId: rec.submitted_by.discord_id },
+                          where: { userId: victor.discord_id },
                       })
                     : null;
 
-                const member = !rec.submitted_by.discord_id
+                const member = !victor.discord_id
                     ? undefined
-                    : members.get(rec.submitted_by.discord_id);
+                    : members.get(victor.discord_id);
                 return {
-                    username: `- ${rec.submitted_by.global_name}`,
-                    discordTag: rec.submitted_by.discord_id
-                        ? `<@${rec.submitted_by.discord_id}>`
+                    username: `- ${victor.global_name}`,
+                    discordTag: victor.discord_id
+                        ? `<@${victor.discord_id}>`
                         : undefined,
                     inServer: member ? true : false,
                     hasPerms: member
@@ -370,7 +306,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         // Discord message character limit (also account for other text on embed, limit is 4000)
         const tooLong = str.length > 3850;
 
-        const name = `mutual_victors_${processLevelName(level1.name)}_${processLevelName(level2.name)}.txt`;
+        const name = `mutual_victors_${processLevelName(level.name)}_${processLevelName(other_level.name)}.txt`;
         const attachment = new AttachmentBuilder(Buffer.from(str)).setName(
             name
         );
@@ -380,10 +316,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             <Container accentColor={0xff6f00}>
                 <TextDisplay>## Mutual victors</TextDisplay>
                 <TextDisplay>
-                    {`**[${level1.name}](https://aredl.net/list/${ID1})** vs **[${level2.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`}
+                    {`**[${level.name}](https://aredl.net/list/${ID1})** vs **[${other_level.name}](https://aredl.net/list/${ID2})**${highExtremes ? " (High Extremes)" : ""}`}
                 </TextDisplay>
                 <TextDisplay>
-                    {`*There ${filteredRecords.length === 1 ? "is 1 mutual victor" : `are ${filteredRecords.length} mutual victors`} on these levels.*`}
+                    {`*There ${mutuals.length === 1 ? "is 1 mutual victor" : `are ${mutuals.length} mutual victors`} on these levels.*`}
                 </TextDisplay>
                 <Separator spacing={SeparatorSpacingSize.Small} />
                 {!tooLong && <TextDisplay>{str}</TextDisplay>}

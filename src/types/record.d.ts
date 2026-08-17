@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "./api";
-import { BaseLevel, Level } from "./level";
+import { BaseLevel, ExtendedLevel, Level } from "./level";
 import { BaseUser, Clan, User } from "./user";
 
 type SubmissionStatus =
@@ -62,7 +62,7 @@ export interface Submission {
     raw_url?: string;
     mod_menu?: string;
     status: SubmissionStatus;
-    reviewer?: U;
+    reviewer?: User;
     private_reviewer_notes?: string;
     priority: boolean;
     reviewer_notes?: string;
@@ -93,4 +93,10 @@ export interface UnresolvedSubmission {
     priority_value: number;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface MutualVictors {
+    level: ExtendedLevel;
+    other_level: ExtendedLevel;
+    mutuals: User[];
 }
