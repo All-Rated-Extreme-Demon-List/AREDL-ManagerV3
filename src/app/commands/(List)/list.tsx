@@ -5,11 +5,7 @@ import {
     ApplicationCommandOptionType,
 } from "discord.js";
 import { api } from "../../../api";
-import {
-    opinionPermsRoleID,
-    extremeGrinderRoleID,
-    guildId,
-} from "@/config";
+import { opinionPermsRoleID, extremeGrinderRoleID, guildId } from "@/config";
 import {
     AutocompleteCommand,
     ChatInputCommand,
@@ -23,6 +19,7 @@ import { ExtendedLevel, Level } from "@/types/level";
 import { ProfileRecordExtended } from "@/types/record";
 import { db } from "@/db/prisma";
 import { commandGuilds } from "@/util/commandGuilds";
+import { PaginatedResponse } from "@/types/api";
 
 const processLevelName = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9_]/g, "_");
@@ -111,10 +108,18 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
     const levels = res.data;
     return await interaction.respond(
         await levels
-            .filter((level) =>
-                level.name.toLowerCase().includes(focused.toLowerCase()) || level.position == Number(focused.toLowerCase())
+            .filter(
+                (level) =>
+                    level.name.toLowerCase().includes(focused.toLowerCase()) ||
+                    level.position == Number(focused.toLowerCase())
             )
-            .sort((a, b) => (a.name.toLowerCase() === focused.toLowerCase() ? -1 : b.name.toLowerCase() === focused.toLowerCase() ? 1 : 0))
+            .sort((a, b) =>
+                a.name.toLowerCase() === focused.toLowerCase()
+                    ? -1
+                    : b.name.toLowerCase() === focused.toLowerCase()
+                      ? 1
+                      : 0
+            )
             .slice(0, 25)
             .map((level) => ({
                 name: `#${level.position} - ${level.name}`,
@@ -181,14 +186,14 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
         // Get record data
         const [lvl1RecordsRes, lvl2RecordsRes] = await Promise.all([
-            await api.send<ProfileRecordExtended[]>(
+            await api.send<PaginatedResponse<ProfileRecordExtended>>(
                 `/aredl/levels/${ID1}/records`,
                 "GET",
                 {
                     high_extremes: highExtremes,
                 }
             ),
-            await api.send<ProfileRecordExtended[]>(
+            await api.send<PaginatedResponse<ProfileRecordExtended>>(
                 `/aredl/levels/${ID2}/records`,
                 "GET",
                 {
@@ -226,8 +231,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const records1 = lvl1RecordsRes.data;
         const records2 = lvl2RecordsRes.data;
 
-        const filteredRecords = records1.filter((rec) =>
-            records2.some(
+        const filteredRecords = records1.data.filter((rec) =>
+            records2.data.some(
                 (rec2) => rec2.submitted_by.id === rec.submitted_by.id
             )
         );
