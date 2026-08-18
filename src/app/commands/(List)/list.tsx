@@ -63,35 +63,7 @@ export const command: CommandData = {
                     choices: [{ name: "Yes", value: 1 }],
                 },
             ],
-        },
-        {
-            name: "victors",
-            description: "Finds all victors that have beaten both levels",
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-                {
-                    name: "level",
-                    description: "The name of the level",
-                    autocomplete: true,
-                    required: true,
-                    type: ApplicationCommandOptionType.String,
-                },
-                {
-                    type: ApplicationCommandOptionType.Integer,
-                    name: "high-extremes",
-                    description:
-                        "Whether to only show players with 50+ extremes",
-                    choices: [{ name: "Yes", value: 1 }],
-                },
-                {
-                    type: ApplicationCommandOptionType.Integer,
-                    name: "showinchannel",
-                    description:
-                        "Whether to send the message in this channel instead of only showing it to you",
-                    choices: [{ name: "Yes", value: 1 }],
-                },
-            ],
-        },
+        }
     ],
 };
 
