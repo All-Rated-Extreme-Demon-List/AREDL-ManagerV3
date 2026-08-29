@@ -334,10 +334,15 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
                         ? err.rawError.code
                         : undefined);
                 if (code === 10008 || code === 10003) {
-                    Logger.warn("Scheduled - Info message no longer exists.");
+                    Logger.warn(
+                        `Scheduled - Info message no longer exists. Removing DB entry for channel ${entry.channel}, message ${entry.discordid}.`
+                    );
+                    await db.info_messages.delete({
+                        where: { discordid: entry.discordid },
+                    });
                 } else {
                     Logger.warn(
-                        `Scheduled - Could not fetch message to update. Error: ${err.message}`
+                        `Scheduled - Could not fetch message to update. Discord code: ${code ?? "unknown"}. Error: ${err.message}`
                     );
                 }
             } else {
@@ -346,9 +351,6 @@ export const updateInfoMessage = async (client: Client<boolean>) => {
                 );
             }
 
-            await db.info_messages.delete({
-                where: { discordid: entry.discordid },
-            });
             return null;
         }
     };
