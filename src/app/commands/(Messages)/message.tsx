@@ -124,9 +124,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             });
         }
 
+        const modalId = `messageContentModal:${interaction.id}`;
         await interaction.showModal(
             new ModalBuilder()
-                .setCustomId("messageContentModal")
+                .setCustomId(modalId)
                 .setTitle("Enter Message Content")
                 .addLabelComponents(
                     new LabelBuilder()
@@ -163,7 +164,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const submittedModal = await interaction
             .awaitModalSubmit({
                 filter: (i) =>
-                    i.customId === "messageContentModal" &&
+                    i.customId === modalId &&
                     i.user.id === interaction.user.id,
                 time: 60_000,
             })
@@ -285,9 +286,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             });
         }
 
+        const modalId = `editMessageModal:${interaction.id}`;
         await interaction.showModal(
             new ModalBuilder()
-                .setCustomId("editMessageModal")
+                .setCustomId(modalId)
                 .setTitle("Edit Message Content")
                 .addLabelComponents(
                     new LabelBuilder()
@@ -326,7 +328,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         const editSubmittedModal = await interaction
             .awaitModalSubmit({
                 filter: (i) =>
-                    i.customId === "editMessageModal" &&
+                    i.customId === modalId &&
                     i.user.id === interaction.user.id,
                 time: 60_000,
             })
@@ -352,6 +354,9 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                 </Button>
                 <Button customId="cancelEdit" style={ButtonStyle.Danger}>
                     Cancel Edit
+                </Button>
+                <Button style={ButtonStyle.Link} url={targetMessage.url}>
+                    View Target Message
                 </Button>
             </ActionRow>
         );
