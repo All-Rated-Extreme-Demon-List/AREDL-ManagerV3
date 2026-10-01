@@ -193,7 +193,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             allowedMentions: {
                 users: [
                     interaction.user.id,
-                    // ...lastMutuals.map((mutual) => mutual.discord_id!),
+                    ...lastMutuals.map((mutual) => mutual.discord_id!),
                 ],
             },
         });
@@ -255,8 +255,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         await pollMessage.reply({
             content: `<@${dbThread.tieBreakerId}> Welcome to the **${levelRes.data.name}** ${dbThread.type.toLowerCase()} suggestion thread. You have been selected as a tiebreaker. Do you agree with the suggestion above?`,
             allowedMentions: {
-                // users: [dbThread.tieBreakerId],
-                parse: [],
+                users: [dbThread.tieBreakerId],
             },
         });
 
