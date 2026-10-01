@@ -100,3 +100,14 @@ model changelogClaims {
   notified Boolean @default(false)
   createdAt DateTime @default(now())
 }
+
+enum SuggestionType {
+  Tags
+  Description
+}
+model suggestionThreads {
+  threadId String @id // uses discord thread id
+  type SuggestionType
+  levelId String 
+  tieBreakerId String?
+}
