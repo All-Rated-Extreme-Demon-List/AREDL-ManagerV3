@@ -136,7 +136,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             return await interaction.editReply(":x: AREDL server not found!");
         }
 
-        const members = await guild.members.fetch().catch(() => undefined);
+        const members = await guild.members.fetch().catch((e) => {
+            Logger.error("Error fetching guild members: " + e);
+            return undefined;
+        });
         if (!members) {
             return await interaction.editReply(
                 ":x: Guild member fetch failed, try again in a few minutes"
@@ -167,6 +170,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                 : filteredMutuals.slice(-2);
 
         const pings = lastMutuals
+            .toReversed()
             .map((mutual) => `<@${mutual.discord_id}>`)
             .join(" ");
 
@@ -259,8 +263,74 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             },
         });
 
-        await interaction.editReply(
-            ":white_check_mark: Tiebreaker has been notified."
+        const victorsRes = await api.send<MutualVictors>(
+            `/aredl/records/mutual-victors?level_id=${dbThread.levelId}&other_level_id=${dbThread.levelId}`
+        );
+        if (victorsRes.error) {
+            Logger.error(
+                `Error fetching victors for level ${dbThread.levelId}!`
+            );
+            Logger.error(`${victorsRes.status}: ${victorsRes.data.message}`);
+            return await interaction.editReply(
+                ":white_check_mark: Mentioned tiebreaker, but there was an error finding a new tiebreaker!"
+            );
+        }
+
+        const { mutuals } = victorsRes.data;
+
+        const guild = interaction.client.guilds.cache.get(guildId);
+        if (!guild) {
+            return await interaction.editReply(":x: AREDL server not found!");
+        }
+
+        const members = await guild.members.fetch().catch((e) => {
+            Logger.error("Error fetching guild members: " + e);
+            return undefined;
+        });
+        if (!members) {
+            return await interaction.editReply(
+                ":white_check_mark: Mentioned tiebreaker, but there was an error fetching server members to find new tiebreaker"
+            );
+        }
+
+        // Exclude mutuals who don't have a discord connected or are voluntarily on the no ping list
+        const filteredMutuals = mutuals.filter((mutual) => {
+            if (!mutual.discord_id) return false;
+            if (!members.has(mutual.discord_id)) return false;
+            return (
+                db.noPingLists.findUnique({
+                    where: { userId: mutual.discord_id, banned: false },
+                    select: { userId: true },
+                }) !== null
+            );
+        });
+
+        if (filteredMutuals.length === 0) {
+            return await interaction.editReply(
+                ":white_check_mark Tiebreaker has been notified. No other victors eligible to be a tiebreaker found."
+            );
+        }
+
+        const currentTiebreaker = filteredMutuals.findIndex((user) => user.discord_id === dbThread.tieBreakerId);
+        const newTiebreaker = filteredMutuals[currentTiebreaker - 1];
+        if (!newTiebreaker) {
+            return await interaction.editReply(
+                ":white_check_mark: Tiebreaker has been notified. No other victors eligible to be a tiebreaker found."
+            );
+        }
+
+        await db.suggestionThreads.update({
+            where: {
+                threadId: interaction.channelId,
+            },
+            data: {
+                tieBreakerId: newTiebreaker.discord_id!
+            }
+        })
+
+
+        return await interaction.editReply(
+            `:white_check_mark: Tiebreaker has been notified. New tiebreaker: <@${newTiebreaker.discord_id}>`
         );
     } else if (subcommand === "close-thread") {
         const dbThread = await db.suggestionThreads.findUnique({
